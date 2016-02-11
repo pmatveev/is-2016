@@ -1,0 +1,12 @@
+/workspace/Servers
+/workspace/Servers/*
+/workspace/.metadata
+/workspace/.metadata/*
+/workspace/RemoteSystemsTempFiles
+/workspace/RemoteSystemsTempFiles/*
+/workspace/Tracker/WebContent/META-INF
+/workspace/Tracker/WebContent/META-INF/*
+/workspace/Tracker/.project
+/workspace/Tracker/.classpath
+/workspace/Tracker/build
+/workspace/Tracker/.settings
