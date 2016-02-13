@@ -12,7 +12,8 @@ begin
 	  into ofcr
 	  from officer
 	 where username = p_user
-	   and passhash = p_pass;
+	   and passhash = p_pass
+	   and is_active = true;
 	   
 	if ofcr is not null then
 		set cookie = date_format(now(), '%y%m%d%H%i%s');

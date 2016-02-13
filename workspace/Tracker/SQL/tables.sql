@@ -2,6 +2,7 @@ create table officer (
 	id int(18) auto_increment primary key,
 	username varchar(32) not null,
 	unique index (username),
+	is_active bool not null default true,
 	passhash varchar(32) not null,
 	credentials varchar(256) not null
 );
