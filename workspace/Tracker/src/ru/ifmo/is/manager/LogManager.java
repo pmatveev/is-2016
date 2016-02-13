@@ -9,12 +9,29 @@ import javax.servlet.http.HttpServletRequest;
 
 import ru.ifmo.is.servlet.LoginServlet;
 import ru.ifmo.is.util.LogLevel;
+import ru.ifmo.is.util.Pair;
+import ru.ifmo.is.util.SQLParmKind;
 
 public class LogManager {
-	private static String[] strArr = new String[0];
+	public static synchronized void log(Exception e) {
+		log(LogLevel.EXCEPTION, e.getMessage(), LogLevel.EXCEPTION,
+				(Object[]) e.getStackTrace());
+	}
 
 	public static synchronized void log(LogLevel level, String action) {
 		log(level, action, LogLevel.NONE);
+	}
+
+	@SafeVarargs
+	public static synchronized void log(String sql,
+			Pair<SQLParmKind, Object>... attributes) {
+		Object[] attrs = new String[attributes.length];
+
+		for (int i = 0; i < attributes.length; i++) {
+			attrs[i] = attributes[i].toString();
+		}
+
+		log(LogLevel.SQL, sql, LogLevel.SQL_PARMS, attrs);
 	}
 
 	public static synchronized void log(String servlet,
@@ -47,20 +64,20 @@ public class LogManager {
 				msg.add("\t" + c.getName() + ": " + c.getValue());
 			}
 		}
-		
+
 		log(LogLevel.REQUEST, servlet, LogLevel.REQUEST_PARMS, msg);
 	}
 
 	public static synchronized void log(LogLevel level, String action,
 			LogLevel detailsLevel, AbstractCollection<String> details) {
-		log(level, action, detailsLevel, details.toArray(strArr));
+		log(level, action, detailsLevel, details.toArray());
 	}
 
 	public static synchronized void log(LogLevel level, String action,
-			LogLevel detailsLevel, String... details) {
+			LogLevel detailsLevel, Object... details) {
 		synchronized (System.out) {
 			System.out.println(action);
-			for (String s : details) {
+			for (Object s : details) {
 				System.out.println("\t" + s);
 			}
 			System.out.println();

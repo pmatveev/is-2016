@@ -3,19 +3,18 @@ package ru.ifmo.is.manager;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
 
-import javax.naming.NamingException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import ru.ifmo.is.db.ConnectionManager;
+import ru.ifmo.is.db.StatementExecutor;
 import ru.ifmo.is.servlet.LoginServlet;
 import ru.ifmo.is.util.Pair;
+import ru.ifmo.is.util.SQLParmKind;
 
 public class AuthenticationManager {
 	private String valueOf(byte b) {
@@ -73,17 +72,16 @@ public class AuthenticationManager {
 				hash += valueOf(b);
 			}
 
-			conn = new ConnectionManager().getConnection();
-			CallableStatement stmt = conn
-					.prepareCall("{? = call authenticate(?, ?, ?)}");
-			stmt.registerOutParameter(1, Types.VARCHAR);
-			stmt.setString(2, username);
-			stmt.setString(3, hash);
-			stmt.setString(4, ip);
-			stmt.execute();
-			token = stmt.getString(1);
+			token = (String) new StatementExecutor().call(
+					"? = call authenticate(?, ?, ?)",
+					new Pair<SQLParmKind, Object>(SQLParmKind.OUT_STRING,
+							Types.VARCHAR), new Pair<SQLParmKind, Object>(
+							SQLParmKind.IN_STRING, username),
+					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, hash),
+					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, ip))[0];
 		} catch (NoSuchAlgorithmException | UnsupportedEncodingException
-				| NamingException | SQLException e) {
+				| RuntimeException e) {
+			LogManager.log(e);
 			return "Verification module failed: " + e.getMessage();
 		} finally {
 			if (conn != null) {
@@ -135,28 +133,17 @@ public class AuthenticationManager {
 			return res;
 		}
 
-		Connection conn = null;
-		try {
-			conn = new ConnectionManager().getConnection();
-			CallableStatement stmt = conn
-					.prepareCall("{call verify_auth(?, ?, ?, ?)}");
-			stmt.setString(1, ip);
-			stmt.setString(2, token);
-			stmt.registerOutParameter(3, Types.VARCHAR);
-			stmt.registerOutParameter(4, Types.VARCHAR);
-			stmt.execute();
+		Object[] resTmp = new StatementExecutor().call(
+				"call verify_auth(?, ?, ?, ?)", new Pair<SQLParmKind, Object>(
+						SQLParmKind.IN_STRING, ip),
+				new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, token),
+				new Pair<SQLParmKind, Object>(SQLParmKind.OUT_STRING,
+						Types.VARCHAR), new Pair<SQLParmKind, Object>(
+						SQLParmKind.OUT_STRING, Types.VARCHAR));
 
-			res.first = stmt.getString(3);
-			res.second = stmt.getString(4);
-		} catch (NamingException | SQLException e) {
-			return res;
-		} finally {
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-				}
-			}
+		if (resTmp.length == 2) {
+			res.first = (String) resTmp[0];
+			res.second = (String) resTmp[1];
 		}
 
 		if (res.first == null) {
@@ -178,24 +165,9 @@ public class AuthenticationManager {
 			return;
 		}
 
-		Connection conn = null;
-		try {
-			conn = new ConnectionManager().getConnection();
-			CallableStatement stmt = conn
-					.prepareCall("{call close_auth(?, ?)}");
-			stmt.setString(1, ip);
-			stmt.setString(2, token);
-			stmt.execute();
-		} catch (NamingException | SQLException e) {
-			return;
-		} finally {
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-				}
-			}
-		}
+		new StatementExecutor().call("call close_auth(?, ?)",
+				new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, ip),
+				new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, token));
 
 		// clean cookie
 		Cookie c = new Cookie(LoginServlet.LOGIN_TOKEN_COOKIE, null);
