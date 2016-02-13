@@ -65,3 +65,16 @@ begin
 	end if;
 end;
 $$
+
+create procedure close_auth(
+	in p_conn varchar(32),
+	in p_token varchar(32)
+) 
+begin
+	update officer_session
+	   set date_to = now()
+	 where conn = p_conn
+	   and token = p_token
+	   and now() between date_from and date_to;
+end;
+$$

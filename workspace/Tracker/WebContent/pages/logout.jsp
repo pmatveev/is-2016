@@ -12,14 +12,15 @@
 <body>
 	<div class="header">
 		<%
-			Pair<String, String> user = new AuthenticationManager()
-					.verify(request, response);
+			Pair<String, String> user = new AuthenticationManager().verify(
+					request, response);
 			if (user.first == null) {
 				// not authenticated
 				response.sendRedirect("/Tracker" + LoginServlet.LOGIN_PAGE);
 			}
-			out.print("You are logged in as " + user.second);
 		%>
+		You are logged in as
+		<%=user.second%>. <a href="<%=LoginServlet.SERVLET_IDT%>?action=logout">Exit</a>
 	</div>
 	<hr />
 </body>

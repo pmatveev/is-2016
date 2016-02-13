@@ -9,9 +9,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import ru.ifmo.is.manager.AuthenticationManager;
+import ru.ifmo.is.manager.LogManager;
 
 @SuppressWarnings("serial")
 public class LoginServlet extends HttpServlet {
+	// servlet IDT
+	public static final String SERVLET_IDT = "/Tracker/login";
+
+	// pages
 	public static final String LOGIN_PAGE = "/pages/login.jsp";
 	public static final String INDEX_PAGE = "/pages/index.jsp";
 
@@ -21,9 +26,13 @@ public class LoginServlet extends HttpServlet {
 	// LOGIN
 	public static final String LOGIN_WEBSERVICE = "loginSubmit";
 
-	// in parameters
+	// in POST parameters
 	public static final String LOGIN_USERNAME_ATTR = "username";
 	public static final String LOGIN_PASSWORD_ATTR = "password";
+
+	// in GET parameters
+	public static final String ACTION = "action";
+	public static final String ACTION_LOGOUT = "logout";
 
 	// out parameters
 	public static final String LOGIN_ERR_ATTR = "loginErr";
@@ -34,14 +43,12 @@ public class LoginServlet extends HttpServlet {
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		LogManager.log("POST LoginServlet", request);
+
 		ServletContext context = getServletContext();
 
 		if (request.getParameter(LOGIN_WEBSERVICE) != null) {
-			AuthenticationManager auth = new AuthenticationManager();
-
-			String errMsg = auth.authenticate(
-					request.getParameter(LOGIN_USERNAME_ATTR),
-					request.getParameter(LOGIN_PASSWORD_ATTR), request,
+			String errMsg = new AuthenticationManager().authenticate(request,
 					response);
 
 			if (errMsg != null) {
@@ -54,12 +61,20 @@ public class LoginServlet extends HttpServlet {
 			}
 			return;
 		}
-		context.getRequestDispatcher(INDEX_PAGE).forward(request,
-				response);
+		context.getRequestDispatcher(INDEX_PAGE).forward(request, response);
 	}
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		LogManager.log("GET LoginServlet", request);
+
+		if (request.getParameter(ACTION).equals(ACTION_LOGOUT)) {
+			new AuthenticationManager().close(request, response);
+			getServletContext().getRequestDispatcher(LOGIN_PAGE).forward(
+					request, response);
+			return;
+		}
+
 		getServletContext().getRequestDispatcher(LOGIN_PAGE).forward(request,
 				response);
 	}

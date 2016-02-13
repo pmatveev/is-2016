@@ -49,8 +49,13 @@ public class AuthenticationManager {
 		return ip;
 	}
 
-	public String authenticate(String username, String password,
-			HttpServletRequest request, HttpServletResponse response) {
+	public String authenticate(HttpServletRequest request,
+			HttpServletResponse response) {
+		String username = request
+				.getParameter(LoginServlet.LOGIN_USERNAME_ATTR);
+		String password = request
+				.getParameter(LoginServlet.LOGIN_PASSWORD_ATTR);
+
 		if (username == null || password == null || username.length() == 0
 				|| password.length() == 0) {
 			return "Both login and password required";
@@ -103,15 +108,9 @@ public class AuthenticationManager {
 		return null;
 	}
 
-	public Pair<String, String> verify(HttpServletRequest request,
-			HttpServletResponse response) {
-		Pair<String, String> res = new Pair<String, String>();
-
-		String ip = getIP(request);
+	private String getToken(HttpServletRequest request) {
 		String token = (String) request
 				.getAttribute(LoginServlet.LOGIN_TOKEN_COOKIE);
-
-		System.out.println("Token v0: " + token);
 
 		if (token == null) {
 			if (request.getCookies() != null) {
@@ -122,12 +121,18 @@ public class AuthenticationManager {
 				}
 			}
 		}
+		return token;
+	}
 
-		System.out.println("Token: " + token);
-		System.out.println("IP: " + ip);
+	public Pair<String, String> verify(HttpServletRequest request,
+			HttpServletResponse response) {
+		Pair<String, String> res = new Pair<String, String>();
+
+		String ip = getIP(request);
+		String token = getToken(request);
 
 		if (token == null) {
-				return res;
+			return res;
 		}
 
 		Connection conn = null;
@@ -162,5 +167,39 @@ public class AuthenticationManager {
 		}
 
 		return res;
+	}
+
+	public void close(HttpServletRequest request, HttpServletResponse response) {
+		String ip = getIP(request);
+		String token = getToken(request);
+
+		if (token == null) {
+			// nothing to do
+			return;
+		}
+
+		Connection conn = null;
+		try {
+			conn = new ConnectionManager().getConnection();
+			CallableStatement stmt = conn
+					.prepareCall("{call close_auth(?, ?)}");
+			stmt.setString(1, ip);
+			stmt.setString(2, token);
+			stmt.execute();
+		} catch (NamingException | SQLException e) {
+			return;
+		} finally {
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+				}
+			}
+		}
+
+		// clean cookie
+		Cookie c = new Cookie(LoginServlet.LOGIN_TOKEN_COOKIE, null);
+		c.setMaxAge(0);
+		response.addCookie(c);
 	}
 }

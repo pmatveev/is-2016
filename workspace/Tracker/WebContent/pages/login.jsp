@@ -1,3 +1,5 @@
+<%@page import="ru.ifmo.is.manager.AuthenticationManager"%>
+<%@page import="ru.ifmo.is.util.Pair"%>
 <%@page import="ru.ifmo.is.servlet.LoginServlet"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
@@ -9,7 +11,15 @@
 <link rel='stylesheet' href='/Tracker/pages/default.css'></link>
 </head>
 <body>
-	<form action="/Tracker/login" method="post">
+	<%
+		// verify if already logged in -> then redirect to index.jsp
+		Pair<String, String> user = new AuthenticationManager()
+					.verify(request, response);
+		if (user.first != null) {
+			response.sendRedirect("/Tracker" + LoginServlet.INDEX_PAGE);
+		}
+	%>
+	<form action="<%=LoginServlet.SERVLET_IDT%>" method="post">
 		<table class="logintable">
 			<tr>
 				<td>Login</td>
@@ -28,13 +38,15 @@
 					class="button" /></td>
 			</tr>
 			<tr>
-				<td colspan="2" class="loginerr"> <%
- 	String error = (String) request
- 			.getAttribute(LoginServlet.LOGIN_ERR_ATTR);
- 	if (error != null) {
- 		out.print(error);
- 	}
- %></td>
+				<td colspan="2" class="loginerr">
+					<%
+						String error = (String) request
+								.getAttribute(LoginServlet.LOGIN_ERR_ATTR);
+						if (error != null) {
+							out.print(error);
+						}
+					%>
+				</td>
 			</tr>
 		</table>
 	</form>
