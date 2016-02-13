@@ -70,8 +70,7 @@ public class LoginServlet extends HttpServlet {
 
 		if (request.getParameter(ACTION).equals(ACTION_LOGOUT)) {
 			new AuthenticationManager().close(request, response);
-			getServletContext().getRequestDispatcher(LOGIN_PAGE).forward(
-					request, response);
+			response.sendRedirect("/Tracker" + LOGIN_PAGE);
 			return;
 		}
 
