@@ -40,7 +40,7 @@
 			<tr>
 				<td colspan="2" class="loginerr">
 					<%
-						String error = (String) request
+						String error = (String) request.getSession()
 								.getAttribute(LoginServlet.LOGIN_ERR_ATTR);
 						if (error != null) {
 							out.print(error);

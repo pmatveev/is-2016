@@ -58,6 +58,14 @@ public class LogManager {
 			msg.add("\t" + attr + ": " + request.getAttribute(attr));
 		}
 
+		names = request.getSession().getAttributeNames();
+
+		msg.add("SESSION ATTRIBUTES");
+		while (names.hasMoreElements()) {
+			String attr = names.nextElement();
+			msg.add("\t" + attr + ": " + request.getSession().getAttribute(attr));
+		}		
+		
 		msg.add("COOKIES");
 		if (request.getCookies() != null) {
 			for (Cookie c : request.getCookies()) {

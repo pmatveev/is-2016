@@ -2,7 +2,6 @@ package ru.ifmo.is.servlet;
 
 import java.io.IOException;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -45,23 +44,22 @@ public class LoginServlet extends HttpServlet {
 			throws ServletException, IOException {
 		LogManager.log("POST LoginServlet", request);
 
-		ServletContext context = getServletContext();
+//		ServletContext context = getServletContext();
 
 		if (request.getParameter(LOGIN_WEBSERVICE) != null) {
 			String errMsg = new AuthenticationManager().authenticate(request,
 					response);
 
 			if (errMsg != null) {
-				request.setAttribute(LOGIN_ERR_ATTR, errMsg);
-				context.getRequestDispatcher(LOGIN_PAGE).forward(request,
-						response);
+				request.getSession().setAttribute(LOGIN_ERR_ATTR, errMsg);
+				response.sendRedirect("/Tracker" + LOGIN_PAGE);				
 			} else {
-				context.getRequestDispatcher(INDEX_PAGE).forward(request,
-						response);
+				request.getSession().removeAttribute(LOGIN_ERR_ATTR);
+				response.sendRedirect("/Tracker" + INDEX_PAGE);				
 			}
 			return;
 		}
-		context.getRequestDispatcher(INDEX_PAGE).forward(request, response);
+		response.sendRedirect("/Tracker" + INDEX_PAGE);	
 	}
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -74,7 +72,6 @@ public class LoginServlet extends HttpServlet {
 			return;
 		}
 
-		getServletContext().getRequestDispatcher(LOGIN_PAGE).forward(request,
-				response);
+		response.sendRedirect("/Tracker" + LOGIN_PAGE);	
 	}
 }
