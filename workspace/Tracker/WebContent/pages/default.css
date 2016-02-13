@@ -1,48 +1,59 @@
-.table
-{
-	border-style:				solid;
-	border-width:				1px;
-	margin-left:				5px;
-	margin-top:					5px;
-	margin-bottom:				5px;
-	background-color:			rgb(255, 255, 255);
-	color:						rgb(0, 0, 0);	
-	border-color:				rgb(0, 0, 0);
-	border-collapse: 			collapse;
+.table {
+	border-style: solid;
+	border-width: 1px;
+	margin-left: 5px;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	background-color: rgb(255, 255, 255);
+	color: rgb(0, 0, 0);
+	border-color: rgb(0, 0, 0);
+	border-collapse: collapse;
 }
 
-.tableCell
-{
-	border-style:				solid;
-	border-width:				1px;
-	border-color:				rgb(0, 0, 0);
-	padding:					3px;
+.tableCell {
+	border-style: solid;
+	border-width: 1px;
+	border-color: rgb(0, 0, 0);
+	padding: 3px;
 }
 
-.button, .disabledButton
-{
-	border-style:				solid;
-	border-width:				1px;
-	margin-left:				5px;
-	margin-top:					5px;
-	margin-bottom:				5px;
-	background-color:			rgb(255, 255, 255);
-	color:						rgb(255, 0, 0);
-	border-color:				rgb(255, 0, 0);	
+.logintable {
+	margin: auto;
+	margin-top: 20%;
+	width: 300px;
 }
 
-.disabledButton
-{
-	background-color:			rgb(255, 255, 255);
-	color:						rgb(127, 127, 127);
-	border-color:				rgb(127, 127, 127);	
-	width:						120px;
+.header {
+	text-align: right;
+	margin-right: 10px;
 }
 
-.button
-{
-	background-color:			rgb(255, 255, 255);
-	color:						rgb(0, 0, 255);
-	border-color:				rgb(0, 0, 255);	
-	width:						120px;
+.loginerr,.input,.button,.disabledButton {
+	margin-left: 5px;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	margin-right: 5px;
+}
+
+.loginerr {
+	text-align: center;
+	color: rgb(255, 0, 0);
+}
+
+.input,.button,.disabledButton {
+	border-style: solid;
+	border-width: 1px;
+	width: 100%;
+}
+
+.disabledButton {
+	background-color: rgb(255, 255, 255);
+	color: rgb(127, 127, 127);
+	border-color: rgb(127, 127, 127);
+}
+
+.button {
+	background-color: rgb(255, 255, 255);
+	color: rgb(0, 0, 255);
+	border-color: rgb(0, 0, 255);
 }

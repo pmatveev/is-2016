@@ -1,4 +1,4 @@
-package ru.ifmo.is;
+package ru.ifmo.is.servlet;
 
 import java.io.IOException;
 
@@ -7,6 +7,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import ru.ifmo.is.manager.AuthenticationManager;
 
 @SuppressWarnings("serial")
 public class LoginServlet extends HttpServlet {
@@ -26,14 +28,24 @@ public class LoginServlet extends HttpServlet {
 	// out parameters
 	public static final String LOGIN_ERR_ATTR = "loginErr";
 
+	// cookies
+	public static final String LOGIN_TOKEN_COOKIE = "PATHFINDER_USER_TOKEN";
+	public static final int LOGIN_COOKIE_EXPIRE = 86400;
+
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		ServletContext context = getServletContext();
-		String username = null;
 
 		if (request.getParameter(LOGIN_WEBSERVICE) != null) {
-			username = verifyLogin(request, response);
-			if (username == null) {
+			AuthenticationManager auth = new AuthenticationManager();
+
+			String errMsg = auth.authenticate(
+					request.getParameter(LOGIN_USERNAME_ATTR),
+					request.getParameter(LOGIN_PASSWORD_ATTR), request,
+					response);
+
+			if (errMsg != null) {
+				request.setAttribute(LOGIN_ERR_ATTR, errMsg);
 				context.getRequestDispatcher(LOGIN_PAGE).forward(request,
 						response);
 			} else {
@@ -42,20 +54,13 @@ public class LoginServlet extends HttpServlet {
 			}
 			return;
 		}
+		context.getRequestDispatcher(INDEX_PAGE).forward(request,
+				response);
 	}
 
-	private String verifyLogin(HttpServletRequest request,
-			HttpServletResponse response) {
-		String username = request.getParameter(LOGIN_USERNAME_ATTR);
-		String password = request.getParameter(LOGIN_PASSWORD_ATTR);
-
-		if (username == null || password == null || username.length() == 0
-				|| password.length() == 0) {
-			request.setAttribute(LOGIN_ERR_ATTR, "Login and password required");
-			return null;
-		}
-
-		request.setAttribute(AUTH_USERNAME_ATTR, username);
-		return username;
+	public void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		getServletContext().getRequestDispatcher(LOGIN_PAGE).forward(request,
+				response);
 	}
 }
