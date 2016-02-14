@@ -54,7 +54,7 @@ public class LoginServlet extends HttpServlet {
 				request.getSession().setAttribute(LOGIN_ERR_ATTR, errMsg);
 				response.sendRedirect("/Tracker" + LOGIN_PAGE);				
 			} else {
-				request.getSession().removeAttribute(LOGIN_ERR_ATTR);
+//				request.getSession().removeAttribute(LOGIN_ERR_ATTR);
 				response.sendRedirect("/Tracker" + INDEX_PAGE);				
 			}
 			return;

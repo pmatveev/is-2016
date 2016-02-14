@@ -7,7 +7,6 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Insert title here</title>
 </head>
 <body>
 	<div class="header">
@@ -20,7 +19,7 @@
 			}
 		%>
 		You are logged in as
-		<%=user.second%>. <a href="<%=LoginServlet.SERVLET_IDT%>?action=logout">Exit</a>
+		<%=user.second%>. <a href="<%=LoginServlet.SERVLET_IDT%>?action=logout">Logout</a>
 	</div>
 	<hr />
 </body>
