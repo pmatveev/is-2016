@@ -81,3 +81,72 @@ h4 {
 	color: rgb(0, 0, 255);
 	border-color: rgb(0, 0, 255);
 }
+#issueID {
+	font-size: 18pt;
+	margin-left: 15px;
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
+#issueName {
+	font-size: 26pt;
+	margin-left: 15px;
+	margin-top: 15px;
+	margin-bottom: 0px;
+}
+.issueHeader {
+	font-size: 18px;
+	font-style: bold;
+	margin-bottom: 0px;
+	margin-left: 15px;
+}
+#briefInfoTable {
+	font-size: 12pt;
+	margin-left: 40px;
+	margin-top: 10px;
+	margin-bottom: 0px;
+	border: 0px;
+}
+.widthTd {
+	width: 150px;
+}
+#issueBriefInfo {
+	float: left;
+	background-color: rgb(245,243,243);
+	width: 585px;
+	margin-bottom: 15px;
+	margin-left: 15px; 
+}
+.issueDescription {
+	width: 585px;
+	max-width: 600px;
+	overflow-y: scroll;
+	border: 1px solid black;
+	margin-top: 15px;
+	height: 130px;
+	margin-left: 15px;
+	margin-bottom: 15px; 
+}
+#noResolution {
+	margin-left: 15px;
+	margin-top: 15px; 
+}
+#linkToEdit {
+	margin-left: 0px;
+	margin-top: 0px;
+	margin-bottom: 0px;
+	margin-right: 0px;
+	width: 600px;
+}
+#briefInformation {
+	font-size: 18px;
+	font-style: bold;
+	margin-bottom: 0px;
+	margin-left: 0px;
+}
+#divComments {
+	float: left;
+	margin-left: 70px;
+}
+.clear {
+	clear: left;
+}
