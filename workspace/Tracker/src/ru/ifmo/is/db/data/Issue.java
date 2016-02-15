@@ -9,15 +9,15 @@ public class Issue extends DataClass {
 	
 	public int id;
 	public String idt;
-	public int creator;
+	public String creator;
 	public String creatorDisplay;
-	public int assignee;
+	public String assignee;
 	public String assigneeDisplay;
-	public int kind;
+	public String kind;
 	public String kindDisplay;
-	public int status;
+	public String status;
 	public String statusDisplay;
-	public int project;
+	public String project;
 	public String projectDisplay;
 	public Date dateCreated;
 	public Date dateUpdated;
@@ -28,15 +28,15 @@ public class Issue extends DataClass {
 	public Issue(
 			int id,
 			String idt,
-			int creator,
+			String creator,
 			String creatorDisplay,
-			int assignee,
+			String assignee,
 			String assigneeDisplay,
-			int kind,
+			String kind,
 			String kindDisplay,
-			int status,
+			String status,
 			String statusDisplay,
-			int project,
+			String project,
 			String projectDisplay,
 			Date dateCreated,
 			Date dateUpdated,

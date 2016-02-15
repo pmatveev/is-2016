@@ -13,19 +13,23 @@
 <body>
 	<%
 		// verify if already logged in -> then redirect to index.jsp
-			Pair<String, String> user = new AuthenticationManager()
-		.verify(request, response);
-			if (user.first != null) {
-		response.sendRedirect("/Tracker" + LoginServlet.INDEX_PAGE);
-			}
+		Pair<String, String> user = new AuthenticationManager()
+			.verify(request, response);
+		if (user.first != null) {
+			response.sendRedirect("/Tracker" + LoginServlet.INDEX_PAGE);
+		}
 	%>
 	<script>
 		function validate() {
-			if (document.loginform.<%=LoginServlet.LOGIN_USERNAME_ATTR%>.value == "") {
+			if (document.loginform.
+	<%=LoginServlet.LOGIN_USERNAME_ATTR%>
+		.value == "") {
 				document.getElementById("loginErr").innerText = "Username required";
 				return false;
 			}
-			if (document.loginform.<%=LoginServlet.LOGIN_PASSWORD_ATTR%>.value == "") {
+			if (document.loginform.
+	<%=LoginServlet.LOGIN_PASSWORD_ATTR%>
+		.value == "") {
 				document.getElementById("loginErr").innerText = "Password required";
 				return false;
 			}
@@ -56,14 +60,14 @@
 			</tr>
 			<tr>
 				<td colspan="2" class="loginerr" id="loginErr">
-						<%
-							String error = (String) request.getSession().getAttribute(
-									LoginServlet.LOGIN_ERR_ATTR);
-							request.getSession().removeAttribute(LoginServlet.LOGIN_ERR_ATTR);
-							if (error != null) {
-								out.print(error);
-							}
-						%>
+					<%
+						String error = (String) request.getSession().getAttribute(
+								LoginServlet.LOGIN_ERR_ATTR);
+						request.getSession().removeAttribute(LoginServlet.LOGIN_ERR_ATTR);
+						if (error != null) {
+							out.print(error);
+						}
+					%>
 				</td>
 			</tr>
 		</table>

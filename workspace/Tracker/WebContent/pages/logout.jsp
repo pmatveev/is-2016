@@ -19,7 +19,8 @@
 			}
 		%>
 		You are logged in as
-		<%=user.second%>. <a href="<%=LoginServlet.SERVLET_IDT%>?action=logout">Logout</a>
+		<%=user.second%>. <a
+			href="<%=LoginServlet.SERVLET_IDT%>?action=logout">Logout</a>
 	</div>
 	<hr />
 </body>
