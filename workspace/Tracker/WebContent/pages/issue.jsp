@@ -36,7 +36,7 @@
 				new Date(115, 11, 23, 16, 7, 46),
 				new Date(116, 1, 13, 11, 48, 1),
 				"Please verify issue details page",
-				"Here we have multiline description. <br/>"
+				"Here we have multiline description. \n"
 						+ "We expect it to work fine. Please verify, wouldn't you? Really appreciate it.",
 				null);
 
@@ -127,7 +127,7 @@
 			<h1 class="issueHeader">Description</h1>
 		</div>
 		<div class="issueDescription">
-			<%=issue.description%>
+			<%=issue.description.replaceAll("\n", "<br/>")%>
 		</div>
 		<%
 			if (issue.resolution != null) {
@@ -136,7 +136,7 @@
 			<h1 class="issueHeader">Resolution</h1>
 		</div>
 		<div class="issueDescription">
-			<%=issue.resolution%>
+			<%=issue.resolution.replaceAll("\n", "<br/>")%>
 		</div>
 		<%
 			}
