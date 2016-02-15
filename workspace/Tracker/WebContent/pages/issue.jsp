@@ -98,11 +98,6 @@
 		 </table>
 		</div>
 		<div id="divComments">
-			<% int i=0;
-			while (i != comments.length - 1)
-			{%>
-				i++;
-			<% } %>
 		</div>
 		<div class="clear">
 			<h1 class="issueHeader">Description</h1>
