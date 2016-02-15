@@ -45,7 +45,7 @@
 			<tr>
 				<td>Login</td>
 				<td><input type="text"
-					name="<%=LoginServlet.LOGIN_USERNAME_ATTR%>" class="input" /></td>
+					name="<%=LoginServlet.LOGIN_USERNAME_ATTR%>" autofocus class="input" /></td>
 			</tr>
 			<tr>
 				<td>Password</td>
