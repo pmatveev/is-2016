@@ -2,17 +2,15 @@
 <%@page import="java.util.Calendar"%>
 <%@page import="java.util.Date"%>
 <%@page import="ru.ifmo.is.db.data.Issue"%>
+<%@page import="ru.ifmo.is.db.data.Comment"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <%
 	LogManager.log("GET issue.jsp", request);
-
 	String issueKey = (String) request
 			.getParameter(Issue.ISSUE_KEY_PARM);
-
 	Issue issue = null;
-
 	// here to retrieve issue detailed information
 	if ("SANDBOX-412".equals(issueKey)) {
 		issue = new Issue(
@@ -35,6 +33,17 @@
 						+ "We expect it to work fine. Please verify, wouldn't you? Really appreciate it.",
 				null);
 	}
+	Comment[] comments = new Comment[3];
+	for (int i=0;i!=2;i++)
+	{
+		comments[i] = new Comment(
+				i,
+				1,
+				"Test admin",
+				new Date(2016,1,15,14,34,5),
+				"comment" + Integer.toString(i)
+				);
+	}
 %>
 <html>
 <head>
@@ -56,13 +65,61 @@
 	<%
 		} else {
 	%>
-	<div class="margin15px">
-		<%=issue.projectDisplay%> / <%=issue.idt%>
-		<h1><%=issue.summary%></h1>
-		<h4>Description</h4>
-		<div class="margin5px">
+	<div>
+		<p id="issueName">Issue "<%=issue.idt%>" </p>
+		<p id="issueID">ID: <%=issue.id%></p>
+	</div>
+	<hr>
+	<div>
+		<div align="right" id="linkToEdit">
+			<a href="">Edit</a> <!-- link to create.jsp -->
+		</div>
+		<div id="issueBriefInfo">
+		<h1 id="briefInformation">Brief information</h1>
+		 <table id="briefInfoTable">
+		  <tr class="widthTr">
+		  	<td class="widthTd">Issue kind:</td> <td><%=issue.kindDisplay%></td>
+		  </tr>
+		  <tr>
+		  	<td class="widthTd">Status:</td> <td><%=issue.statusDisplay%></td>
+		  </tr>
+		  <tr>
+		  	<td class="widthTd">Reporter:</td> <td><%=issue.creatorDisplay%></td>
+		  </tr>
+		  <tr>
+		  	<td class="widthTd">Assignee:</td> <td><%=issue.assigneeDisplay%></td>
+		  </tr>
+		  <tr>
+		  	<td class="widthTd">Date of created:</td> <td><%=issue.dateCreated%></td>
+		  </tr>
+		  <tr>
+		  	<td class="widthTd">Last updated:</td> <td><%=issue.dateUpdated%></td>
+		  </tr>
+		 </table>
+		</div>
+		<div id="divComments">
+			<% int i=0;
+			while (i != comments.length - 1)
+			{%>
+				i++;
+			<% } %>
+		</div>
+		<div class="clear">
+			<h1 class="issueHeader">Description</h1>
+		</div>
+		<div class="issueDescription">
 			<%=issue.description%>
 		</div>
+		<div class="clear">
+			<h1 class="issueHeader">Resolution</h1>
+		</div>
+		<%if (issue.resolution == null) {%>
+		<div id="noResolution"> There is no resolution </div>
+		<%} else { %>
+		<div class="issueDescription">
+			<%=issue.resolution%>
+		</div>
+	<% } %>
 	</div>
 	<%
 		}
