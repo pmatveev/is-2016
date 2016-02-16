@@ -33,12 +33,13 @@
 						+ "We expect it to work fine. Please verify, wouldn't you? Really appreciate it.",
 				null);
 		issue.resolution = "Resolution";
-
+		
 		comments = new Comment[3];
 		for (int i = 0; i < 3; i++) {
-			comments[i] = new Comment(i, "admin", "Test admin", new Date(116, 1, 15, 14, 34, 5),
+			comments[i] = new Comment(i, issue.id,"admin", "Test admin", new Date(116, 1, 15, 14, 34, 5),
 					"comment #" + Integer.toString(i));
 		}
+	
 
 		statusTransitions = new IssueStatusTransition[4];
 		statusTransitions[0] = new IssueStatusTransition(1, "EDIT_SANDBOX", "Edit sandbox", "SANDBOX",
@@ -195,7 +196,29 @@
 			</div>
 		</div>
 		<hr>
-		<div></div>
+		<div class="commentScroll">
+			<% 
+			if (comments != null)
+			{
+				int i = 0;
+				while(i < comments.length) { 
+				%>
+				<table class="commentTable">
+					<tr>
+						<td class="commentTableAuthor">Author: <%=comments[i].authorDisplay%></td>
+						<td class="commentTableDate"><%=dateFormat.format(comments[i].dateCreated)%></td>
+					</tr>
+						<td class="commentTableText"><%=comments[i].text%></td>
+					<tr>
+					</tr>
+				</table>
+				<hr>
+				<%
+				i++;
+				}
+			}
+			%>
+		</div>
 	</div>
 	<%
 		}
