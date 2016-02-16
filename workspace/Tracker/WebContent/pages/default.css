@@ -203,3 +203,24 @@ h4 {
 	width: 51.5%;
 	margin-left: 1.5%;
 }
+.commentTable {
+	width: 100%;
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+.commentTableAuthor {
+	width: 50%;
+	font-weight: bold;
+}
+.commentTableDate {
+	width: 50%;
+	text-align: right;
+	font-style: italic;
+}
+.commentTableText {
+	padding-top: 15px;
+}
+.commentScroll {
+	overflow-y: scroll;
+	height: 50%;
+}
