@@ -74,9 +74,8 @@ public class AuthenticationManager {
 
 			token = (String) new StatementExecutor().call(
 					"? = call authenticate(?, ?, ?)",
-					new Pair<SQLParmKind, Object>(SQLParmKind.OUT_STRING,
-							Types.VARCHAR), new Pair<SQLParmKind, Object>(
-							SQLParmKind.IN_STRING, username),
+					new Pair<SQLParmKind, Object>(SQLParmKind.OUT_STRING, Types.VARCHAR), 
+					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, username),
 					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, hash),
 					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, ip))[0];
 		} catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {

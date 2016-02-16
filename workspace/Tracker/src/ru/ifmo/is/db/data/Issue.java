@@ -4,9 +4,7 @@ import java.util.Date;
 
 import ru.ifmo.is.db.DataClass;
 
-public class Issue extends DataClass {
-	public static final String ISSUE_KEY_PARM = "issue";
-	
+public class Issue extends DataClass {	
 	public int id;
 	public String idt;
 	public String creator;

@@ -4,13 +4,14 @@ import ru.ifmo.is.db.DataClass;
 
 public class IssueStatus extends DataClass {
 	public int id;
-	public String name;
 	public String code;
+	public String name;
 	
 	public IssueStatus (
 			int id,
-			String name,
-			String code) {
+			String code,
+			String name
+			) {
 		this.id = id;
 		this.name = name;
 		this.code = code;
