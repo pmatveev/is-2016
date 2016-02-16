@@ -64,9 +64,13 @@ h4 {
 	color: rgb(255, 0, 0);
 }
 
-.input,.button,.disabledButton {
+.input,.button,.disabledButton,.buttonFixed {
 	border-style: solid;
 	border-width: 1px;
+	
+}
+
+.input,.button,.disabledButton {
 	width: 100%;
 }
 
@@ -76,76 +80,126 @@ h4 {
 	border-color: rgb(127, 127, 127);
 }
 
-.button {
+.button, .buttonFixed {
 	background-color: rgb(255, 255, 255);
 	color: rgb(0, 0, 255);
 	border-color: rgb(0, 0, 255);
 }
-#issueID {
-	font-size: 18pt;
-	margin-left: 15px;
+
+.buttonFixed {
+	width: 120px;
+}
+
+.selectNoBorder {
+	color: black;
+	margin-left: 0px;
+	margin-bottom: 0px;
+	background: transparent;
+	-webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border: none;
+}
+
+.optionNoBorder {
+	margin-left: 0px;
+	margin-bottom: 0px;
+	background: transparent;
+}
+.issueName {
+	float: left;
+	font-size: 24pt;
+	margin-left: 1.5%;
 	margin-top: 0px;
 	margin-bottom: 0px;
-}
-#issueName {
-	font-size: 26pt;
-	margin-left: 15px;
-	margin-top: 15px;
-	margin-bottom: 0px;
+	width: 43%;
 }
 .issueHeader {
-	font-size: 18px;
+	font-size: 16pt;
 	font-style: bold;
 	margin-bottom: 0px;
-	margin-left: 15px;
+	margin-left: 10%;
 }
-#briefInfoTable {
+.briefInfoTable {
 	font-size: 12pt;
-	margin-left: 40px;
+	margin-left: 10%;
 	margin-top: 10px;
 	margin-bottom: 0px;
 	border: 0px;
 }
 .widthTd {
-	width: 150px;
+	width: 40%;
+	padding: 0px;
+	color: rgb(148,143,143);
 }
-#issueBriefInfo {
-	float: left;
+.issueBriefInfo {
 	background-color: rgb(245,243,243);
-	width: 585px;
+	width: 100%;
 	margin-bottom: 15px;
-	margin-left: 15px; 
+	margin-top: 5px; 
 }
 .issueDescription {
-	width: 585px;
-	max-width: 600px;
+	margin-left: 10%; 
+	width: 90%;
 	overflow-y: scroll;
 	margin-top: 15px;
 	height: 130px;
-	margin-left: 15px;
-	margin-bottom: 15px; 
+	margin-bottom: 15px;
 }
-#noResolution {
+.noResolution {
 	margin-left: 15px;
 	margin-top: 15px; 
 }
-#linkToEdit {
-	margin-left: 0px;
-	margin-top: 0px;
-	margin-bottom: 0px;
-	margin-right: 0px;
-	width: 600px;
+.linkToEdit {
+	float: left;
+	width: 8.5%;
+	text-align: right;
 }
-#briefInformation {
-	font-size: 18px;
+.briefInformation {
+	font-size: 16pt;
 	font-style: bold;
 	margin-bottom: 0px;
 	margin-left: 0px;
 }
-#divComments {
+.divComments {
 	float: left;
-	margin-left: 70px;
+	margin-left: 4.5%;
+	width: 40%;
+	margin-top: 5px;
 }
 .clear {
 	clear: left;
+}
+.buttons {
+	margin-left: 1.5%; 
+}
+.summary {
+	clear: left;
+	font-size: 18pt;
+	margin-left: 1.5%;
+	margin-bottom: 15px;
+	margin-top: 10px;
+	width: 43%;
+}
+.leaveComment {
+	font-size: 16pt;
+	padding-left: 10px;
+	padding-top: 10px;
+}
+.comment {
+	background-color: rgb(245,243,243);	
+}
+.commentText {
+	resize: none;
+	margin-left: 10px;
+	margin-top: 5px;
+}
+.postComment {
+	padding-left: 10px;
+	padding-bottom: 6px;
+}
+.float {
+	float: left;
+	width: 51.5%;
+	margin-left: 1.5%;
 }
