@@ -1,3 +1,7 @@
+<%@page import="ru.ifmo.is.db.data.IssueKind"%>
+<%@page import="ru.ifmo.is.db.data.IssueProjectTransition"%>
+<%@page import="ru.ifmo.is.db.data.IssueStatusTransition"%>
+<%@page import="ru.ifmo.is.servlet.IssueServlet"%>
 <%@page import="java.util.Locale"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="ru.ifmo.is.manager.LogManager"%>
@@ -11,48 +15,56 @@
 <%
 	LogManager.log("GET issue.jsp", request);
 
-	SimpleDateFormat dateFormat = new SimpleDateFormat(
-			"EEE, MMMM d yyyy, HH:mm:ss", Locale.ENGLISH);
-	String issueKey = (String) request
-			.getParameter(Issue.ISSUE_KEY_PARM);
+	SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMMM d yyyy, HH:mm:ss", Locale.ENGLISH);
+	String issueKey = (String) request.getParameter(IssueServlet.ISSUE_GET_KEY_PARM);
+
 	Issue issue = null;
 	Comment[] comments = null;
+	IssueStatusTransition[] statusTransitions = null;
+	IssueProjectTransition[] projectTransitions = null;
+	IssueKind[] issueKinds = null;
 
-	// here to retrieve issue detailed information
+	// TODO here to retrieve issue detailed information
 	if ("SANDBOX-412".equals(issueKey)) {
-		issue = new Issue(
-				1,
-				"SANDBOX-412",
-				"admin",
-				"Test admin",
-				"admin",
-				"Test admin",
-				"VERIFY",
-				"Verification",
-				"OPEN",
-				"Open",
-				"SANDBOX",
-				"Sandbox testing",
-				new Date(115, 11, 23, 16, 7, 46),
-				new Date(116, 1, 13, 11, 48, 1),
-				"Please verify issue details page",
+		issue = new Issue(1, "SANDBOX-412", "admin", "Test admin", "admin", "Test admin", "VERIFY",
+				"Verification", "OPEN", "Open", "SANDBOX", "Sandbox testing", new Date(115, 11, 23, 16, 7, 46),
+				new Date(116, 1, 13, 11, 48, 1), "Please verify issue details page",
 				"Here we have multiline description. \n"
 						+ "We expect it to work fine. Please verify, wouldn't you? Really appreciate it.",
 				null);
+		issue.resolution = "Resolution";
 
 		comments = new Comment[3];
 		for (int i = 0; i < 3; i++) {
-			comments[i] = new Comment(i, "admin", "Test admin",
-					new Date(116, 1, 15, 14, 34, 5), "comment #"
-							+ Integer.toString(i));
+			comments[i] = new Comment(i, "admin", "Test admin", new Date(116, 1, 15, 14, 34, 5),
+					"comment #" + Integer.toString(i));
 		}
+
+		statusTransitions = new IssueStatusTransition[4];
+		statusTransitions[0] = new IssueStatusTransition(1, "EDIT_SANDBOX", "Edit sandbox", "SANDBOX",
+				"Sandbox testing", "OPEN", "Open", "OPEN", "Open", "EDIT_SANDBOX", "Edit");
+		statusTransitions[1] = new IssueStatusTransition(2, "WORK_SANDBOX", "Work on sandbox", "SANDBOX",
+				"Sandbox testing", "OPEN", "Open", "IN_PROGRESS", "In progress", "START_SANDBOX",
+				"Start progress");
+		statusTransitions[2] = new IssueStatusTransition(3, "WORK_SANDBOX", "Work on sandbox", "SANDBOX",
+				"Sandbox testing", "OPEN", "Open", "CLOSE", "Closed", "CLOSE_SANDBOX", "Close");
+		statusTransitions[3] = new IssueStatusTransition(4, "WORK_SANDBOX", "Work on sandbox", "SANDBOX",
+				"Sandbox testing", "OPEN", "Open", "REJECTED", "Rejected", "REJECT_SANDBOX", "Reject");
+
+		projectTransitions = new IssueProjectTransition[1];
+		projectTransitions[0] = new IssueProjectTransition(1, "WORK_SANDBOX", "Work on sandbox", "SANDBOX",
+				"Sandbox testing", "WISH", "Delayed issues", "OPEN", "Open", "TO_REVIEW", "To be reviewed");
+
+		issueKinds = new IssueKind[3];
+		issueKinds[0] = new IssueKind(1, "BUG", "Bug");
+		issueKinds[1] = new IssueKind(2, "TASK", "Assignment");
+		issueKinds[2] = new IssueKind(3, "VERIFY", "Verification");
 	}
 %>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title><%=issue == null ? "Issue not found" : issue.idt + "/"
-					+ issue.summary%></title>
+<title><%=issue == null ? "Issue not found" : issue.idt + "/" + issue.summary%></title>
 <link rel='stylesheet' href='/Tracker/pages/default.css'></link>
 </head>
 <body>
@@ -69,40 +81,66 @@
 	<%
 		} else {
 	%>
+	<script>
+	function enableEdit(newStatus) {
+		document.getElementById("issueStatusSet").innerText = newStatus;
+		return;
+	}
+	</script>
 	<div>
-		<table>
-			<tr>
-				<td>
-					<div>
-						<p id="issueName">
-							<%=issue.projectDisplay%>
-							/
-							<%=issue.idt%>
-						</p>
-					</div>
-				</td>
-				<td>
-					<div>
-						<div align="right" id="linkToEdit">
-							<a href="/Tracker/pages/index.jsp">Back to search</a>
-						</div>
-					</div>
-				</td>
-			</tr>
-		</table>
+		<div>
+			<p class="issueName">
+				<%=issue.projectDisplay%>
+				/
+				<%=issue.idt%>
+			</p>
+		</div>
+		<div>
+			<div align="right" class="linkToEdit">
+				<a href="/Tracker/pages/index.jsp">Back to search</a>
+			</div>
+		</div>
+		<div class="summary">
+			<%=issue.summary%>
+		</div>
 	</div>
+	<div class="buttons">
+		<%
+			for (int i = 0; i < statusTransitions.length; i++) {
+		%>
+		<button class="buttonFixed"
+			onclick="enableEdit(<%="\'" + statusTransitions[i].statusToDisplay + "\'"%>)"><%=statusTransitions[i].name%></button>
+		<%
+			}
 
-	<div>
-		<div id="issueBriefInfo">
-			<h1 id="briefInformation">Brief information</h1>
-			<table id="briefInfoTable">
+				if (projectTransitions.length > 0) {
+		%>
+		<button class="buttonFixed">Move...</button>
+		<%
+			}
+		%>
+	</div>
+	<div class="float">
+		<div class="issueBriefInfo">
+			<h1 class="briefInformation">Brief information</h1>
+			<table class="briefInfoTable">
 				<tr class="widthTr">
 					<td class="widthTd">Issue kind</td>
-					<td><%=issue.kindDisplay%></td>
+					<td><select class="selectNoBorder" class="issueKindSelect"
+						disabled>
+							<%
+								for (int i = 0; i < issueKinds.length; i++) {
+							%>
+							<option class="optionNoBorder"
+								<%=issueKinds[i].code.equals(issue.kind) ? "selected" : ""%>><%=issueKinds[i].name%></option>
+							<%
+								}
+							%>
+					</select></td>
 				</tr>
 				<tr>
 					<td class="widthTd">Status</td>
-					<td><%=issue.statusDisplay%></td>
+					<td><p id="issueStatusSet"><%=issue.statusDisplay%></p></td>
 				</tr>
 				<tr>
 					<td class="widthTd">Reporter</td>
@@ -122,8 +160,8 @@
 				</tr>
 			</table>
 		</div>
-		<div id="divComments"></div>
-		<div class="clear">
+
+		<div>
 			<h1 class="issueHeader">Description</h1>
 		</div>
 		<div class="issueDescription">
@@ -132,7 +170,7 @@
 		<%
 			if (issue.resolution != null) {
 		%>
-		<div class="clear">
+		<div>
 			<h1 class="issueHeader">Resolution</h1>
 		</div>
 		<div class="issueDescription">
@@ -141,6 +179,23 @@
 		<%
 			}
 		%>
+	</div>
+	<div class="divComments">
+		<div class="comment">
+			<div class="leaveComment">Leave a comment</div>
+			<div>
+				<p>
+					<textarea rows="7" cols="65" class="commentText"></textarea>
+				</p>
+			</div>
+			<div class="postComment">
+				<p>
+					<input type="submit" value="Post comment" class="buttonFixed">
+				</p>
+			</div>
+		</div>
+		<hr>
+		<div></div>
 	</div>
 	<%
 		}
