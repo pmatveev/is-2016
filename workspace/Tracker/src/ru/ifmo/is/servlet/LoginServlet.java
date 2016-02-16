@@ -66,7 +66,7 @@ public class LoginServlet extends HttpServlet {
 			throws ServletException, IOException {
 		LogManager.log("GET LoginServlet", request);
 
-		if (request.getParameter(ACTION).equals(ACTION_LOGOUT)) {
+		if (ACTION_LOGOUT.equals(request.getParameter(ACTION))) {
 			new AuthenticationManager().close(request, response);
 			response.sendRedirect("/Tracker" + LOGIN_PAGE);
 			return;

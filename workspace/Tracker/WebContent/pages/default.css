@@ -27,7 +27,7 @@ h4 {
 	padding: 3px;
 }
 
-.centeredText, .centered300px {
+.centeredText,.centered300px {
 	margin: auto;
 	margin-top: 15%;
 }
@@ -45,7 +45,7 @@ h4 {
 	margin-right: 10px;
 }
 
-.loginerr,.input,.button,.disabledButton, .margin5px {
+.loginerr,.input,.button,.disabledButton,.margin5px {
 	margin-left: 5px;
 	margin-top: 5px;
 	margin-bottom: 5px;
@@ -67,7 +67,7 @@ h4 {
 .input,.button,.disabledButton,.buttonFixed {
 	border-style: solid;
 	border-width: 1px;
-	
+	margin: 4px;
 }
 
 .input,.button,.disabledButton {
@@ -80,7 +80,7 @@ h4 {
 	border-color: rgb(127, 127, 127);
 }
 
-.button, .buttonFixed {
+.button,.buttonFixed {
 	background-color: rgb(255, 255, 255);
 	color: rgb(0, 0, 255);
 	border-color: rgb(0, 0, 255);
@@ -96,9 +96,10 @@ h4 {
 	margin-bottom: 0px;
 	background: transparent;
 	-webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    border: none;
+	-moz-appearance: none;
+	appearance: none;
+	border: none;
+	font-family: Times New Roman;
 }
 
 .optionNoBorder {
@@ -106,20 +107,23 @@ h4 {
 	margin-bottom: 0px;
 	background: transparent;
 }
+
 .issueName {
 	float: left;
-	font-size: 24pt;
+	font-size: 16pt;
 	margin-left: 1.5%;
-	margin-top: 0px;
-	margin-bottom: 0px;
+	margin-bottom: 15px;
+	margin-top: 10px;
 	width: 43%;
 }
+
 .issueHeader {
 	font-size: 16pt;
 	font-style: bold;
 	margin-bottom: 0px;
 	margin-left: 10%;
 }
+
 .briefInfoTable {
 	font-size: 12pt;
 	margin-left: 10%;
@@ -127,100 +131,123 @@ h4 {
 	margin-bottom: 0px;
 	border: 0px;
 }
+
 .widthTd {
 	width: 40%;
 	padding: 0px;
-	color: rgb(148,143,143);
+	color: rgb(148, 143, 143);
 }
+
 .issueBriefInfo {
-	background-color: rgb(245,243,243);
 	width: 100%;
 	margin-bottom: 15px;
-	margin-top: 5px; 
 }
+
 .issueDescription {
-	margin-left: 10%; 
+	margin-left: 10%;
 	width: 90%;
-	overflow-y: scroll;
 	margin-top: 15px;
-	height: 130px;
 	margin-bottom: 15px;
 }
+
 .noResolution {
 	margin-left: 15px;
-	margin-top: 15px; 
+	margin-top: 15px;
 }
+
 .linkToEdit {
 	float: left;
 	width: 8.5%;
 	text-align: right;
 }
+
 .briefInformation {
 	font-size: 16pt;
 	font-style: bold;
 	margin-bottom: 0px;
 	margin-left: 0px;
 }
-.divComments {
-	float: left;
-	margin-left: 4.5%;
-	width: 40%;
-	margin-top: 5px;
-}
+
 .clear {
 	clear: left;
 }
+
 .buttons {
-	margin-left: 1.5%; 
+	margin-left: 1.5%;
+	margin-top: 10px;
+	width: 50%;
 }
+
 .summary {
 	clear: left;
-	font-size: 18pt;
+	font-size: 24pt;
 	margin-left: 1.5%;
-	margin-bottom: 15px;
-	margin-top: 10px;
+	margin-top: 0px;
+	margin-bottom: 0px;
 	width: 43%;
 }
+
 .leaveComment {
 	font-size: 16pt;
 	padding-left: 10px;
 	padding-top: 10px;
 }
+
 .comment {
-	background-color: rgb(245,243,243);	
+	background-color: rgb(245, 243, 243);
 }
+
 .commentText {
-	resize: none;
-	margin-left: 10px;
+	width: 100%;
 	margin-top: 5px;
 }
+
 .postComment {
 	padding-left: 10px;
 	padding-bottom: 6px;
 }
-.float {
+
+.divIssue {
 	float: left;
 	width: 51.5%;
 	margin-left: 1.5%;
 }
+
+.divComments {
+	float: left;
+	margin-left: 4.5%;
+	width: 40%;
+}
+
 .commentTable {
 	width: 100%;
 	margin-top: 5px;
 	margin-bottom: 5px;
 }
+
+.commentTableAuthor, .commentTableDate {
+	padding-top: 10px;
+}
+
 .commentTableAuthor {
 	width: 50%;
 	font-weight: bold;
 }
+
 .commentTableDate {
 	width: 50%;
 	text-align: right;
 	font-style: italic;
 }
+
 .commentTableText {
-	padding-top: 15px;
+	padding-top: 5px;
 }
+
 .commentScroll {
-	overflow-y: scroll;
 	height: 50%;
+}
+
+.divIssueComments {
+	margin-top: 10px;
 }

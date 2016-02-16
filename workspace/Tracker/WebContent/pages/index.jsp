@@ -1,3 +1,4 @@
+<%@page import="ru.ifmo.is.servlet.IssueServlet"%>
 <%@page import="ru.ifmo.is.db.data.Issue"%>
 <%@page import="ru.ifmo.is.util.LogLevel"%>
 <%@page import="ru.ifmo.is.manager.LogManager"%>
@@ -15,7 +16,7 @@
 	<% LogManager.log("GET index.jsp", request); %>
 	index.jsp
 	<br /> <br /> For testing purposes:
-	<br /> <a href="/Tracker/pages/issue.jsp?<%=Issue.ISSUE_KEY_PARM%>=SANDBOX-1">SANDBOX-1</a>
-	<br /> <a href="/Tracker/pages/issue.jsp?<%=Issue.ISSUE_KEY_PARM%>=SANDBOX-412">SANDBOX-412</a>
+	<br /> <a href="/Tracker/pages/issue.jsp?<%=IssueServlet.ISSUE_GET_KEY_PARM%>=SANDBOX-1">SANDBOX-1</a>
+	<br /> <a href="/Tracker/pages/issue.jsp?<%=IssueServlet.ISSUE_GET_KEY_PARM%>=SANDBOX-412">SANDBOX-412</a>
 </body>
 </html>
