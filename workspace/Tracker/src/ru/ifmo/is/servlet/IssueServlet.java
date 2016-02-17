@@ -16,15 +16,30 @@ public class IssueServlet extends HttpServlet {
 
 	// pages
 	public static final String ISSUE_DETAILS = "/pages/issue.jsp";
+	
+	// services
+	public static final String ISSUE_UPDATE_WEBSERVICE = "updateIssue";
 
 	// in GET parameters
 	public static final String ISSUE_GET_KEY_PARM = "issue";
+	
+	// in POST parameters
+	public static final String ISSUE_SET_KIND = "issueKindSet";
+	public static final String ISSUE_SET_STATUS = "issueStatusSet";
 	
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		LogManager.log("POST LoginServlet", request);
 		
 		// TODO
+		String toIssue = request.getParameter(ISSUE_GET_KEY_PARM);
+		if (toIssue == null) {
+			// redirect to index
+			response.sendRedirect("/Tracker" + LoginServlet.INDEX_PAGE);
+		} else {
+			response.sendRedirect("/Tracker" + ISSUE_DETAILS + "?"
+					+ ISSUE_GET_KEY_PARM + "=" + toIssue);
+		}
 	}
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
