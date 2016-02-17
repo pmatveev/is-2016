@@ -64,7 +64,7 @@ h4 {
 	color: rgb(255, 0, 0);
 }
 
-.input,.button,.disabledButton,.buttonFixed {
+.input,.button,.disabledButton,.buttonFixed,.cancelButtonFixed {
 	border-style: solid;
 	border-width: 1px;
 	margin: 4px;
@@ -74,7 +74,7 @@ h4 {
 	width: 100%;
 }
 
-.disabledButton {
+.disabledButton,.cancelButtonFixed {
 	background-color: rgb(255, 255, 255);
 	color: rgb(127, 127, 127);
 	border-color: rgb(127, 127, 127);
@@ -86,7 +86,7 @@ h4 {
 	border-color: rgb(0, 0, 255);
 }
 
-.buttonFixed {
+.buttonFixed,.cancelButtonFixed {
 	width: 120px;
 }
 
@@ -156,9 +156,8 @@ h4 {
 }
 
 .linkToEdit {
-	float: left;
-	width: 8.5%;
-	text-align: right;
+	width: 100%;
+	text-align: center;
 }
 
 .briefInformation {
@@ -166,6 +165,19 @@ h4 {
 	font-style: bold;
 	margin-bottom: 0px;
 	margin-left: 0px;
+}
+
+.editIssue {
+	width: 100%;
+}
+
+.descrEdit {
+	overflow: auto;
+	width: 100%;
+}
+
+.issueCommitButtons {
+	text-align: center;
 }
 
 .clear {
@@ -178,13 +190,20 @@ h4 {
 	width: 50%;
 }
 
+.summary, .summaryEdit {
+	font-size: 24pt;
+}
+
 .summary {
 	clear: left;
-	font-size: 24pt;
 	margin-left: 1.5%;
 	margin-top: 0px;
 	margin-bottom: 0px;
 	width: 43%;
+}
+
+.summaryEdit {
+	width: 100%;
 }
 
 .leaveComment {
@@ -225,7 +244,7 @@ h4 {
 	margin-bottom: 5px;
 }
 
-.commentTableAuthor, .commentTableDate {
+.commentTableAuthor,.commentTableDate {
 	padding-top: 10px;
 }
 

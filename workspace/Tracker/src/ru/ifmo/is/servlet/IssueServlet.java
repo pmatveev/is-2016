@@ -26,6 +26,11 @@ public class IssueServlet extends HttpServlet {
 	// in POST parameters
 	public static final String ISSUE_SET_KIND = "issueKindSet";
 	public static final String ISSUE_SET_STATUS = "issueStatusSet";
+	public static final String ISSUE_SET_ASSIGNEE = "issueAssigneeSet";
+	public static final String ISSUE_SET_SUMMARY = "issueSummarySet";
+	public static final String ISSUE_SET_DESCRIPTION = "issueDescrSet";
+	public static final String ISSUE_SET_RESOLUTION = "issueResSet";
+	
 	
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {

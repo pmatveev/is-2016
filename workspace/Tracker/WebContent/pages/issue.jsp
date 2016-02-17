@@ -1,3 +1,4 @@
+<%@page import="ru.ifmo.is.db.data.Officer"%>
 <%@page import="ru.ifmo.is.db.data.IssueKind"%>
 <%@page import="ru.ifmo.is.db.data.IssueProjectTransition"%>
 <%@page import="ru.ifmo.is.db.data.IssueStatusTransition"%>
@@ -23,6 +24,7 @@
 	IssueStatusTransition[] statusTransitions = null;
 	IssueProjectTransition[] projectTransitions = null;
 	IssueKind[] issueKinds = null;
+	Officer[] assignees = null;
 
 	// TODO here to retrieve issue detailed information
 	if ("SANDBOX-412".equals(issueKey)) {
@@ -30,7 +32,7 @@
 		"Verification", "OPEN", "Open", "SANDBOX", "Sandbox testing", new Date(115, 11, 23, 16, 7, 46),
 		new Date(116, 1, 13, 11, 48, 1), "Please verify issue details page",
 		"Here we have multiline description. \n"
-		+ "We expect it to work fine. Please verify, wouldn't you? Really appreciate it.",
+		+ "We expect it to work fine. Please verify, wouldn't you? Really appreciate it. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
 		null);
 		issue.resolution = "Resolution";
 		
@@ -60,6 +62,13 @@
 		issueKinds[0] = new IssueKind(1, "BUG", "Bug");
 		issueKinds[1] = new IssueKind(2, "TASK", "Assignment");
 		issueKinds[2] = new IssueKind(3, "VERIFY", "Verification");
+		
+		assignees = new Officer[5];
+		assignees[0] = new Officer(1, "admin", true, null, "Test Admin");
+		assignees[1] = new Officer(1, "test1", true, null, "Officer1");
+		assignees[2] = new Officer(1, "test2", true, null, "Officer2");
+		assignees[3] = new Officer(1, "test3", true, null, "Officer3");
+		assignees[4] = new Officer(1, "test4", true, null, "Officer4");
 	}
 %>
 <html>
@@ -91,6 +100,9 @@
 	var statuses = [];
 	var statusesDisplay = [];
 	
+	var assignees = [];
+	var assigneesDisplay = [];
+	
 	function init() {
 		<%for (int i = 0; i < issueKinds.length; i++) {%>
 		kinds[<%=i%>] = "<%=issueKinds[i].code%>";
@@ -100,27 +112,31 @@
 		statuses[<%=i%>] = "<%=statusTransitions[i].statusTo%>";
 		statusesDisplay[<%=i%>] = "<%=statusTransitions[i].statusToDisplay%>"; 
 		<%}%>
+		<%for (int i = 0; i < assignees.length; i++) {%>
+		assignees[<%=i%>] = "<%=assignees[i].username%>";
+		assigneesDisplay[<%=i%>] = "<%=assignees[i].credentials%>"; 
+		<%}%>
 		resetForm();
 	}
 	
 	function resetForm() {
-		document.getElementById("issueKindTd").innerText = "<%=issue.kindDisplay%>";
-		document.getElementById("issueStatusTd").innerText = "<%=issue.statusDisplay%>";
-		document.getElementById("issueReporterTd").innerText = "<%=issue.creatorDisplay%>";
-		document.getElementById("issueAssigneeTd").innerText = "<%=issue.assigneeDisplay%>";
-		
+		document.getElementById("issueKindTd").innerHTML = "<%=issue.kindDisplay%>";
+		document.getElementById("issueStatusTd").innerHTML = "<%=issue.statusDisplay%>";
+		document.getElementById("issueReporterTd").innerHTML = "<%=issue.creatorDisplay%>";
+		document.getElementById("issueAssigneeTd").innerHTML = "<%=issue.assigneeDisplay%>";
+		document.getElementById("issueCommitButtonsDiv").innerHTML = "";
+		document.getElementById("issueDescription").innerHTML = "<%=issue.description == null ? "" : issue.description.replaceAll("\n", "<br/>")%>";
+		document.getElementById("issueResolution").innerHTML = "<%=issue.resolution == null ? "" : issue.resolution.replaceAll("\n", "<br/>")%>";
+		document.getElementById("issueSummary").innerHTML = "<%=issue.summary%>";
 		isEditing = false;
 	}
 	
 	function createSelect(parCode, selectId, data, display, defaultData) {
 		var select = document.createElement('select');
 		select.id = selectId;
-		
-		if (parCode == "issueStatusTd") {
-			// cannot manually set status
-			select.disabled = "disabled";
-		}
-		
+		select.name = selectId;
+		select.className = "editIssue";
+			
 		for (var i = 0; i < data.length; i++) {
 		    var option = document.createElement("option");
 		    option.value = data[i];
@@ -132,17 +148,74 @@
 		    select.appendChild(option);
 		}
 
-		document.getElementById(parCode).innerText = "";
+		if (parCode == "issueStatusTd") {
+			// cannot manually set status
+			select.name += "_disabled";
+			select.disabled = "disabled";
+			
+			var hiddenSelect = document.createElement("input");
+			hiddenSelect.type = "hidden";
+			hiddenSelect.name = selectId;
+			hiddenSelect.value = defaultData;
+			document.getElementById(parCode).appendChild(hiddenSelect);
+		}		
+		
+		document.getElementById(parCode).innerHTML = "";
 		document.getElementById(parCode).appendChild(select);
 	}
 	
-	function enableEdit(newStatus) {
+	function enableEdit(newStatusCode, newStatus) {
 		if (!isEditing) {
 			// have to create dropdowns
 			createSelect("issueKindTd", "<%=IssueServlet.ISSUE_SET_KIND%>", kinds, kindsDisplay, "<%=issue.kind%>");
-			createSelect("issueStatusTd", "<%=IssueServlet.ISSUE_SET_STATUS%>", statuses, statusesDisplay, "<%=issue.status%>");
+			// createSelect("issueStatusTd", "<%=IssueServlet.ISSUE_SET_STATUS%>", statuses, statusesDisplay, "<%=issue.status%>");
+			createSelect("issueAssigneeTd", "<%=IssueServlet.ISSUE_SET_ASSIGNEE%>", assignees, assigneesDisplay, "<%=issue.assignee%>");					
+			
+			var summEdit = document.createElement("input");
+			summEdit.id = "<%=IssueServlet.ISSUE_SET_SUMMARY%>_out";
+			summEdit.name = "<%=IssueServlet.ISSUE_SET_SUMMARY%>_out";
+			summEdit.value = "<%=issue.summary%>";
+			summEdit.className = "summaryEdit";
+			summEdit.setAttribute("form", "issueForm");
+			document.getElementById("issueSummary").innerHTML = "";
+			document.getElementById("issueSummary").appendChild(summEdit);
+			
+			var descrEdit = document.createElement("textarea");
+			descrEdit.name = "<%=IssueServlet.ISSUE_SET_DESCRIPTION%>";
+			descrEdit.value = "<%=issue.description == null ? "" : issue.description.replaceAll("\n", "\\\\n")%>";
+			descrEdit.className = "descrEdit";
+			descrEdit.rows = 9;
+			document.getElementById("issueDescription").innerHTML = "";
+			document.getElementById("issueDescription").appendChild(descrEdit);
+			
+			var resEdit = document.createElement("textarea");
+			resEdit.name = "<%=IssueServlet.ISSUE_SET_RESOLUTION%>";
+			resEdit.value = "<%=issue.resolution == null ? "" : issue.resolution.replaceAll("\n", "\\n")%>";
+			resEdit.className = "descrEdit";
+			resEdit.rows = 9;
+			document.getElementById("issueResolution").innerHTML = "";
+			document.getElementById("issueResolution").appendChild(resEdit);
 			
 			var buttonDiv = document.getElementById("issueCommitButtonsDiv");
+			
+			var hiddenSummary = document.createElement("input");
+			hiddenSummary.type = "hidden";
+			hiddenSummary.name = "<%=IssueServlet.ISSUE_SET_SUMMARY%>";
+			hiddenSummary.id = "<%=IssueServlet.ISSUE_SET_SUMMARY%>";
+			buttonDiv.appendChild(hiddenSummary);
+			
+			var hiddenStatus = document.createElement("input");
+			hiddenStatus.type = "hidden";
+			hiddenStatus.name = "<%=IssueServlet.ISSUE_SET_STATUS%>";
+			hiddenStatus.id = "<%=IssueServlet.ISSUE_SET_STATUS%>";
+			buttonDiv.appendChild(hiddenStatus);
+			
+			var issueId = document.createElement("input");
+			issueId.type = "hidden";
+			issueId.name = "<%=IssueServlet.ISSUE_GET_KEY_PARM%>";
+			issueId.value = "<%=issue.idt%>";
+			buttonDiv.appendChild(issueId);
+			
 			var submit = document.createElement("input");
 			submit.type = "submit";
 			submit.name = "<%=IssueServlet.ISSUE_UPDATE_WEBSERVICE%>";
@@ -151,20 +224,29 @@
 			buttonDiv.appendChild(submit);
 			
 			var cancel = document.createElement("button");
-			cancel.innerText = "Cancel";
-			cancel.className = "buttonFixed";
+			cancel.type = "button";
+			cancel.innerHTML = "Cancel";
+			cancel.className = "cancelButtonFixed";
 			cancel.onclick = resetForm;
 			buttonDiv.appendChild(cancel);
 			
 			isEditing = true;
 		}
 		
-		document.getElementById("<%=IssueServlet.ISSUE_SET_STATUS%>").value = newStatus;
-
-		return;
-	}
+		document.getElementById("issueStatusTd").innerHTML = newStatus;
+		document.getElementById("<%=IssueServlet.ISSUE_SET_STATUS%>").value = newStatusCode;
+			return;
+		}
+	
+	function validate() {
+		document.getElementById("<%=IssueServlet.ISSUE_SET_SUMMARY%>").value = document.getElementById("<%=IssueServlet.ISSUE_SET_SUMMARY%>_out").value;
+			return true;
+		}
 	</script>
 	<div>
+		<div class="linkToEdit">
+			<a href="/Tracker/pages/index.jsp">Back to search</a>
+		</div>
 		<div>
 			<p class="issueName">
 				<%=issue.projectDisplay%>
@@ -172,21 +254,14 @@
 				<%=issue.idt%>
 			</p>
 		</div>
-		<div>
-			<div align="right" class="linkToEdit">
-				<a href="/Tracker/pages/index.jsp">Back to search</a>
-			</div>
-		</div>
-		<div class="summary">
-			<%=issue.summary%>
-		</div>
+		<div class="summary" id="issueSummary"></div>
 	</div>
 	<div class="buttons">
 		<%
 			for (int i = 0; i < statusTransitions.length; i++) {
 		%>
 		<button class="buttonFixed"
-			onclick="enableEdit('<%=statusTransitions[i].statusTo%>')"><%=statusTransitions[i].name%></button>
+			onclick="enableEdit('<%=statusTransitions[i].statusTo%>', '<%=statusTransitions[i].statusToDisplay%>')"><%=statusTransitions[i].name%></button>
 		<%
 			}
 
@@ -199,7 +274,9 @@
 	</div>
 	<div class="divIssueComments">
 		<div class="divIssue">
-			<form name="issueForm" action="<%=IssueServlet.SERVLET_IDT%> method="post">
+			<form id="ussueForm" name="issueForm"
+				action="<%=IssueServlet.SERVLET_IDT%>" method="post"
+				onsubmit="return validate()">
 				<div class="issueBriefInfo">
 					<h1 class="briefInformation">Brief information</h1>
 					<hr>
@@ -235,24 +312,13 @@
 					<h1 class="briefInformation">Description</h1>
 					<hr>
 				</div>
-				<div class="issueDescription">
-					<%=issue.description.replaceAll("\n", "<br/>")%>
-				</div>
-				<%
-					if (issue.resolution != null) {
-				%>
+				<div class="issueDescription" id="issueDescription"></div>
 				<div>
 					<h1 class="briefInformation">Resolution</h1>
 					<hr>
 				</div>
-				<div class="issueDescription">
-					<%=issue.resolution.replaceAll("\n", "<br/>")%>
-				</div>
-				<%
-					}
-				%>
-				<div class="issueCommitButtons" id="issueCommitButtonsDiv">
-				</div>
+				<div class="issueDescription" id="issueResolution"></div>
+				<div class="issueCommitButtons" id="issueCommitButtonsDiv"></div>
 			</form>
 		</div>
 		<div class="divComments">
