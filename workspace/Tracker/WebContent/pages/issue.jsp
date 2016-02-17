@@ -68,7 +68,7 @@
 <title><%=issue == null ? "Issue not found" : issue.idt + "/" + issue.summary%></title>
 <link rel='stylesheet' href='/Tracker/pages/default.css'></link>
 </head>
-<body>
+<body onload="init()">
 	<%@ include file="logout.jsp"%>
 	<%
 		if (issue == null) {
@@ -83,8 +83,84 @@
 		} else {
 	%>
 	<script>
+	var isEditing = false;
+	
+	var kinds = [];
+	var kindsDisplay = [];
+	
+	var statuses = [];
+	var statusesDisplay = [];
+	
+	function init() {
+		<%for (int i = 0; i < issueKinds.length; i++) {%>
+		kinds[<%=i%>] = "<%=issueKinds[i].code%>";
+		kindsDisplay[<%=i%>] = "<%=issueKinds[i].name%>"; 
+		<%}%>
+		<%for (int i = 0; i < statusTransitions.length; i++) {%>
+		statuses[<%=i%>] = "<%=statusTransitions[i].statusTo%>";
+		statusesDisplay[<%=i%>] = "<%=statusTransitions[i].statusToDisplay%>"; 
+		<%}%>
+		resetForm();
+	}
+	
+	function resetForm() {
+		document.getElementById("issueKindTd").innerText = "<%=issue.kindDisplay%>";
+		document.getElementById("issueStatusTd").innerText = "<%=issue.statusDisplay%>";
+		document.getElementById("issueReporterTd").innerText = "<%=issue.creatorDisplay%>";
+		document.getElementById("issueAssigneeTd").innerText = "<%=issue.assigneeDisplay%>";
+		
+		isEditing = false;
+	}
+	
+	function createSelect(parCode, selectId, data, display, defaultData) {
+		var select = document.createElement('select');
+		select.id = selectId;
+		
+		if (parCode == "issueStatusTd") {
+			// cannot manually set status
+			select.disabled = "disabled";
+		}
+		
+		for (var i = 0; i < data.length; i++) {
+		    var option = document.createElement("option");
+		    option.value = data[i];
+		    option.text = display[i];
+		    
+		    if (data[i] == defaultData) {
+		    	option.selected = "selected";
+		    }
+		    select.appendChild(option);
+		}
+
+		document.getElementById(parCode).innerText = "";
+		document.getElementById(parCode).appendChild(select);
+	}
+	
 	function enableEdit(newStatus) {
-		document.getElementById("issueStatusSet").innerText = newStatus;
+		if (!isEditing) {
+			// have to create dropdowns
+			createSelect("issueKindTd", "<%=IssueServlet.ISSUE_SET_KIND%>", kinds, kindsDisplay, "<%=issue.kind%>");
+			createSelect("issueStatusTd", "<%=IssueServlet.ISSUE_SET_STATUS%>", statuses, statusesDisplay, "<%=issue.status%>");
+			
+			var buttonDiv = document.getElementById("issueCommitButtonsDiv");
+			var submit = document.createElement("input");
+			submit.type = "submit";
+			submit.name = "<%=IssueServlet.ISSUE_UPDATE_WEBSERVICE%>";
+			submit.value = "Save";
+			submit.className = "buttonFixed";
+			buttonDiv.appendChild(submit);
+			
+			var cancel = document.createElement("button");
+			cancel.innerText = "Cancel";
+			cancel.className = "buttonFixed";
+			cancel.onclick = resetForm;
+			buttonDiv.appendChild(cancel);
+			
+			isEditing = true;
+		}
+		
+		document.getElementById("<%=IssueServlet.ISSUE_SET_STATUS%>").value = newStatus;
+
 		return;
 	}
 	</script>
@@ -110,8 +186,7 @@
 			for (int i = 0; i < statusTransitions.length; i++) {
 		%>
 		<button class="buttonFixed"
-			onclick="enableEdit(<%="\'" + statusTransitions[i].statusToDisplay
-							+ "\'"%>)"><%=statusTransitions[i].name%></button>
+			onclick="enableEdit('<%=statusTransitions[i].statusTo%>')"><%=statusTransitions[i].name%></button>
 		<%
 			}
 
@@ -124,68 +199,61 @@
 	</div>
 	<div class="divIssueComments">
 		<div class="divIssue">
-			<div class="issueBriefInfo">
-				<h1 class="briefInformation">Brief information</h1>
-				<hr>
-				<table class="briefInfoTable">
-					<tr class="widthTr">
-						<td class="widthTd">Issue kind</td>
-						<td><select class="selectNoBorder" class="issueKindSelect"
-							disabled>
-									<%
-										for (int i = 0; i < issueKinds.length; i++) {
-									%>
-									<option class="optionNoBorder"
-										<%=issueKinds[i].code.equals(issue.kind) ? "selected"
-							: ""%>><%=issueKinds[i].name%></option>
-									<%
-										}
-									%>
-						</select></td>
-					</tr>
-					<tr>
-						<td class="widthTd">Status</td>
-						<td><p id="issueStatusSet"><%=issue.statusDisplay%></p></td>
-					</tr>
-					<tr>
-						<td class="widthTd">Reporter</td>
-						<td><%=issue.creatorDisplay%></td>
-					</tr>
-					<tr>
-						<td class="widthTd">Assignee</td>
-						<td><%=issue.assigneeDisplay%></td>
-					</tr>
-					<tr>
-						<td class="widthTd">Date created</td>
-						<td><%=dateFormat.format(issue.dateCreated)%></td>
-					</tr>
-					<tr>
-						<td class="widthTd">Last updated</td>
-						<td><%=dateFormat.format(issue.dateUpdated)%></td>
-					</tr>
-				</table>
-			</div>
+			<form name="issueForm" action="<%=IssueServlet.SERVLET_IDT%> method="post">
+				<div class="issueBriefInfo">
+					<h1 class="briefInformation">Brief information</h1>
+					<hr>
+					<table class="briefInfoTable">
+						<tr class="widthTr">
+							<td class="widthTd">Issue kind</td>
+							<td id="issueKindTd"></td>
+						</tr>
+						<tr>
+							<td class="widthTd">Status</td>
+							<td id="issueStatusTd"></td>
+						</tr>
+						<tr>
+							<td class="widthTd">Reporter</td>
+							<td id="issueReporterTd"></td>
+						</tr>
+						<tr>
+							<td class="widthTd">Assignee</td>
+							<td id="issueAssigneeTd"></td>
+						</tr>
+						<tr>
+							<td class="widthTd">Date created</td>
+							<td><%=dateFormat.format(issue.dateCreated)%></td>
+						</tr>
+						<tr>
+							<td class="widthTd">Last updated</td>
+							<td><%=dateFormat.format(issue.dateUpdated)%></td>
+						</tr>
+					</table>
+				</div>
 
-			<div>
-				<h1 class="briefInformation">Description</h1>
-				<hr>
-			</div>
-			<div class="issueDescription">
-				<%=issue.description.replaceAll("\n", "<br/>")%>
-			</div>
-			<%
-				if (issue.resolution != null) {
-			%>
-			<div>
-				<h1 class="briefInformation">Resolution</h1>
-				<hr>
-			</div>
-			<div class="issueDescription">
-				<%=issue.resolution.replaceAll("\n", "<br/>")%>
-			</div>
-			<%
-				}
-			%>
+				<div>
+					<h1 class="briefInformation">Description</h1>
+					<hr>
+				</div>
+				<div class="issueDescription">
+					<%=issue.description.replaceAll("\n", "<br/>")%>
+				</div>
+				<%
+					if (issue.resolution != null) {
+				%>
+				<div>
+					<h1 class="briefInformation">Resolution</h1>
+					<hr>
+				</div>
+				<div class="issueDescription">
+					<%=issue.resolution.replaceAll("\n", "<br/>")%>
+				</div>
+				<%
+					}
+				%>
+				<div class="issueCommitButtons" id="issueCommitButtonsDiv">
+				</div>
+			</form>
 		</div>
 		<div class="divComments">
 			<h1 class="briefInformation">Comments</h1>
