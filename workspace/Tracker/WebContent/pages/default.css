@@ -64,7 +64,7 @@ h4 {
 	color: rgb(255, 0, 0);
 }
 
-.input,.button,.disabledButton,.buttonFixed {
+.input,.button,.disabledButton,.buttonFixed,.cancelButtonFixed {
 	border-style: solid;
 	border-width: 1px;
 	margin: 4px;
@@ -74,7 +74,7 @@ h4 {
 	width: 100%;
 }
 
-.disabledButton {
+.disabledButton,.cancelButtonFixed {
 	background-color: rgb(255, 255, 255);
 	color: rgb(127, 127, 127);
 	border-color: rgb(127, 127, 127);
@@ -86,7 +86,7 @@ h4 {
 	border-color: rgb(0, 0, 255);
 }
 
-.buttonFixed {
+.buttonFixed,.cancelButtonFixed {
 	width: 120px;
 }
 
@@ -156,9 +156,8 @@ h4 {
 }
 
 .linkToEdit {
-	float: left;
-	width: 8.5%;
-	text-align: right;
+	width: 100%;
+	text-align: center;
 }
 
 .briefInformation {
@@ -168,8 +167,25 @@ h4 {
 	margin-left: 0px;
 }
 
+.editIssue {
+	width: 100%;
+}
+
+.descrEdit {
+	overflow: auto;
+	width: 100%;
+}
+
+.issueCommitButtons {
+	text-align: center;
+}
+
 .clear {
 	clear: left;
+}
+
+.summary,.summaryEdit {
+	font-size: 24pt;
 }
 
 .buttons {
@@ -185,6 +201,10 @@ h4 {
 	margin-top: 0px;
 	margin-bottom: 0px;
 	width: 43%;
+}
+
+.summaryEdit {
+	width: 100%;
 }
 
 .leaveComment {
@@ -225,7 +245,7 @@ h4 {
 	margin-bottom: 5px;
 }
 
-.commentTableAuthor, .commentTableDate {
+.commentTableAuthor,.commentTableDate {
 	padding-top: 10px;
 }
 
@@ -251,29 +271,34 @@ h4 {
 .divIssueComments {
 	margin-top: 10px;
 }
+
 .createIssue {
 	margin-top: 2%;
 	margin-left: 3%;
 	padding: 0px;
 }
+
 .issuesTableDiv {
 	margin-top: 2%;
 	margin-left: 3%;
 	margin-right: 3%;
 	padding: 0px;
 }
-.issuesTableKey,.issuesTableSummary,.issuesTableType,.issuesTableStatus,
-.issuesTableReporter,.issuesTableAssignee,.issuesTableCreated,.issuesTableUpdated {
+
+.issuesTableKey,.issuesTableSummary,.issuesTableType,.issuesTableStatus,.issuesTableReporter,.issuesTableAssignee,.issuesTableCreated,.issuesTableUpdated
+	{
 	border: 1px solid black;
 	margin: 0px;
 	background-color: rgb(245, 243, 243);
 }
+
 .issuesTable {
 	margin: 0px;
 	border-collapse: collapse;
 	border: 1px solid black;
 	width: 100%;
 }
+
 .issuesTableKey {
 	padding: 5px;
 	width: 7%;
@@ -281,27 +306,35 @@ h4 {
 	vertical-align: middle;
 	align: center;
 }
+
 .issuesTableSummary {
 	width: 24%;
 }
+
 .issuesTableType {
 	width: 8%;
 }
+
 .issuesTableStatus {
 	width: 7%;
 }
+
 .issuesTableReporter {
 	width: 12%;
 }
+
 .issuesTableAssignee {
 	width: 12%;
 }
+
 .issuesTableCreated {
 	width: 15%;
 }
+
 .issuesTableUpdated {
 	width: 15%;
 }
+
 .inputKey {
 	width: 100%;
 }
