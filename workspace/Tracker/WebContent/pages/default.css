@@ -276,13 +276,17 @@ h4 {
 	margin-top: 2%;
 	margin-left: 3%;
 	padding: 0px;
+	float: left;
+	width: 47%;
 }
 
 .issuesTableDiv {
-	margin-top: 15px;
+	margin-top: 5%;
 	margin-left: 3%;
 	margin-right: 3%;
 	padding: 0px;
+	clear: left;
+	clear: right;
 }
 
 .issuesTableKey,.issuesTableName,.issuesTableType,.issuesTableStatus,.issuesTableReporter,.issuesTableAssignee,.issuesTableCreated,.issuesTableUpdated
@@ -340,6 +344,7 @@ h4 {
 }
 .createIssueButton {
 	margin-left: 0px;
+	margin-right: 0px;
 }
 .issuesTableKeyBody,.issuesTableNameBody,.issuesTableTypeBody,.issuesTableStatusBody,
 .issuesTableReporterBody,.issuesTableAssigneeBody,.issuesTableCreatedBody,.issuesTableUpdatedBody {
@@ -348,11 +353,11 @@ h4 {
 	text-align: center;
 }
 .searchInput {
-	padding-right: 3%;
-	padding-top: 0%;
-	padding-bottom: 0%;
-	magrin-top: 0%;
-	magrin-bottom: 0%;
+	margin-top: 2%;
+	margin-right: 3%;
+	padding: 0px;
+	float: right;
+	width: 47%;
 	text-align: right;
 }
 .searchInputP {

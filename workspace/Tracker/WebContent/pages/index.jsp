@@ -13,14 +13,14 @@
 	Issue[] issues = new Issue[4];
 	issues[0] = new Issue(2, "SANDBOX-1", "admin", "Test admin", "admin", "Test admin", "BUG", "Bug", "OPEN",
 			"Open", "SANDBOX", "Sandbox testing", new Date(115, 11, 23, 16, 7, 46),
-			new Date(116, 1, 13, 11, 48, 1), "Issue with kind of long description that does not fit into index table",
+			new Date(116, 1, 13, 11, 48, 1),
+			"Issue with kind of long description that does not fit into index table",
 			"Here we have multiline description. \n"
 					+ "We expect it to work fine. Please verify, wouldn't you? Really appreciate it.",
 			null);
 	issues[1] = new Issue(3, "SANDBOX-2", "admin", "Test admin", "admin", "Test admin", "VERIFY",
 			"Verification", "OPEN", "Open", "SANDBOX", "Sandbox testing", new Date(115, 11, 23, 16, 7, 46),
-			new Date(116, 1, 13, 11, 48, 1), "The other issue",
-			"Here we have multiline description. \n"
+			new Date(116, 1, 13, 11, 48, 1), "The other issue", "Here we have multiline description. \n"
 					+ "We expect it to work fine. Please verify, wouldn't you? Really appreciate it.",
 			null);
 	issues[2] = new Issue(1, "SANDBOX-412", "admin", "Test admin", "admin", "Test admin", "VERIFY",
@@ -31,8 +31,7 @@
 			null);
 	issues[3] = new Issue(4, "SANDBOX-3", "admin", "Test admin", "admin", "Test admin", "VERIFY",
 			"Verification", "OPEN", "Open", "SANDBOX", "Sandbox testing", new Date(115, 11, 23, 16, 7, 46),
-			new Date(116, 1, 13, 11, 48, 1), "Once more",
-			"Here we have multiline description. \n"
+			new Date(116, 1, 13, 11, 48, 1), "Once more", "Here we have multiline description. \n"
 					+ "We expect it to work fine. Please verify, wouldn't you? Really appreciate it.",
 			null);
 	SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMMM d yyyy, HH:mm:ss", Locale.ENGLISH);
@@ -52,16 +51,14 @@
 		<button class="createIssueButton">Create issue</button>
 	</div>
 	<div class="searchInput">
-		<p class="searchInputP">
-			Search <input type="text" size="40">
-		</p>
+		<button class="createIssueButton">Apply filter</button>
 	</div>
 	<div class="issuesTableDiv">
 		<table cellpadding="0" cellspacing="0" class="issuesTable">
 			<thead>
 				<tr>
 					<th class="issuesTableKey">Key</th>
-					<th class="issuesTableName">Name</th>
+					<th class="issuesTableName">Summary</th>
 					<th class="issuesTableType">Type</th>
 					<th class="issuesTableStatus">Status</th>
 					<th class="issuesTableReporter">Reporter</th>
@@ -77,16 +74,24 @@
 						class="inputKey"></td>
 					<td class="issuesTableType"><input type="text" id="filterType"
 						class="inputKey"></td>
-					<td class="issuesTableStatus"><input type="text" id="filterStatus"
-						class="inputKey"></td>
+					<td class="issuesTableStatus"><input type="text"
+						id="filterStatus" class="inputKey"></td>
 					<td class="issuesTableReporter"><input type="text"
 						id="filterReporter" class="inputKey"></td>
 					<td class="issuesTableAssignee"><input type="text"
 						id="filterAssignee" class="inputKey"></td>
-					<td class="issuesTableCreated"><input type="text"
-						id="dateCreated" class="inputKey"></td>
-					<td class="issuesTableUpdated"><input type="text"
-						id="dateUpdated" class="inputKey"></td>
+					<td class="issuesTableCreated"><select id="dateCreated"
+						class="selectIssueType">
+							<option value="">---</option>
+							<option value="DESC">Sort Desc</option>
+							<option value="ASC">Sort Asc</option>
+					</select></td>
+					<td class="issuesTableUpdated"><select id="dateUpdated"
+						class="selectIssueType">
+							<option value="">---</option>
+							<option value="DESC">Sort Desc</option>
+							<option value="ASC">Sort Asc</option>
+					</select></td>
 				</tr>
 			</thead>
 			<tbody id="issueTableBody">
@@ -94,16 +99,14 @@
 					for (int i = 0; i < issues.length; i++) {
 				%>
 				<tr>
-					<td class="issuesTableKeyBody">
-						<a href="/Tracker/pages/issue.jsp?<%=IssueServlet.ISSUE_GET_KEY_PARM%>=<%=issues[i].idt%>">
+					<td class="issuesTableKeyBody"><a
+						href="/Tracker/pages/issue.jsp?<%=IssueServlet.ISSUE_GET_KEY_PARM%>=<%=issues[i].idt%>">
 							<%=issues[i].idt%>
-						</a>
-					</td>
-					<td class="issuesTableNameBody">
-						<a href="/Tracker/pages/issue.jsp?<%=IssueServlet.ISSUE_GET_KEY_PARM%>=<%=issues[i].idt%>">
+					</a></td>
+					<td class="issuesTableNameBody"><a
+						href="/Tracker/pages/issue.jsp?<%=IssueServlet.ISSUE_GET_KEY_PARM%>=<%=issues[i].idt%>">
 							<%=issues[i].summary%>
-						</a>
-					</td>
+					</a></td>
 					<td class="issuesTableTypeBody"><%=issues[i].kindDisplay%></td>
 					<td class="issuesTableStatusBody"><%=issues[i].statusDisplay%></td>
 					<td class="issuesTableReporterBody"><%=issues[i].creatorDisplay%></td>
