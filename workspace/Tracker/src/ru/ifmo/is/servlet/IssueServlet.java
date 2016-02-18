@@ -16,13 +16,22 @@ public class IssueServlet extends HttpServlet {
 
 	// pages
 	public static final String ISSUE_DETAILS = "/pages/issue.jsp";
-	
+
 	// services
 	public static final String ISSUE_UPDATE_WEBSERVICE = "updateIssue";
+	public static final String ISSUE_SELECT_WEBSERVICE = "selectIssue";
 
 	// in GET parameters
 	public static final String ISSUE_GET_KEY_PARM = "issue";
-	
+	public static final String ISSUE_GET_BY_KEY = "byKey";
+	public static final String ISSUE_GET_BY_SUMM = "bySumm";
+	public static final String ISSUE_GET_BY_KIND = "byKind";
+	public static final String ISSUE_GET_BY_STATUS = "byStatus";
+	public static final String ISSUE_GET_BY_REPORTER = "byReporter";
+	public static final String ISSUE_GET_BY_ASSIGNEE = "byAssignee";
+	public static final String ISSUE_GET_BY_CREATED = "byCreated";
+	public static final String ISSUE_GET_BY_UPDATED = "byUpdated";
+
 	// in POST parameters
 	public static final String ISSUE_SET_KIND = "issueKindSet";
 	public static final String ISSUE_SET_STATUS = "issueStatusSet";
@@ -30,12 +39,11 @@ public class IssueServlet extends HttpServlet {
 	public static final String ISSUE_SET_SUMMARY = "issueSummarySet";
 	public static final String ISSUE_SET_DESCRIPTION = "issueDescrSet";
 	public static final String ISSUE_SET_RESOLUTION = "issueResSet";
-	
-	
+
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		LogManager.log("POST LoginServlet", request);
-		
+
 		// TODO
 		String toIssue = request.getParameter(ISSUE_GET_KEY_PARM);
 		if (toIssue == null) {
@@ -53,7 +61,6 @@ public class IssueServlet extends HttpServlet {
 
 		String toIssue = request.getParameter(ISSUE_GET_KEY_PARM);
 		if (toIssue == null) {
-			// redirect to index
 			response.sendRedirect("/Tracker" + LoginServlet.INDEX_PAGE);
 		} else {
 			response.sendRedirect("/Tracker" + ISSUE_DETAILS + "?"

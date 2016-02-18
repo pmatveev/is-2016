@@ -176,7 +176,6 @@
 			summEdit.name = "<%=IssueServlet.ISSUE_SET_SUMMARY%>_out";
 			summEdit.value = "<%=issue.summary%>";
 			summEdit.className = "summaryEdit";
-			summEdit.setAttribute("form", "issueForm");
 			document.getElementById("issueSummary").innerHTML = "";
 			document.getElementById("issueSummary").appendChild(summEdit);
 			
