@@ -303,35 +303,35 @@ h4 {
 }
 
 .issuesTableKey,.issuesTableKeyBody {
-	width: 5%;
-}
-
-.issuesTableName,.issuesTableNameBody {
-	width: 14%;
-}
-
-.issuesTableType,.issuesTableTypeBody {
-	width: 11%;
-}
-
-.issuesTableStatus,.issuesTableStatusBody {
 	width: 10%;
 }
 
+.issuesTableName,.issuesTableNameBody {
+	width: 20%;
+}
+
+.issuesTableType,.issuesTableTypeBody {
+	width: 8%;
+}
+
+.issuesTableStatus,.issuesTableStatusBody {
+	width: 8%;
+}
+
 .issuesTableReporter,.issuesTableReporterBody {
-	width: 12%;
+	width: 10%;
 }
 
 .issuesTableAssignee,.issuesTableAssigneeBody {
-	width: 12%;
+	width: 10%;
 }
 
 .issuesTableCreated,.issuesTableCreatedBody {
-	width: 18%;
+	width: 17%;
 }
 
 .issuesTableUpdated,.issuesTableUpdatedBody {
-	width: 18%;
+	width: 17%;
 }
 
 .inputKey,.selectIssueType {
@@ -345,6 +345,7 @@ h4 {
 .issuesTableReporterBody,.issuesTableAssigneeBody,.issuesTableCreatedBody,.issuesTableUpdatedBody {
 	padding: 5px;
 	border: 1px solid black;
+	text-align: center;
 }
 .searchInput {
 	padding-right: 3%;
