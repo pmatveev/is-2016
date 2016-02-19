@@ -95,27 +95,23 @@
 	var isEditing = false;
 	
 	var kinds = [];
-	var kindsDisplay = [];
-	
-	var statuses = [];
-	var statusesDisplay = [];
-	
 	var assignees = [];
-	var assigneesDisplay = [];
 	
 	function init() {
 		<%for (int i = 0; i < issueKinds.length; i++) {%>
-		kinds[<%=i%>] = "<%=issueKinds[i].code%>";
-		kindsDisplay[<%=i%>] = "<%=issueKinds[i].name%>"; 
+		kinds[<%=i%>] = {
+			code: "<%=issueKinds[i].code%>",
+			name: "<%=issueKinds[i].name%>"
+		}	
 		<%}%>
-		<%for (int i = 0; i < statusTransitions.length; i++) {%>
-		statuses[<%=i%>] = "<%=statusTransitions[i].statusTo%>";
-		statusesDisplay[<%=i%>] = "<%=statusTransitions[i].statusToDisplay%>"; 
-		<%}%>
+
 		<%for (int i = 0; i < assignees.length; i++) {%>
-		assignees[<%=i%>] = "<%=assignees[i].username%>";
-		assigneesDisplay[<%=i%>] = "<%=assignees[i].credentials%>"; 
+		assignees[<%=i%>] = {
+			code: "<%=assignees[i].username%>",
+			name: "<%=assignees[i].credentials%>"
+		}
 		<%}%>
+		
 		resetForm();
 	}
 	
@@ -132,7 +128,7 @@
 		isEditing = false;
 	}
 	
-	function createSelect(parCode, selectId, data, display, defaultData) {
+	function createSelect(parCode, selectId, data, defaultData) {
 		var select = document.createElement('select');
 		select.id = selectId;
 		select.name = selectId;
@@ -140,10 +136,10 @@
 			
 		for (var i = 0; i < data.length; i++) {
 		    var option = document.createElement("option");
-		    option.value = data[i];
-		    option.text = display[i];
+		    option.value = data[i].code;
+		    option.text = data[i].name;
 		    
-		    if (data[i] == defaultData) {
+		    if (data[i].code == defaultData) {
 		    	option.selected = "selected";
 		    }
 		    select.appendChild(option);
@@ -168,9 +164,8 @@
 	function enableEdit(newStatusCode, newStatus) {
 		if (!isEditing) {
 			// have to create dropdowns
-			createSelect("issueKindTd", "<%=IssueServlet.ISSUE_SET_KIND%>", kinds, kindsDisplay, "<%=issue.kind%>");
-			// createSelect("issueStatusTd", "<%=IssueServlet.ISSUE_SET_STATUS%>", statuses, statusesDisplay, "<%=issue.status%>");
-			createSelect("issueAssigneeTd", "<%=IssueServlet.ISSUE_SET_ASSIGNEE%>", assignees, assigneesDisplay, "<%=issue.assignee%>");					
+			createSelect("issueKindTd", "<%=IssueServlet.ISSUE_SET_KIND%>", kinds, "<%=issue.kind%>");
+			createSelect("issueAssigneeTd", "<%=IssueServlet.ISSUE_SET_ASSIGNEE%>", assignees, "<%=issue.assignee%>");					
 			
 			var summEdit = document.createElement("input");
 			summEdit.id = "<%=IssueServlet.ISSUE_SET_SUMMARY%>_out";

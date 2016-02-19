@@ -1,0 +1,10 @@
+-- create admin/1234
+INSERT INTO OFFICER_GROUP
+	(NAME, CODE)
+	VALUES
+	('Administrators', 'ADMIN');
+	
+INSERT INTO OFFICER
+	(OFFICER_GROUP__ID, USERNAME, IS_ACTIVE, PASSHASH, CREDENTIALS)
+	VALUES
+	(1, 'admin', TRUE, '81dc9bdb52d04dc20036dbd8313ed055', 'Test Administrator');
