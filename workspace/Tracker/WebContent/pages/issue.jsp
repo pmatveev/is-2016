@@ -128,6 +128,7 @@
 		document.getElementById("issueDescription").innerHTML = "<%=issue.description == null ? "" : issue.description.replaceAll("\n", "<br/>")%>";
 		document.getElementById("issueResolution").innerHTML = "<%=issue.resolution == null ? "" : issue.resolution.replaceAll("\n", "<br/>")%>";
 		document.getElementById("issueSummary").innerHTML = "<%=issue.summary%>";
+		document.getElementById("editErr").innerHTML = "";
 		isEditing = false;
 	}
 	
@@ -180,6 +181,7 @@
 			document.getElementById("issueSummary").appendChild(summEdit);
 			
 			var descrEdit = document.createElement("textarea");
+			descrEdit.id = "<%=IssueServlet.ISSUE_SET_DESCRIPTION%>";
 			descrEdit.name = "<%=IssueServlet.ISSUE_SET_DESCRIPTION%>";
 			descrEdit.value = "<%=issue.description == null ? "" : issue.description.replaceAll("\n", "\\\\n")%>";
 			descrEdit.className = "descrEdit";
@@ -234,13 +236,19 @@
 		
 		document.getElementById("issueStatusTd").innerHTML = newStatus;
 		document.getElementById("<%=IssueServlet.ISSUE_SET_STATUS%>").value = newStatusCode;
-			return;
-		}
+		return;
+	}
 	
 	function validate() {
+		if (document.getElementById("<%=IssueServlet.ISSUE_SET_DESCRIPTION%>").value == "") {
+			document.getElementById("editErr").innerHTML = "Issue description required";
+			return false;				
+		}		
+		
+		document.getElementById("editErr").innerHTML = "";	
 		document.getElementById("<%=IssueServlet.ISSUE_SET_SUMMARY%>").value = document.getElementById("<%=IssueServlet.ISSUE_SET_SUMMARY%>_out").value;
-			return true;
-		}
+		return true;
+	}
 	</script>
 	<div>
 		<div class="linkToEdit">
@@ -317,6 +325,7 @@
 					<hr>
 				</div>
 				<div class="issueDescription" id="issueResolution"></div>
+				<div id="editErr" class="dialogErr"></div>
 				<div class="issueCommitButtons" id="issueCommitButtonsDiv"></div>
 			</form>
 		</div>

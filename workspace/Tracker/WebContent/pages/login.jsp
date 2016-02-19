@@ -24,13 +24,13 @@
 			if (document.loginform.
 	<%=LoginServlet.LOGIN_USERNAME_ATTR%>
 		.value == "") {
-				document.getElementById("loginErr").innerText = "Username required";
+				document.getElementById("loginErr").innerHTML = "Username required";
 				return false;
 			}
 			if (document.loginform.
 	<%=LoginServlet.LOGIN_PASSWORD_ATTR%>
 		.value == "") {
-				document.getElementById("loginErr").innerText = "Password required";
+				document.getElementById("loginErr").innerHTML = "Password required";
 				return false;
 			}
 

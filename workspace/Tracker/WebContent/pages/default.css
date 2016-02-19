@@ -45,7 +45,7 @@ h4 {
 	margin-right: 10px;
 }
 
-.loginerr,.input,.button,.disabledButton,.margin5px {
+.loginerr,.input,.button,.disabledButton,.margin5px,.dialogErr {
 	margin-left: 5px;
 	margin-top: 5px;
 	margin-bottom: 5px;
@@ -59,7 +59,7 @@ h4 {
 	margin-right: 15px;
 }
 
-.loginerr {
+.loginerr,.dialogErr {
 	text-align: center;
 	color: rgb(255, 0, 0);
 }

@@ -49,6 +49,22 @@
 		}
 
 		function validate() {
+			if (document.getElementById("<%=IssueServlet.ISSUE_SET_PROJECT%>").value == "") {
+				document.getElementById("createErr").innerHTML = "Issue project required";
+				return false;				
+			}
+
+			if (document.getElementById("<%=IssueServlet.ISSUE_SET_KIND%>").value == "") {
+				document.getElementById("createErr").innerHTML = "Issue type required";
+				return false;				
+			}
+
+			if (document.getElementById("<%=IssueServlet.ISSUE_SET_DESCRIPTION%>").value == "") {
+				document.getElementById("createErr").innerHTML = "Issue description required";
+				return false;				
+			}
+			
+			document.getElementById("createErr").innerHTML = "";
 			return true;
 		}
 	</script>
@@ -111,9 +127,11 @@
 			<div class="issueDescriptionCreate">
 				<h1 class="briefInformation">Description</h1>
 				<hr>
-				<textarea name="<%=IssueServlet.ISSUE_SET_DESCRIPTION%>" rows="9"
+				<textarea id="<%=IssueServlet.ISSUE_SET_DESCRIPTION%>" 
+					name="<%=IssueServlet.ISSUE_SET_DESCRIPTION%>" rows="9"
 					class="descrEdit"></textarea>
 			</div>
+			<div id="createErr" class="dialogErr"></div>
 			<div class="issueCommitButtons" id="issueCommitButtonsDiv">
 				<input type="submit" class="buttonFixed"
 					name="<%=IssueServlet.ISSUE_CREATE_WEBSERVICE%>" value="Create"></input>
