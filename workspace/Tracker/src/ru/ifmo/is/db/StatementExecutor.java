@@ -23,6 +23,8 @@ public class StatementExecutor {
 		Connection conn = null;
 		try {
 			conn = new ConnectionManager().getConnection();
+			conn.setAutoCommit(false);
+			
 			CallableStatement stmt = conn.prepareCall("{" + sql + "}");
 
 			List<Integer> out = new LinkedList<Integer>();
@@ -50,8 +52,14 @@ public class StatementExecutor {
 				case IN_STRING: // should not be like this
 					break;
 				}
+
+				conn.commit();
 			}
 		} catch (NamingException | SQLException e) {
+			try {
+				conn.rollback();
+			} catch (SQLException e1) {
+			}
 			LogManager.log(e);
 			return res;
 		} finally {
