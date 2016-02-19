@@ -119,12 +119,8 @@
 		LogManager.log("GET index.jsp", request);
 	%>
 	<%
-		StringBuffer returnTo = request.getRequestURL();
+		StringBuffer returnTo = request.getRequestURL().append("?");
 		Enumeration<String> parms = request.getParameterNames();
-
-		if (parms.hasMoreElements()) {
-			returnTo.append("?");
-		}
 
 		int p = 0;
 		while (parms.hasMoreElements()) {
@@ -140,11 +136,13 @@
 
 		String returnToStr = URLEncoder.encode(returnTo.toString());
 	%>
-	<div class="createIssue">
-		<button class="createIssueButton">Create issue</button>
+	<div class="createIssueButtonDiv">
+		<button class="createIssueButton"
+			onclick="parent.location = '/Tracker<%=IssueServlet.ISSUE_CREATE%>?<%=IssueServlet.RETURN_URL%>=<%=returnToStr%>'">Create
+			issue</button>
 	</div>
 	<form id="issueFilter" name="issueFilter"
-		action="/Tracker/pages/index.jsp" method="get">
+		action="/Tracker<%=LoginServlet.INDEX_PAGE%>" method="get">
 		<div class="searchInput">
 			<input type="submit" class="createIssueButton" value="Apply filter"
 				name="<%=IssueServlet.ISSUE_SELECT_WEBSERVICE%>"></input>

@@ -150,6 +150,11 @@ h4 {
 	margin-bottom: 15px;
 }
 
+.issueDescriptionCreate {
+	margin-top: 15px;
+	margin-bottom: 15px;
+}
+
 .noResolution {
 	margin-left: 15px;
 	margin-top: 15px;
@@ -273,6 +278,14 @@ h4 {
 }
 
 .createIssue {
+	margin-top: 10px;
+	margin-left: 35%;
+	margin-right: 35%;
+	min-width: 300px;
+	width: 30%;
+}
+
+.createIssueButtonDiv {
 	margin-top: 2%;
 	margin-left: 3%;
 	padding: 0px;

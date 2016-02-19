@@ -16,10 +16,12 @@ public class IssueServlet extends HttpServlet {
 
 	// pages
 	public static final String ISSUE_DETAILS = "/pages/issue.jsp";
+	public static final String ISSUE_CREATE = "/pages/createIssue.jsp";
 
 	// services
-	public static final String ISSUE_UPDATE_WEBSERVICE = "updateIssue";
-	public static final String ISSUE_SELECT_WEBSERVICE = "selectIssue";
+	public static final String ISSUE_UPDATE_WEBSERVICE = "updateIssueService";
+	public static final String ISSUE_SELECT_WEBSERVICE = "selectIssueService";
+	public static final String ISSUE_CREATE_WEBSERVICE = "createIssueService";
 
 	// in GET parameters
 	public static final String ISSUE_GET_KEY_PARM = "issue";
@@ -34,6 +36,7 @@ public class IssueServlet extends HttpServlet {
 	public static final String RETURN_URL = "returnURL";
 
 	// in POST parameters
+	public static final String ISSUE_SET_PROJECT = "issueProjectSet";
 	public static final String ISSUE_SET_KIND = "issueKindSet";
 	public static final String ISSUE_SET_STATUS = "issueStatusSet";
 	public static final String ISSUE_SET_ASSIGNEE = "issueAssigneeSet";
@@ -43,6 +46,14 @@ public class IssueServlet extends HttpServlet {
 
 	public static String nvl(String a) {
 		return a == null ? "" : a;
+	}
+	
+	public static String getReturnAddress(HttpServletRequest request) {
+		String searchReturnURL = request.getParameter(IssueServlet.RETURN_URL);
+		if (searchReturnURL == null) {
+			searchReturnURL = "/Tracker" + LoginServlet.INDEX_PAGE;
+		}
+		return searchReturnURL;
 	}
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response)

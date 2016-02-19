@@ -16,11 +16,7 @@
 <%
 	LogManager.log("GET issue.jsp", request);
 
-	String searchReturnURL = request.getParameter(IssueServlet.RETURN_URL);
-	if (searchReturnURL == null) {
-		searchReturnURL = "/Tracker" + LoginServlet.INDEX_PAGE;
-	}
-
+	String searchReturnURL = IssueServlet.getReturnAddress(request);
 	SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMMM d yyyy, HH:mm:ss", Locale.ENGLISH);
 	String issueKey = (String) request.getParameter(IssueServlet.ISSUE_GET_KEY_PARM);
 
@@ -46,7 +42,6 @@
 	comments[i] = new Comment(i, issue.id,"admin", "Test admin", new Date(116, 1, 15, 14, 34, 5),
 	"really, really long long long\n multiline comment #" + Integer.toString(i));
 		}
-	
 
 		statusTransitions = new IssueStatusTransition[4];
 		statusTransitions[0] = new IssueStatusTransition(1, "EDIT_SANDBOX", "Edit sandbox", "SANDBOX",
@@ -286,7 +281,7 @@
 					<hr>
 					<table class="briefInfoTable">
 						<tr class="widthTr">
-							<td class="widthTd">Issue kind</td>
+							<td class="widthTd">Issue type</td>
 							<td id="issueKindTd"></td>
 						</tr>
 						<tr>
