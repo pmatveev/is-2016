@@ -31,6 +31,7 @@ public class IssueServlet extends HttpServlet {
 	public static final String ISSUE_GET_BY_ASSIGNEE = "byAssignee";
 	public static final String ISSUE_GET_BY_CREATED = "byCreated";
 	public static final String ISSUE_GET_BY_UPDATED = "byUpdated";
+	public static final String RETURN_URL = "returnURL";
 
 	// in POST parameters
 	public static final String ISSUE_SET_KIND = "issueKindSet";
@@ -39,6 +40,10 @@ public class IssueServlet extends HttpServlet {
 	public static final String ISSUE_SET_SUMMARY = "issueSummarySet";
 	public static final String ISSUE_SET_DESCRIPTION = "issueDescrSet";
 	public static final String ISSUE_SET_RESOLUTION = "issueResSet";
+
+	public static String nvl(String a) {
+		return a == null ? "" : a;
+	}
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {

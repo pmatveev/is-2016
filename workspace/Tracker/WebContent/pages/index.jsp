@@ -1,3 +1,5 @@
+<%@page import="java.net.URLEncoder"%>
+<%@page import="java.util.Enumeration"%>
 <%@page import="ru.ifmo.is.db.data.IssueStatus"%>
 <%@page import="ru.ifmo.is.db.data.IssueKind"%>
 <%@page import="ru.ifmo.is.servlet.IssueServlet"%>
@@ -116,6 +118,28 @@
 	<%
 		LogManager.log("GET index.jsp", request);
 	%>
+	<%
+		StringBuffer returnTo = request.getRequestURL();
+		Enumeration<String> parms = request.getParameterNames();
+
+		if (parms.hasMoreElements()) {
+			returnTo.append("?");
+		}
+
+		int p = 0;
+		while (parms.hasMoreElements()) {
+			if (p > 0) {
+				returnTo.append("&");
+			}
+			String attr = parms.nextElement();
+
+			returnTo.append(attr + "="
+					+ URLEncoder.encode(request.getParameter(attr)));
+			p++;
+		}
+
+		String returnToStr = URLEncoder.encode(returnTo.toString());
+	%>
 	<div class="createIssue">
 		<button class="createIssueButton">Create issue</button>
 	</div>
@@ -141,11 +165,13 @@
 					<tr>
 						<!-- Filters -->
 						<td class="issuesTableKey"><input type="text"
-							value="<%=request.getParameter(IssueServlet.ISSUE_GET_BY_KEY)%>"
+							value="<%=IssueServlet.nvl(request
+					.getParameter(IssueServlet.ISSUE_GET_BY_KEY))%>"
 							name="<%=IssueServlet.ISSUE_GET_BY_KEY%>" id="filterKey"
 							class="inputKey"></td>
 						<td class="issuesTableName"><input type="text"
-							value="<%=request.getParameter(IssueServlet.ISSUE_GET_BY_SUMM)%>"
+							value="<%=IssueServlet.nvl(request
+					.getParameter(IssueServlet.ISSUE_GET_BY_SUMM))%>"
 							name="<%=IssueServlet.ISSUE_GET_BY_SUMM%>" id="filterName"
 							class="inputKey"></td>
 						<td class="issuesTableType"><select id="filterType"
@@ -179,11 +205,13 @@
 								%>
 						</select></td>
 						<td class="issuesTableReporter"><input type="text"
-							value="<%=request.getParameter(IssueServlet.ISSUE_GET_BY_REPORTER)%>"
+							value="<%=IssueServlet.nvl(request
+					.getParameter(IssueServlet.ISSUE_GET_BY_REPORTER))%>"
 							name="<%=IssueServlet.ISSUE_GET_BY_REPORTER%>"
 							id="filterReporter" class="inputKey"></td>
 						<td class="issuesTableAssignee"><input type="text"
-							value="<%=request.getParameter(IssueServlet.ISSUE_GET_BY_ASSIGNEE)%>"
+							value="<%=IssueServlet.nvl(request
+					.getParameter(IssueServlet.ISSUE_GET_BY_ASSIGNEE))%>"
 							name="<%=IssueServlet.ISSUE_GET_BY_ASSIGNEE%>"
 							id="filterAssignee" class="inputKey"></td>
 						<td class="issuesTableCreated"><select id="dateCreated"
@@ -246,11 +274,11 @@
 					%>
 					<tr>
 						<td class="issuesTableKeyBody"><a
-							href="/Tracker/pages/issue.jsp?<%=IssueServlet.ISSUE_GET_KEY_PARM%>=<%=issues[i].idt%>">
+							href="/Tracker/pages/issue.jsp?<%=IssueServlet.ISSUE_GET_KEY_PARM%>=<%=issues[i].idt%>&<%=IssueServlet.RETURN_URL%>=<%=returnToStr%>">
 								<%=issues[i].idt%>
 						</a></td>
 						<td class="issuesTableNameBody"><a
-							href="/Tracker/pages/issue.jsp?<%=IssueServlet.ISSUE_GET_KEY_PARM%>=<%=issues[i].idt%>">
+							href="/Tracker/pages/issue.jsp?<%=IssueServlet.ISSUE_GET_KEY_PARM%>=<%=issues[i].idt%>&<%=IssueServlet.RETURN_URL%>=<%=returnToStr%>">
 								<%=issues[i].summary%>
 						</a></td>
 						<td class="issuesTableTypeBody"><%=issues[i].kindDisplay%></td>

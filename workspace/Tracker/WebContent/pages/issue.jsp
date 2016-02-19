@@ -16,6 +16,11 @@
 <%
 	LogManager.log("GET issue.jsp", request);
 
+	String searchReturnURL = request.getParameter(IssueServlet.RETURN_URL);
+	if (searchReturnURL == null) {
+		searchReturnURL = "/Tracker" + LoginServlet.INDEX_PAGE;
+	}
+
 	SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMMM d yyyy, HH:mm:ss", Locale.ENGLISH);
 	String issueKey = (String) request.getParameter(IssueServlet.ISSUE_GET_KEY_PARM);
 
@@ -86,7 +91,7 @@
 		Issue having key
 		<%=issueKey%>
 		not found. You may continue with search on the <a
-			href="/Tracker/pages/index.jsp">main page</a>.
+			href="<%=searchReturnURL%>">main page</a>.
 	</div>
 	<%
 		} else {
@@ -244,7 +249,7 @@
 	</script>
 	<div>
 		<div class="linkToEdit">
-			<a href="/Tracker/pages/index.jsp">Back to search</a>
+			<a href="<%=searchReturnURL%>">Back to search</a>
 		</div>
 		<div>
 			<p class="issueName">
