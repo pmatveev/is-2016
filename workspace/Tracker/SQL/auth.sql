@@ -11,7 +11,7 @@ begin
 	select min(id)
 	  into ofcr
 	  from officer
-	 where username = p_user
+	 where username = upper(p_user)
 	   and passhash = p_pass
 	   and is_active = true;
 	   
