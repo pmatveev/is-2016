@@ -24,24 +24,25 @@
 </head>
 <body onload="init()">
 	<script>
-	var projectStatusTo = [];
-	var projectOfficerTo = [];
+	var projectTo = [];
 	
 		function init() {
 			<%for (int i = 0; i < projects.length; i++) {%>
-			projectStatusTo["<%=projects[i].code%>"] = "<%=projects[i].startStatusDisplay%>";
-			projectOfficerTo["<%=projects[i].code%>"] = "<%=projects[i].ownerDisplay%>";
+			projectTo["<%=projects[i].code%>"] = {
+					status: "<%=projects[i].startStatusDisplay%>",
+			 		owner: "<%=projects[i].ownerDisplay%>"
+			};
 	<%}%>
 		}
 
 		function setProject(project) {
-			var toStatus = projectStatusTo[project.value];
+			var toStatus = projectTo[project.value].status;
 			if (toStatus == undefined) {
 				toStatus = "";
 			}
 			document.getElementById("issueStatusInput").value = toStatus;
 
-			var toOfficer = projectOfficerTo[project.value];
+			var toOfficer = projectTo[project.value].owner;
 			if (toOfficer == undefined) {
 				toOfficer = "";
 			}

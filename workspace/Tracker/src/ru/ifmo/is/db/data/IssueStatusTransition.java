@@ -4,8 +4,6 @@ import ru.ifmo.is.db.DataClass;
 
 public class IssueStatusTransition extends DataClass {
 	public int id;
-	public String officerGrant;
-	public String officerGrantDisplay;
 	public String project;
 	public String projectDisplay;
 	public String statusFrom;
@@ -17,8 +15,6 @@ public class IssueStatusTransition extends DataClass {
 	
 	public IssueStatusTransition(
 			int id,
-			String officerGrant,
-			String officerGrantDisplay,
 			String project,
 			String projectDisplay,
 			String statusFrom,
@@ -28,8 +24,6 @@ public class IssueStatusTransition extends DataClass {
 			String code,
 			String name) {
 		this.id = id;
-		this.officerGrant = officerGrant;
-		this.officerGrantDisplay = officerGrantDisplay;
 		this.project = project;
 		this.projectDisplay = projectDisplay;
 		this.statusFrom = statusFrom;

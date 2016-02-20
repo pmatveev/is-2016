@@ -126,10 +126,9 @@ h4 {
 
 .briefInfoTable {
 	font-size: 12pt;
-	margin-left: 10%;
-	margin-top: 10px;
-	margin-bottom: 0px;
 	border: 0px;
+	width: 80%;
+	margin-right: 20%;
 }
 
 .widthTd {
@@ -242,6 +241,11 @@ h4 {
 	float: left;
 	margin-left: 4.5%;
 	width: 40%;
+	min-width: 400px;
+}
+
+.divIssue,.buttons {
+	min-width: 600px;	
 }
 
 .commentTable {

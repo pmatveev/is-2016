@@ -50,15 +50,20 @@ create procedure verify_auth(
 ) 
 begin
 	declare ofcr int(32);
+	declare ses int(32);
 	
-	select min(officer__id)
-	  into ofcr
+	select min(id), min(officer__id)
+	  into ses, ofcr
 	  from officer_session
 	 where conn = p_conn
 	   and token = p_token
 	   and now() between date_from and date_to;
 	   
 	if ofcr is not null then
+		update officer_session
+		   set date_to = date_add(now(), interval 2 hour)
+		 where id = ses;
+	
 		select min(username), min(credentials)
 		  into p_user, p_cred
 		  from officer
