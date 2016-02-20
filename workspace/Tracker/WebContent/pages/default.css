@@ -64,7 +64,7 @@ h4 {
 	color: rgb(255, 0, 0);
 }
 
-.input,.button,.disabledButton,.buttonFixed,.cancelButtonFixed,.createIssueButton {
+.input,.button,.disabledButton,.buttonFixed,.cancelButtonFixed,.disabledButtonFixed,.createIssueButton {
 	border-style: solid;
 	border-width: 1px;
 	margin: 4px;
@@ -74,7 +74,7 @@ h4 {
 	width: 100%;
 }
 
-.disabledButton,.cancelButtonFixed {
+.disabledButton,.cancelButtonFixed,.disabledButtonFixed {
 	background-color: rgb(255, 255, 255);
 	color: rgb(127, 127, 127);
 	border-color: rgb(127, 127, 127);
@@ -86,7 +86,7 @@ h4 {
 	border-color: rgb(0, 0, 255);
 }
 
-.buttonFixed,.cancelButtonFixed,.createIssueButton {
+.buttonFixed,.cancelButtonFixed,.disabledButtonFixed,.createIssueButton {
 	width: 120px;
 }
 
