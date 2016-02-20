@@ -43,6 +43,7 @@ public class IssueServlet extends HttpServlet {
 	public static final String ISSUE_SET_SUMMARY = "issueSummarySet";
 	public static final String ISSUE_SET_DESCRIPTION = "issueDescrSet";
 	public static final String ISSUE_SET_RESOLUTION = "issueResSet";
+	public static final String ISSUE_ADD_COMMENT = "issueAddComment";
 
 	public static String nvl(String a) {
 		return a == null ? "" : a;

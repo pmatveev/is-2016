@@ -52,11 +52,11 @@ select add_status_transition('OTH_WORK_CLOSE', 'Close', 'OTHER', 'WORK', 'CLOSE'
 select add_status_transition('OTH_CLOSE_REOPEN', 'Reopen', 'DEV', 'CLOSE', 'REOPEN');
 
 -- simple to dev
-select add_project_transition('OTH_DEV_OPEN_OPEN', 'OTH', 'DEV', 'OPEN', 'OPEN');
-select add_project_transition('OTH_DEV_REOPEN_REOPEN', 'OTH', 'DEV', 'REOPEN', 'REOPEN');
+select add_project_transition('OTH_DEV_OPEN_OPEN', 'OTHER', 'DEV', 'OPEN', 'OPEN');
+select add_project_transition('OTH_DEV_REOPEN_REOPEN', 'OTHER', 'DEV', 'REOPEN', 'REOPEN');
 -- dev to simple
-select add_project_transition('DEV_OTH_OPEN_OPEN', 'DEV', 'OTH', 'OPEN', 'OPEN');
-select add_project_transition('DEV_OTH_REOPEN_REOPEN', 'DEV', 'OTH', 'REOPEN', 'REOPEN');
+select add_project_transition('DEV_OTH_OPEN_OPEN', 'DEV', 'OTHER', 'OPEN', 'OPEN');
+select add_project_transition('DEV_OTH_REOPEN_REOPEN', 'DEV', 'OTHER', 'REOPEN', 'REOPEN');
 
 -- no issue transition
 select add_officer_grant('ADMIN', 'Administrator', true);

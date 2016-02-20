@@ -225,7 +225,7 @@ begin
 		insert into project_transition
 			(project_from, project_to, status_from, status_to, code)
 			values
-			(pr1, p2, st1, st2, p_code);
+			(pr1, pr2, st1, st2, p_code);
 		
 		return null;
 	else
@@ -298,8 +298,8 @@ begin
 		  from status_transition
 		 where code = p_status_transition;
 	 
-	 	if pr is null then
-			return concat('Project transition ',  p_status_transition,  ' does not exist');		
+	 	if st is null then
+			return concat('Status transition ',  p_status_transition,  ' does not exist');		
 		end if;
 	end if;
 	
