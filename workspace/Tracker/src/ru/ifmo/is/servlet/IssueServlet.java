@@ -68,6 +68,15 @@ public class IssueServlet extends HttpServlet {
 	private void createIssueReturn(HttpServletRequest request,
 			HttpServletResponse response, String errMsg) throws IOException {
 		request.getSession().setAttribute(ISSUE_ERROR, errMsg);
+		request.getSession().setAttribute(ISSUE_SET_PROJECT,
+				request.getParameter(ISSUE_SET_PROJECT));
+		request.getSession().setAttribute(ISSUE_SET_KIND,
+				request.getParameter(ISSUE_SET_KIND));
+		request.getSession().setAttribute(ISSUE_SET_SUMMARY,
+				request.getParameter(ISSUE_SET_SUMMARY));
+		request.getSession().setAttribute(ISSUE_SET_DESCRIPTION,
+				request.getParameter(ISSUE_SET_DESCRIPTION));
+		
 		response.sendRedirect("/Tracker" + ISSUE_CREATE);
 	}
 	
@@ -124,7 +133,7 @@ public class IssueServlet extends HttpServlet {
 			createIssue(request, response);
 			return;
 		}
-		// TODO
+		
 		String toIssue = request.getParameter(ISSUE_GET_KEY_PARM);
 		if (toIssue == null) {
 			// redirect to index

@@ -25,15 +25,6 @@
 	var projectTo = [];
 	
 		function init() {
-			<%
-			String error = (String) request.getSession().getAttribute(IssueServlet.ISSUE_ERROR);
-			if (error != null) {
-				request.getSession().removeAttribute(IssueServlet.ISSUE_ERROR);
-			%>
-			document.getElementById("createErr").innerHTML = "<%=error%>";
-			<%
-			}
-			%>
 			projectTo["-"] = {
 				status: "",
 				owner: ""
@@ -43,7 +34,59 @@
 					status: "<%=projects[i].startStatusDisplay%>",
 			 		owner: "<%=projects[i].ownerDisplay%>"
 			};
-	<%}%>
+			<%}%>
+			
+			<%
+			String error = (String) request.getSession().getAttribute(
+					IssueServlet.ISSUE_ERROR);
+			if (error != null) {
+				request.getSession().removeAttribute(IssueServlet.ISSUE_ERROR);
+				out.println("document.getElementById(\"createErr\").innerHTML = \""
+						+ error + "\";");
+			}
+
+			String summary = (String) request.getSession().getAttribute(
+					IssueServlet.ISSUE_SET_SUMMARY);
+			if (summary != null) {
+				request.getSession().removeAttribute(
+						IssueServlet.ISSUE_SET_SUMMARY);
+				out.println("document.getElementById(\""
+						+ IssueServlet.ISSUE_SET_SUMMARY + "\").value = \""
+						+ summary + "\";");
+			}
+
+			String project = (String) request.getSession().getAttribute(
+					IssueServlet.ISSUE_SET_PROJECT);
+			if (project != null) {
+				request.getSession().removeAttribute(
+						IssueServlet.ISSUE_SET_PROJECT);
+				out.println("document.getElementById(\""
+						+ IssueServlet.ISSUE_SET_PROJECT + "\").value = \""
+						+ project + "\";");
+				out.println("setProject(document.getElementById(\""
+						+ IssueServlet.ISSUE_SET_PROJECT + "\"))");
+			}
+
+			String kind = (String) request.getSession().getAttribute(
+					IssueServlet.ISSUE_SET_KIND);
+			if (kind != null) {
+				request.getSession().removeAttribute(
+						IssueServlet.ISSUE_SET_KIND);
+				out.println("document.getElementById(\""
+						+ IssueServlet.ISSUE_SET_KIND + "\").value = \"" + kind
+						+ "\";");
+			}
+
+			String descr = (String) request.getSession().getAttribute(
+					IssueServlet.ISSUE_SET_DESCRIPTION);
+			if (descr != null) {
+				request.getSession().removeAttribute(
+						IssueServlet.ISSUE_SET_DESCRIPTION);
+				out.println("document.getElementById(\""
+						+ IssueServlet.ISSUE_SET_DESCRIPTION + "\").value = \""
+						+ descr + "\";");
+			}
+			%>			
 		}
 
 		function setProject(project) {
@@ -85,7 +128,8 @@
 	<div class="createIssue">
 		<form id="ussueForm" name="issueForm"
 			action="<%=IssueServlet.SERVLET_IDT%>" method="post"
-			onsubmit="return validate()">
+			onsubmit="return validate()"
+			autocomplete="off">
 			<div class="issueBriefInfo">
 				<h1 class="briefInformation">Summary</h1>
 				<hr>
