@@ -3,8 +3,6 @@ package ru.ifmo.is.manager;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.sql.Types;
 
 import javax.servlet.http.Cookie;
@@ -60,7 +58,6 @@ public class AuthenticationManager {
 			return "Both login and password required";
 		}
 
-		Connection conn = null;
 		String token = null;
 		String ip = getIP(request);
 		try {
@@ -81,14 +78,7 @@ public class AuthenticationManager {
 		} catch (NoSuchAlgorithmException | IOException e) {
 			LogManager.log(e);
 			return "Verification module failed: " + e.getMessage();
-		} finally {
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-				}
-			}
-		}
+		} 
 
 		if (token == null || token.length() == 0) {
 			return "Wrong username or password";
@@ -126,14 +116,15 @@ public class AuthenticationManager {
 		request.removeAttribute(LoginServlet.LOGIN_AUTH_USER_ADMIN);		
 	}
 
-	public void verify(HttpServletRequest request,
-			HttpServletResponse response) {
+	public boolean verify(HttpServletRequest request,
+			HttpServletResponse response) throws IOException {
 		String ip = getIP(request);
 		String token = getToken(request);
 
 		if (token == null) {
 			removeAuth(request);
-			return;
+			response.sendRedirect("/Tracker" + LoginServlet.LOGIN_PAGE);
+			return false;
 		}
 
 		Object[] resTmp = null;
@@ -151,7 +142,8 @@ public class AuthenticationManager {
 			Cookie c = new Cookie(LoginServlet.LOGIN_TOKEN_COOKIE, null);
 			c.setMaxAge(0);
 			response.addCookie(c);
-			return;
+			response.sendRedirect("/Tracker" + LoginServlet.LOGIN_PAGE);
+			return false;
 		}
 
 		boolean auth = false;
@@ -167,7 +159,10 @@ public class AuthenticationManager {
 			Cookie c = new Cookie(LoginServlet.LOGIN_TOKEN_COOKIE, null);
 			c.setMaxAge(0);
 			response.addCookie(c);
+			response.sendRedirect("/Tracker" + LoginServlet.LOGIN_PAGE);
 		}
+		
+		return auth;
 	}
 
 	public void close(HttpServletRequest request, HttpServletResponse response) {

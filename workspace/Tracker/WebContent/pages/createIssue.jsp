@@ -14,7 +14,7 @@
 <body onload="init()">
 	<%@ include file="logout.jsp"%>
 	<%
-		LogManager.log("GET createIndex.jsp", request);
+		LogManager.log("GET createIssue.jsp", request);
 		String searchReturnURL = IssueServlet.getReturnAddress(request);
 	
 		IssueKind[] kinds = IssueKind.select();
@@ -25,6 +25,15 @@
 	var projectTo = [];
 	
 		function init() {
+			<%
+			String error = (String) request.getSession().getAttribute(IssueServlet.ISSUE_ERROR);
+			if (error != null) {
+				request.getSession().removeAttribute(IssueServlet.ISSUE_ERROR);
+			%>
+			document.getElementById("createErr").innerHTML = "<%=error%>";
+			<%
+			}
+			%>
 			projectTo["-"] = {
 				status: "",
 				owner: ""
@@ -46,6 +55,13 @@
 		}
 
 		function validate() {
+			// return true;
+			
+			if (document.getElementById("<%=IssueServlet.ISSUE_SET_SUMMARY%>").value == "") {
+				document.getElementById("createErr").innerHTML = "Issue summary required";
+				return false;				
+			}
+			
 			if (document.getElementById("<%=IssueServlet.ISSUE_SET_PROJECT%>").value == "" || 
 					document.getElementById("<%=IssueServlet.ISSUE_SET_PROJECT%>").value == "-") {
 				document.getElementById("createErr").innerHTML = "Issue project required";
@@ -71,6 +87,11 @@
 			action="<%=IssueServlet.SERVLET_IDT%>" method="post"
 			onsubmit="return validate()">
 			<div class="issueBriefInfo">
+				<h1 class="briefInformation">Summary</h1>
+				<hr>
+				<input class="summaryEdit" 
+					id="<%=IssueServlet.ISSUE_SET_SUMMARY%>"
+					name="<%=IssueServlet.ISSUE_SET_SUMMARY%>"/>
 				<h1 class="briefInformation">Common</h1>
 				<hr>
 				<table class="briefInfoTable">
@@ -115,10 +136,10 @@
 						<td id="issueAssigneeTd"><input id="issueAssigneeInput"
 							class="editIssue" type="text" disabled></input></td>
 					</tr>
-				</table>
+				</table>				
 			</div>
 			<div class="issueDescriptionCreate">
-				<h1 class="briefInformation">Description</h1>
+				<h1 class="briefInformation">Details</h1>
 				<hr>
 				<textarea id="<%=IssueServlet.ISSUE_SET_DESCRIPTION%>" 
 					name="<%=IssueServlet.ISSUE_SET_DESCRIPTION%>" rows="9"

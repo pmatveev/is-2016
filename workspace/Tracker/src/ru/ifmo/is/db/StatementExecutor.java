@@ -35,7 +35,11 @@ public class StatementExecutor {
 				Pair<SQLParmKind, Object> a = attributes[i];
 				switch (a.first) {
 				case IN_STRING:
-					stmt.setString(i + 1, (String) a.second);
+					String parm = (String) a.second;
+					if ("".equals(parm)) {
+						parm = null;
+					}
+					stmt.setString(i + 1, parm);
 					break;
 				case OUT_STRING:
 					out.add(i + 1);
@@ -90,6 +94,7 @@ public class StatementExecutor {
 	@SafeVarargs
 	public final <T extends DataClass> T[] select(T data, String sql,
 			Pair<SQLParmKind, Object>... attributes) throws IOException {
+		LogManager.log(sql, attributes);
 		ResultSet rs = null;
 		Connection conn = null;
 		
@@ -110,7 +115,10 @@ public class StatementExecutor {
 			}
 			
 			rs = stmt.executeQuery();
-			return (T[]) data.parseResultSet(rs);
+			T[] res = (T[]) data.parseResultSet(rs);
+			LogManager.log(LogLevel.SQL, "finished " + sql, LogLevel.SQL_RESULT,
+					res.length + " rows extracted");
+			return res;
 		} catch (NamingException | SQLException e) {
 			LogManager.log(e);
 			throw new IOException(e);

@@ -1,9 +1,13 @@
 create view projects_available as
-select s.name startStatusDisplay,
-       o.credentials ownerDisplay,
-       p.code,
-       p.name,
-       u.username available_for
+select s.id start_status,
+       s.name start_status_display,
+       o.id owner,
+       o.credentials owner_display,
+       p.id project_id,
+       p.code project_code,
+       p.name project_name,
+       u.id available_for,
+       u.username available_for_code
   from issue_project p, 
        issue_status s, 
        officer o, 
@@ -18,7 +22,7 @@ select s.name startStatusDisplay,
    and st.issue_project__id = p.id
    and st.status_from is null
    and st.status_to is null;
- 
+   
 create view available_grants as   
 select o.id officer_id, 
 	   g.id group_id, 

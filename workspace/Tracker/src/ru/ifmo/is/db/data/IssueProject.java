@@ -40,12 +40,12 @@ public class IssueProject extends DataClass {
 		
 		while (rs.next()) {
 			projects.add(new IssueProject(
-					startStatus == null ? null : rs.getString("startStatus"),
-					startStatusDisplay == null ? null : rs.getString("startStatusDisplay"),
-					owner == null ? null : rs.getString("owner"), 
-					ownerDisplay == null ? null : rs.getString("ownerDisplay"),
-					code == null ? null : rs.getString("code"), 
-					name == null ? null : rs.getString("name")));
+					startStatus == null ? null : rs.getString(startStatus),
+					startStatusDisplay == null ? null : rs.getString(startStatusDisplay),
+					owner == null ? null : rs.getString(owner), 
+					ownerDisplay == null ? null : rs.getString(ownerDisplay),
+					code == null ? null : rs.getString(code), 
+					name == null ? null : rs.getString(name)));
 		}
 		
 		return projects.toArray(new IssueProject[0]);
@@ -53,8 +53,15 @@ public class IssueProject extends DataClass {
 	
 	public static IssueProject[] selectAvailable(String username) throws IOException {	
 		return new StatementExecutor().select(
-				new IssueProject(null, "", null, "", "", ""),
-				"select * from projects_available where available_for = ?",
+				new IssueProject(null, 
+						"start_status_display", 
+						null, 
+						"owner_display", 
+						"project_code", 
+						"project_name"),
+				"select start_status_display, owner_display, project_code, project_name " +
+						"from projects_available " +
+						"where available_for_code = ?",
 				new Pair<>(SQLParmKind.IN_STRING, (Object) username));
 	}
 }

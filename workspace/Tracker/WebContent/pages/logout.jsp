@@ -6,10 +6,6 @@
 <div class="header">
 	<%
 		new AuthenticationManager().verify(request, response);
-		if (request.getAttribute(LoginServlet.LOGIN_AUTH_USERNAME) == null) {
-			// not authenticated
-			response.sendRedirect("/Tracker" + LoginServlet.LOGIN_PAGE);
-		}
 	%>
 	You are logged in as
 	<%=request.getAttribute(LoginServlet.LOGIN_AUTH_DISPLAYNAME) +
