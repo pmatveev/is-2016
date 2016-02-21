@@ -117,6 +117,12 @@ begin
 	declare st1 int(32);
 	declare st2 int(32);	
 	
+	if (p_status_from is null and p_status_to is not null)
+		or (p_status_from is not null and p_status_to is null)
+		then
+		return 'Statuses should be both null or both not null';
+	end if;
+		
 	select min(id) 
 	  into tr
 	  from status_transition
@@ -134,22 +140,24 @@ begin
 			return concat('Project ',  p_project,  ' does not exist: ',  p_code);				
 		end if;
 	
-		select min(id)
-		  into st1
-		  from issue_status
-		 where code = p_status_from;
-		 
-		if st1 is null then
-			return concat('Status ',  p_status_from,  ' does not exist: ',  p_code);		
-		end if;
-		
-		select min(id)
-		  into st2
-		  from issue_status
-		 where code = p_status_to;
-		 
-		if st2 is null then
-			return concat('Status ',  p_status_to,  ' does not exist: ',  p_code);		
+		if p_status_from is not null and p_status_to is not null then
+			select min(id)
+			  into st1
+			  from issue_status
+			 where code = p_status_from;
+			 
+			if st1 is null then
+				return concat('Status ',  p_status_from,  ' does not exist: ',  p_code);		
+			end if;
+			
+			select min(id)
+			  into st2
+			  from issue_status
+			 where code = p_status_to;
+			 
+			if st2 is null then
+				return concat('Status ',  p_status_to,  ' does not exist: ',  p_code);		
+			end if;
 		end if;
 	
 		insert into status_transition

@@ -15,8 +15,7 @@ public class IssueKind extends DataClass {
 	
 	public IssueKind(
 			String code,
-			String name
-			) {
+			String name) {
 		this.name = name;
 		this.code = code;
 	}

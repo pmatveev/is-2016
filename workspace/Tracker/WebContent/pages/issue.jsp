@@ -39,8 +39,8 @@
 		null);
 		issue.resolution = "Resolution";
 		
-		comments = new Comment[1];
-		for (int i = 0; i < 1; i++) {
+		comments = new Comment[10];
+		for (int i = 0; i < comments.length; i++) {
 	comments[i] = new Comment(i, issue.id,"admin", "Test admin", new Date(116, 1, 15, 14, 34, 5),
 	"really, really long long long\n multiline comment #" + Integer.toString(i));
 		}
@@ -70,10 +70,7 @@
 				"SANDBOX", "Sandbox testing", "WISH", "Delayed issues",
 				"OPEN", "Open", "CLOSE", "To be closed");
 
-		issueKinds = new IssueKind[3];
-		issueKinds[0] = new IssueKind(1, "BUG", "Bug");
-		issueKinds[1] = new IssueKind(2, "TASK", "Assignment");
-		issueKinds[2] = new IssueKind(3, "VERIFY", "Verification");
+		issueKinds = IssueKind.select();
 
 		assignees = new Officer[5];
 		assignees[0] = new Officer(1, "admin", true, null, "Test Admin");

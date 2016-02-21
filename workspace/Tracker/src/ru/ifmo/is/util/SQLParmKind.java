@@ -1,5 +1,5 @@
 package ru.ifmo.is.util;
 
 public enum SQLParmKind {
-	IN_STRING, OUT_STRING;
+	IN_STRING, OUT_STRING, OUT_BOOL;
 }

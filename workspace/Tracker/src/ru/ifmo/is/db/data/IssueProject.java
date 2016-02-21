@@ -8,6 +8,8 @@ import java.util.List;
 
 import ru.ifmo.is.db.DataClass;
 import ru.ifmo.is.db.StatementExecutor;
+import ru.ifmo.is.util.Pair;
+import ru.ifmo.is.util.SQLParmKind;
 
 public class IssueProject extends DataClass {
 	public String startStatus;
@@ -49,8 +51,10 @@ public class IssueProject extends DataClass {
 		return projects.toArray(new IssueProject[0]);
 	}
 	
-	public static IssueProject[] select() throws IOException {	
-		return new StatementExecutor().select(new IssueProject(null, "", null, "", "", ""),
-				"select * from projects_available");
+	public static IssueProject[] selectAvailable(String username) throws IOException {	
+		return new StatementExecutor().select(
+				new IssueProject(null, "", null, "", "", ""),
+				"select * from projects_available where available_for = ?",
+				new Pair<>(SQLParmKind.IN_STRING, (Object) username));
 	}
 }

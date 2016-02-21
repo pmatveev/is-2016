@@ -46,7 +46,8 @@ create procedure verify_auth(
 	in p_conn varchar(32),
 	in p_token varchar(32),
 	out p_user varchar(32),
-	out p_cred varchar(32)
+	out p_cred varchar(32),
+	out p_admin bool
 ) 
 begin
 	declare ofcr int(32);
@@ -64,9 +65,12 @@ begin
 		   set date_to = date_add(now(), interval 2 hour)
 		 where id = ses;
 	
-		select min(username), min(credentials)
-		  into p_user, p_cred
-		  from officer
+		select min(o.username), min(o.credentials), case when min(ag.is_admin) is not null then true else false end
+		  into p_user, p_cred, p_admin
+		  from officer o
+		  left join available_grants ag
+		    on o.id = ag.officer_id
+		   and ag.is_admin = true
 		 where id = ofcr;
 	end if;
 end;

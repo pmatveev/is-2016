@@ -13,9 +13,8 @@
 <body>
 	<%
 		// verify if already logged in -> then redirect to index.jsp
-		Pair<String, String> user = new AuthenticationManager()
-			.verify(request, response);
-		if (user.first != null) {
+		new AuthenticationManager().verify(request, response);
+		if (request.getAttribute(LoginServlet.LOGIN_AUTH_USERNAME) != null) {
 			response.sendRedirect("/Tracker" + LoginServlet.INDEX_PAGE);
 		}
 	%>

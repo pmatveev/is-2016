@@ -119,48 +119,55 @@ public class AuthenticationManager {
 		}
 		return token;
 	}
+	
+	private void removeAuth(HttpServletRequest request) {
+		request.removeAttribute(LoginServlet.LOGIN_AUTH_USERNAME);
+		request.removeAttribute(LoginServlet.LOGIN_AUTH_DISPLAYNAME);
+		request.removeAttribute(LoginServlet.LOGIN_AUTH_USER_ADMIN);		
+	}
 
-	public Pair<String, String> verify(HttpServletRequest request,
+	public void verify(HttpServletRequest request,
 			HttpServletResponse response) {
-		Pair<String, String> res = new Pair<String, String>();
-
 		String ip = getIP(request);
 		String token = getToken(request);
 
 		if (token == null) {
-			return res;
+			removeAuth(request);
+			return;
 		}
 
 		Object[] resTmp = null;
 		try {
 			resTmp = new StatementExecutor().call(
-					"call verify_auth(?, ?, ?, ?)", new Pair<SQLParmKind, Object>(
-							SQLParmKind.IN_STRING, ip),
+					"call verify_auth(?, ?, ?, ?, ?)", 
+					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, ip),
 					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, token),
-					new Pair<SQLParmKind, Object>(SQLParmKind.OUT_STRING,
-							Types.VARCHAR), new Pair<SQLParmKind, Object>(
-							SQLParmKind.OUT_STRING, Types.VARCHAR));
+					new Pair<SQLParmKind, Object>(SQLParmKind.OUT_STRING, Types.VARCHAR), 
+					new Pair<SQLParmKind, Object>(SQLParmKind.OUT_STRING, Types.VARCHAR), 
+					new Pair<SQLParmKind, Object>(SQLParmKind.OUT_BOOL, Types.BOOLEAN));
 		} catch (IOException e) {
 			LogManager.log(e);
+			removeAuth(request);
 			Cookie c = new Cookie(LoginServlet.LOGIN_TOKEN_COOKIE, null);
 			c.setMaxAge(0);
 			response.addCookie(c);
-			return res;
+			return;
 		}
 
-		if (resTmp.length == 2) {
-			res.first = (String) resTmp[0];
-			res.second = (String) resTmp[1];
+		boolean auth = false;
+		if (resTmp.length == 3) {
+			auth = resTmp[0] != null;
+			request.setAttribute(LoginServlet.LOGIN_AUTH_USERNAME, resTmp[0]);
+			request.setAttribute(LoginServlet.LOGIN_AUTH_DISPLAYNAME, resTmp[1]);
+			request.setAttribute(LoginServlet.LOGIN_AUTH_USER_ADMIN, resTmp[2]);	
 		}
 
-		if (res.first == null) {
+		if (!auth) {
 			// not authenticated
 			Cookie c = new Cookie(LoginServlet.LOGIN_TOKEN_COOKIE, null);
 			c.setMaxAge(0);
 			response.addCookie(c);
 		}
-
-		return res;
 	}
 
 	public void close(HttpServletRequest request, HttpServletResponse response) {

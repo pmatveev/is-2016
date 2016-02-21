@@ -35,6 +35,9 @@ public class LoginServlet extends HttpServlet {
 
 	// out parameters
 	public static final String LOGIN_ERR_ATTR = "loginErr";
+	public static final String LOGIN_AUTH_USERNAME = "authUsername";
+	public static final String LOGIN_AUTH_DISPLAYNAME = "authUserDisplay";
+	public static final String LOGIN_AUTH_USER_ADMIN = "authUserAdmin";
 
 	// cookies
 	public static final String LOGIN_TOKEN_COOKIE = "PATHFINDER_USER_TOKEN";

@@ -5,10 +5,6 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<%
-	IssueKind[] kinds = IssueKind.select();
-	IssueProject[] projects = IssueProject.select();
-%>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
@@ -16,6 +12,15 @@
 <link rel='stylesheet' href='/Tracker/pages/default.css'></link>
 </head>
 <body onload="init()">
+	<%@ include file="logout.jsp"%>
+	<%
+		LogManager.log("GET createIndex.jsp", request);
+		String searchReturnURL = IssueServlet.getReturnAddress(request);
+	
+		IssueKind[] kinds = IssueKind.select();
+		IssueProject[] projects = IssueProject.selectAvailable(
+				(String) request.getAttribute(LoginServlet.LOGIN_AUTH_USERNAME));
+	%>
 	<script>
 	var projectTo = [];
 	
@@ -41,7 +46,8 @@
 		}
 
 		function validate() {
-			if (document.getElementById("<%=IssueServlet.ISSUE_SET_PROJECT%>").value == "") {
+			if (document.getElementById("<%=IssueServlet.ISSUE_SET_PROJECT%>").value == "" || 
+					document.getElementById("<%=IssueServlet.ISSUE_SET_PROJECT%>").value == "-") {
 				document.getElementById("createErr").innerHTML = "Issue project required";
 				return false;				
 			}
@@ -60,11 +66,6 @@
 			return true;
 		}
 	</script>
-	<%@ include file="logout.jsp"%>
-	<%
-		LogManager.log("GET createIndex.jsp", request);
-		String searchReturnURL = IssueServlet.getReturnAddress(request);
-	%>
 	<div class="createIssue">
 		<form id="ussueForm" name="issueForm"
 			action="<%=IssueServlet.SERVLET_IDT%>" method="post"
