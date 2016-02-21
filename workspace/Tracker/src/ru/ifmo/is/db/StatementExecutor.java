@@ -1,7 +1,10 @@
 package ru.ifmo.is.db;
 
+import java.io.IOException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,7 +19,7 @@ import ru.ifmo.is.util.SQLParmKind;
 public class StatementExecutor {
 	@SafeVarargs
 	public final Object[] call(String sql,
-			Pair<SQLParmKind, Object>... attributes) {
+			Pair<SQLParmKind, Object>... attributes) throws IOException {
 		LogManager.log(sql, attributes);
 
 		Object[] res = null;
@@ -61,12 +64,14 @@ public class StatementExecutor {
 			} catch (SQLException e1) {
 			}
 			LogManager.log(e);
-			return res;
+			throw new IOException(e);
 		} finally {
 			if (conn != null) {
 				try {
 					conn.close();
 				} catch (SQLException e) {
+					LogManager.log(e);
+					throw new IOException(e);
 				}
 			}
 		}
@@ -74,5 +79,44 @@ public class StatementExecutor {
 		LogManager.log(LogLevel.SQL, "finished " + sql, LogLevel.SQL_RESULT,
 				res);
 		return res;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@SafeVarargs
+	public final <T extends DataClass> T[] select(T data, String sql,
+			Pair<SQLParmKind, Object>... attributes) throws IOException {
+		ResultSet rs = null;
+		Connection conn = null;
+		
+		try {
+			conn = new ConnectionManager().getConnection();
+			PreparedStatement stmt = conn.prepareStatement(sql);
+			
+			for (int i = 0; i < attributes.length; i++) {
+				Pair<SQLParmKind, Object> a = attributes[i];
+				switch (a.first) {
+				case IN_STRING:
+					stmt.setString(i + 1, (String) a.second);
+					break;
+				case OUT_STRING: // out parms not expected
+					break;
+				}
+			}
+			
+			rs = stmt.executeQuery();
+			return (T[]) data.parseResultSet(rs);
+		} catch (NamingException | SQLException e) {
+			LogManager.log(e);
+			throw new IOException(e);
+		} finally {
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					LogManager.log(e);
+					throw new IOException(e);
+				}
+			}			
+		}
 	}
 }

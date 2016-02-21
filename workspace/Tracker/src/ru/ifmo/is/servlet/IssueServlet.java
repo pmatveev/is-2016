@@ -59,7 +59,7 @@ public class IssueServlet extends HttpServlet {
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		LogManager.log("POST LoginServlet", request);
+		LogManager.log("POST IssueServlet", request);
 
 		// TODO
 		String toIssue = request.getParameter(ISSUE_GET_KEY_PARM);
@@ -74,7 +74,7 @@ public class IssueServlet extends HttpServlet {
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		LogManager.log("GET LoginServlet", request);
+		LogManager.log("GET IssueServlet", request);
 
 		String toIssue = request.getParameter(ISSUE_GET_KEY_PARM);
 		if (toIssue == null) {

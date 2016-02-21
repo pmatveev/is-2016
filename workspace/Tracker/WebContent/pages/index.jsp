@@ -92,11 +92,7 @@
 					+ "We expect it to work fine. Please verify, wouldn't you? Really appreciate it.",
 			null);
 
-	IssueKind[] kinds = new IssueKind[4];
-	kinds[0] = new IssueKind(1, "BUG", "Bug");
-	kinds[1] = new IssueKind(2, "TASK", "Assignment");
-	kinds[2] = new IssueKind(3, "VERIFY", "Verification");
-	kinds[3] = new IssueKind(4, "RESEARCH", "Research");
+	IssueKind[] kinds = IssueKind.select();
 
 	IssueStatus[] statuses = new IssueStatus[4];
 	statuses[0] = new IssueStatus(1, "OPEN", "Open");

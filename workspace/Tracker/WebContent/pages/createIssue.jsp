@@ -6,15 +6,8 @@
 	pageEncoding="ISO-8859-1"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <%
-	IssueKind[] kinds = new IssueKind[4];
-	kinds[0] = new IssueKind(1, "BUG", "Bug");
-	kinds[1] = new IssueKind(2, "TASK", "Assignment");
-	kinds[2] = new IssueKind(3, "VERIFY", "Verification");
-	kinds[3] = new IssueKind(4, "RESEARCH", "Research");
-
-	IssueProject[] projects = new IssueProject[2];
-	projects[0] = new IssueProject(1, "OPEN", "Open", "admin", "Test Admin", "SANDBOX", "Sandbox Testing");
-	projects[1] = new IssueProject(2, "OPEN", "Open", "pmatveev", "Philipp Matveev", "WORK", "In work");
+	IssueKind[] kinds = IssueKind.select();
+	IssueProject[] projects = IssueProject.select();
 %>
 <html>
 <head>
@@ -27,6 +20,10 @@
 	var projectTo = [];
 	
 		function init() {
+			projectTo["-"] = {
+				status: "",
+				owner: ""
+			};
 			<%for (int i = 0; i < projects.length; i++) {%>
 			projectTo["<%=projects[i].code%>"] = {
 					status: "<%=projects[i].startStatusDisplay%>",
@@ -37,15 +34,9 @@
 
 		function setProject(project) {
 			var toStatus = projectTo[project.value].status;
-			if (toStatus == undefined) {
-				toStatus = "";
-			}
 			document.getElementById("issueStatusInput").value = toStatus;
 
 			var toOfficer = projectTo[project.value].owner;
-			if (toOfficer == undefined) {
-				toOfficer = "";
-			}
 			document.getElementById("issueAssigneeInput").value = toOfficer;
 		}
 
@@ -88,7 +79,7 @@
 							id="<%=IssueServlet.ISSUE_SET_PROJECT%>"
 							name="<%=IssueServlet.ISSUE_SET_PROJECT%>" class="editIssue"
 							onchange="setProject(this)">
-								<option value=""></option>
+								<option value="-"></option>
 								<%
 									for (int i = 0; i < projects.length; i++) {
 								%>
@@ -115,13 +106,13 @@
 					</tr>
 					<tr>
 						<td class="widthTd">Status</td>
-						<td id="issueStatusTd"><input id="issueStatusInput"
-							type="text" disabled></input></td>
+						<td id="issueStatusTd"><input id="issueStatusInput" 
+							class="editIssue" type="text" disabled></input></td>
 					</tr>
 					<tr>
 						<td class="widthTd">Assignee</td>
 						<td id="issueAssigneeTd"><input id="issueAssigneeInput"
-							type="text" disabled></input></td>
+							class="editIssue" type="text" disabled></input></td>
 					</tr>
 				</table>
 			</div>

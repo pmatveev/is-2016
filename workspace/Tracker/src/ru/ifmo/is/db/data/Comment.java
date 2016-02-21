@@ -1,5 +1,7 @@
 package ru.ifmo.is.db.data;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
 import ru.ifmo.is.db.DataClass;
 
@@ -25,5 +27,11 @@ public class Comment extends DataClass {
 		this.authorDisplay = authorDisplay;
 		this.dateCreated = dateCreated;
 		this.text = text;
+	}
+
+	@Override
+	public DataClass[] parseResultSet(ResultSet rs) throws SQLException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

@@ -1,5 +1,8 @@
 package ru.ifmo.is.db.data;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import ru.ifmo.is.db.DataClass;
 
 public class IssueProjectTransition extends DataClass {
@@ -32,5 +35,11 @@ public class IssueProjectTransition extends DataClass {
 		this.statusFromDisplay = statusFromDisplay;
 		this.statusTo = statusTo;
 		this.statusToDisplay = statusToDisplay;
+	}
+
+	@Override
+	public DataClass[] parseResultSet(ResultSet rs) throws SQLException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

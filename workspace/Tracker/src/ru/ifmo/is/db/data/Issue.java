@@ -1,5 +1,7 @@
 package ru.ifmo.is.db.data;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
 
 import ru.ifmo.is.db.DataClass;
@@ -58,5 +60,11 @@ public class Issue extends DataClass {
 		this.summary = summary;
 		this.description = description;
 		this.resolution = resolution;
+	}
+
+	@Override
+	public DataClass[] parseResultSet(ResultSet rs) throws SQLException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

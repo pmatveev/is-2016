@@ -1,6 +1,6 @@
 package ru.ifmo.is.manager;
 
-import java.io.UnsupportedEncodingException;
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
@@ -78,7 +78,7 @@ public class AuthenticationManager {
 					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, username),
 					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, hash),
 					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, ip))[0];
-		} catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+		} catch (NoSuchAlgorithmException | IOException e) {
 			LogManager.log(e);
 			return "Verification module failed: " + e.getMessage();
 		} finally {
@@ -131,13 +131,22 @@ public class AuthenticationManager {
 			return res;
 		}
 
-		Object[] resTmp = new StatementExecutor().call(
-				"call verify_auth(?, ?, ?, ?)", new Pair<SQLParmKind, Object>(
-						SQLParmKind.IN_STRING, ip),
-				new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, token),
-				new Pair<SQLParmKind, Object>(SQLParmKind.OUT_STRING,
-						Types.VARCHAR), new Pair<SQLParmKind, Object>(
-						SQLParmKind.OUT_STRING, Types.VARCHAR));
+		Object[] resTmp = null;
+		try {
+			resTmp = new StatementExecutor().call(
+					"call verify_auth(?, ?, ?, ?)", new Pair<SQLParmKind, Object>(
+							SQLParmKind.IN_STRING, ip),
+					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, token),
+					new Pair<SQLParmKind, Object>(SQLParmKind.OUT_STRING,
+							Types.VARCHAR), new Pair<SQLParmKind, Object>(
+							SQLParmKind.OUT_STRING, Types.VARCHAR));
+		} catch (IOException e) {
+			LogManager.log(e);
+			Cookie c = new Cookie(LoginServlet.LOGIN_TOKEN_COOKIE, null);
+			c.setMaxAge(0);
+			response.addCookie(c);
+			return res;
+		}
 
 		if (resTmp.length == 2) {
 			res.first = (String) resTmp[0];
@@ -163,13 +172,17 @@ public class AuthenticationManager {
 			return;
 		}
 
-		new StatementExecutor().call("call close_auth(?, ?)",
-				new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, ip),
-				new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, token));
-
 		// clean cookie
 		Cookie c = new Cookie(LoginServlet.LOGIN_TOKEN_COOKIE, null);
 		c.setMaxAge(0);
 		response.addCookie(c);
+		
+		try {
+			new StatementExecutor().call("call close_auth(?, ?)",
+					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, ip),
+					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, token));
+		} catch (IOException e) {
+			LogManager.log(e);
+		}
 	}
 }
