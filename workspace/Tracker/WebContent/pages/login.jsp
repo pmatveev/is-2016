@@ -1,3 +1,4 @@
+<%@page import="ru.ifmo.is.manager.LogManager"%>
 <%@page import="ru.ifmo.is.manager.AuthenticationManager"%>
 <%@page import="ru.ifmo.is.util.Pair"%>
 <%@page import="ru.ifmo.is.servlet.LoginServlet"%>
@@ -12,10 +13,12 @@
 </head>
 <body>
 	<%
+		LogManager.log("GET login.jsp", request);
 		// verify if already logged in -> then redirect to index.jsp
-		new AuthenticationManager().verify(request, response);
-		if (request.getAttribute(LoginServlet.LOGIN_AUTH_USERNAME) != null) {
+		boolean authenticated = new AuthenticationManager().verify(request, response, false);
+		if (authenticated) {
 			response.sendRedirect("/Tracker" + LoginServlet.INDEX_PAGE);
+			return;
 		}
 	%>
 	<script>

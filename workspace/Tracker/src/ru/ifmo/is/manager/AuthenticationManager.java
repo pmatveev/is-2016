@@ -110,20 +110,29 @@ public class AuthenticationManager {
 		return token;
 	}
 	
-	private void removeAuth(HttpServletRequest request) {
+	private void removeAuth(HttpServletRequest request, 
+			HttpServletResponse response, boolean forceRedirect) throws IOException {
 		request.removeAttribute(LoginServlet.LOGIN_AUTH_USERNAME);
 		request.removeAttribute(LoginServlet.LOGIN_AUTH_DISPLAYNAME);
 		request.removeAttribute(LoginServlet.LOGIN_AUTH_USER_ADMIN);		
+		if (forceRedirect) {
+			response.sendRedirect("/Tracker" + LoginServlet.LOGIN_PAGE);			
+		}
 	}
+
 
 	public boolean verify(HttpServletRequest request,
 			HttpServletResponse response) throws IOException {
+		return verify(request, response, true);
+	}
+	
+	public boolean verify(HttpServletRequest request,
+			HttpServletResponse response, boolean forceRedirect) throws IOException {
 		String ip = getIP(request);
 		String token = getToken(request);
 
 		if (token == null) {
-			removeAuth(request);
-			response.sendRedirect("/Tracker" + LoginServlet.LOGIN_PAGE);
+			removeAuth(request, response, forceRedirect);
 			return false;
 		}
 
@@ -138,11 +147,10 @@ public class AuthenticationManager {
 					new Pair<SQLParmKind, Object>(SQLParmKind.OUT_BOOL, Types.BOOLEAN));
 		} catch (IOException e) {
 			LogManager.log(e);
-			removeAuth(request);
 			Cookie c = new Cookie(LoginServlet.LOGIN_TOKEN_COOKIE, null);
 			c.setMaxAge(0);
 			response.addCookie(c);
-			response.sendRedirect("/Tracker" + LoginServlet.LOGIN_PAGE);
+			removeAuth(request, response, forceRedirect);
 			return false;
 		}
 
@@ -159,7 +167,7 @@ public class AuthenticationManager {
 			Cookie c = new Cookie(LoginServlet.LOGIN_TOKEN_COOKIE, null);
 			c.setMaxAge(0);
 			response.addCookie(c);
-			response.sendRedirect("/Tracker" + LoginServlet.LOGIN_PAGE);
+			removeAuth(request, response, forceRedirect);
 		}
 		
 		return auth;
