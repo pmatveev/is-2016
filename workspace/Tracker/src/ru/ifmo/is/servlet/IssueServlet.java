@@ -31,7 +31,7 @@ public class IssueServlet extends HttpServlet {
 	// in GET parameters
 	public static final String ISSUE_GET_KEY_PARM = "issue";
 	public static final String ISSUE_GET_START_FROM = "startFrom";
-	public static final int ISSUE_GET_PAGE_NUMBER = 10;
+	public static final int ISSUE_GET_PAGE_NUMBER = 5;
 	public static final String ISSUE_GET_BY_KEY = "byKey";
 	public static final String ISSUE_GET_BY_PROJECT = "byProject";
 	public static final String ISSUE_GET_BY_SUMM = "bySumm";

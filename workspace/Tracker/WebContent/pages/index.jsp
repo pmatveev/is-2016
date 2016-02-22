@@ -56,19 +56,33 @@
 				"HH:mm:ss dd.MM.yyyy", Locale.ENGLISH);
 
 		StringBuffer returnTo = request.getRequestURL().append("?");
+		StringBuffer returnToFrom0 = request.getRequestURL().append("?");
 		Enumeration<String> parms = request.getParameterNames();
 
-		int p = 0;
+		int p = 0, p0 = 0;
 		while (parms.hasMoreElements()) {
+			String attr = parms.nextElement();
 			if (p > 0) {
 				returnTo.append("&");
 			}
-			String attr = parms.nextElement();
-
+			p++;			
 			returnTo.append(attr + "="
 					+ URLEncoder.encode(request.getParameter(attr), "ISO-8859-1"));
-			p++;
+			
+			if (!IssueServlet.ISSUE_GET_START_FROM.equals(attr)) {
+				if (p0 > 0) {
+					returnToFrom0.append("&");
+				}
+				p0++;
+				returnToFrom0.append(attr + "="
+						+ URLEncoder.encode(request.getParameter(attr), "ISO-8859-1"));
+			}
 		}
+		
+		if (p0 > 0) {
+			returnToFrom0.append("&");
+		}
+		returnToFrom0.append(IssueServlet.ISSUE_GET_START_FROM).append("=");
 
 		String returnToStr = URLEncoder.encode(returnTo.toString(), "ISO-8859-1");
 	%>
@@ -252,6 +266,38 @@
 					%>
 				</tbody>
 			</table>
+			<%
+			String key = request.getParameter(IssueServlet.ISSUE_GET_BY_KEY);
+			if (issues.length == 0 && key != null && !"".equals(key)) {
+			%>
+			<div class="indexNoIssue">
+			Issue having key "<%=key%>" not found. Check out
+			<a
+				href="/Tracker/pages/issue.jsp?<%=IssueServlet.ISSUE_GET_KEY_PARM%>=<%=key%>&<%=IssueServlet.RETURN_URL%>=<%=returnToStr%>">this page</a>
+			to find out if it ever existed.
+			</div>
+			<%
+			}
+			%>
+			
+			<div>
+			<%
+			if (intFrom > 0) {
+			%>
+			<div class="indexPrev">
+			<a href="<%=returnToFrom0%><%=Math.max(intFrom - IssueServlet.ISSUE_GET_PAGE_NUMBER, 0)%>">Previous</a>
+			</div>
+			<%
+			}
+			if (intFrom + issues.length < totalCount) {
+			%>
+			<div class="indexNext">
+			<a href="<%=returnToFrom0%><%=intFrom + IssueServlet.ISSUE_GET_PAGE_NUMBER%>">Next</a>
+			</div>
+			<%	
+			}
+			%>
+			</div>
 		</div>
 	</form>
 </body>

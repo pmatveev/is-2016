@@ -298,7 +298,7 @@ h4 {
 
 .createIssueButtonDiv,.searchInput,.searchInfo {
 	display: inline-block;
-	margin-top: 2%;
+	margin-top: 30px;
 }
 
 .createIssueButtonDiv {
@@ -308,7 +308,6 @@ h4 {
 }
 
 .issuesTableDiv {
-	margin-top: 5%;
 	margin-left: 3%;
 	margin-right: 3%;
 	padding: 0px;
@@ -401,4 +400,24 @@ h4 {
 .searchInputP {
 	padding: 0px;
 	font-style: italic;
+}
+
+.indexNoIssue {
+	text-align: center;
+	width: 100%;
+	margin-top: 15px;
+}
+
+.indexPrev,.indexNext {
+	display: inline-block;
+}
+
+.indexPrev {
+	float: left;
+	margin-left: 30px;
+}
+
+.indexNext {
+	float: right;
+	margin-right: 30px;
 }
