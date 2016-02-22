@@ -26,15 +26,15 @@ public class IssueKind extends DataClass {
 		
 		while (rs.next()) {
 			kinds.add(new IssueKind(
-					code == null ? null : rs.getString("code"), 
-					name == null ? null : rs.getString("name")));
+					code == null ? null : rs.getString(code), 
+					name == null ? null : rs.getString(name)));
 		}
 		
 		return kinds.toArray(new IssueKind[0]);
 	}
 	
 	public static IssueKind[] select() throws IOException {	
-		return new StatementExecutor().select(new IssueKind("", ""),
+		return new StatementExecutor().select(new IssueKind("code", "name"),
 				"select code, name from issue_kind");
 	}
 }

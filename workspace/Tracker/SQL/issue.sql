@@ -12,6 +12,7 @@ begin
 	declare v_kind int(18);
 	declare v_status int(18);
 	declare v_idt varchar(32);
+	declare v_iss int(18);
 	
 	select min(project_id), min(available_for), min(owner), min(start_status)
 	  into v_project, v_creator, v_assignee, v_status
@@ -50,7 +51,10 @@ begin
 		values
 		(v_idt, v_creator, v_assignee, v_kind, v_status, v_project, now(), now(), 
 			p_summ, p_descr, true);
-			
+	
+	select last_insert_id() into v_iss;
+	update issue set prev_issue = v_iss where id = v_iss;
+	
 	return concat('I:', v_idt);
 end 
 $$

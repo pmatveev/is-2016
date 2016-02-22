@@ -14,7 +14,7 @@
 <%@page import="ru.ifmo.is.db.data.Comment"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html>
 <%
 	LogManager.log("GET issue.jsp", request);
 
@@ -287,10 +287,11 @@
 			createSelect(document.getElementById("issueAssigneeTd"), "<%=IssueServlet.ISSUE_SET_ASSIGNEE%>", assignees, "<%=issue.assignee%>");					
 			
 			var summEdit = document.createElement("input");
-			summEdit.id = "<%=IssueServlet.ISSUE_SET_SUMMARY%>_out";
-			summEdit.name = "<%=IssueServlet.ISSUE_SET_SUMMARY%>_out";
+			summEdit.id = "<%=IssueServlet.ISSUE_SET_SUMMARY%>";
+			summEdit.name = "<%=IssueServlet.ISSUE_SET_SUMMARY%>";
 			summEdit.value = "<%=issue.summary%>";
 			summEdit.className = "summaryEdit";
+			summEdit.setAttribute("form", "issueForm");
 			document.getElementById("issueSummary").innerHTML = "";
 			document.getElementById("issueSummary").appendChild(summEdit);
 
@@ -314,12 +315,6 @@
 			addEditElements(disableEdit);
 			var buttonDiv = document.getElementById("issueCommitButtonsDiv");
 			
-			var hiddenSummary = document.createElement("input");
-			hiddenSummary.type = "hidden";
-			hiddenSummary.name = "<%=IssueServlet.ISSUE_SET_SUMMARY%>";
-			hiddenSummary.id = "<%=IssueServlet.ISSUE_SET_SUMMARY%>";
-			buttonDiv.appendChild(hiddenSummary);
-			
 			var hiddenStatus = document.createElement("input");
 			hiddenStatus.type = "hidden";
 			hiddenStatus.name = "<%=IssueServlet.ISSUE_SET_STATUS%>";
@@ -336,13 +331,18 @@
 	}
 	
 	function validate() {
+		if (document.getElementById("<%=IssueServlet.ISSUE_SET_SUMMARY%>").value == "") {
+			document.getElementById("editErr").innerHTML = "Issue summary required";
+			return false;				
+		}		
+
 		if (document.getElementById("<%=IssueServlet.ISSUE_SET_DESCRIPTION%>").value == "") {
 			document.getElementById("editErr").innerHTML = "Issue description required";
 			return false;				
 		}		
 		
 		document.getElementById("editErr").innerHTML = "";	
-		document.getElementById("<%=IssueServlet.ISSUE_SET_SUMMARY%>").value = document.getElementById("<%=IssueServlet.ISSUE_SET_SUMMARY%>_out").value;
+		
 		return true;
 	}
 	

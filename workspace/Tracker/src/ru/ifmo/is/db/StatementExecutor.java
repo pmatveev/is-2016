@@ -91,31 +91,35 @@ public class StatementExecutor {
 	}
 	
 	@SuppressWarnings("unchecked")
+	private <T extends DataClass> T[] selectData(Connection conn, T data, String sql,
+			Pair<SQLParmKind, Object>[] attributes) throws SQLException {
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		
+		for (int i = 0; i < attributes.length; i++) {
+			Pair<SQLParmKind, Object> a = attributes[i];
+			switch (a.first) {
+			case IN_STRING:
+				stmt.setString(i + 1, (String) a.second);
+				break;
+			case OUT_STRING:
+			case OUT_BOOL: // out parms not expected
+				break;
+			}
+		}
+		
+		ResultSet rs = stmt.executeQuery();
+		return (T[]) data.parseResultSet(rs);		
+	}
+	
 	@SafeVarargs
 	public final <T extends DataClass> T[] select(T data, String sql,
 			Pair<SQLParmKind, Object>... attributes) throws IOException {
 		LogManager.log(sql, attributes);
-		ResultSet rs = null;
 		Connection conn = null;
 		
 		try {
-			conn = new ConnectionManager().getConnection();
-			PreparedStatement stmt = conn.prepareStatement(sql);
-			
-			for (int i = 0; i < attributes.length; i++) {
-				Pair<SQLParmKind, Object> a = attributes[i];
-				switch (a.first) {
-				case IN_STRING:
-					stmt.setString(i + 1, (String) a.second);
-					break;
-				case OUT_STRING:
-				case OUT_BOOL: // out parms not expected
-					break;
-				}
-			}
-			
-			rs = stmt.executeQuery();
-			T[] res = (T[]) data.parseResultSet(rs);
+			conn = new ConnectionManager().getConnection();			
+			T[] res = selectData(conn, data, sql, attributes);
 			LogManager.log(LogLevel.SQL, "finished " + sql, LogLevel.SQL_RESULT,
 					res.length + " rows extracted");
 			return res;
@@ -133,4 +137,42 @@ public class StatementExecutor {
 			}			
 		}
 	}
+	
+	@SafeVarargs
+	public final <T extends DataClass> Pair<T[], Integer> selectCount(T data, String sql,
+			Pair<SQLParmKind, Object>... attributes) throws IOException {
+		LogManager.log(sql, attributes);
+		Connection conn = null;
+		
+		try {
+			conn = new ConnectionManager().getConnection();
+			
+			T[] res = selectData(conn, data, sql, attributes);
+			LogManager.log(LogLevel.SQL, "finished " + sql, LogLevel.SQL_RESULT,
+					res.length + " rows extracted");
+			
+			LogManager.log(LogLevel.SQL, "SELECT FOUND_ROWS()");
+			PreparedStatement stmt2 = conn.prepareStatement("SELECT FOUND_ROWS()");
+			ResultSet rs2 = stmt2.executeQuery();
+			Integer num = 0;
+			if (rs2.next()) {
+				num = rs2.getInt(1);
+			}
+			LogManager.log(LogLevel.SQL, "finished SELECT FOUND_ROWS()",
+					LogLevel.SQL_RESULT, num);
+			return new Pair<T[], Integer>(res, num);
+		} catch (NamingException | SQLException e) {
+			LogManager.log(e);
+			throw new IOException(e);
+		} finally {
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					LogManager.log(e);
+					throw new IOException(e);
+				}
+			}			
+		}
+	}	
 }

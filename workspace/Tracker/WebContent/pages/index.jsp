@@ -1,3 +1,4 @@
+<%@page import="ru.ifmo.is.db.data.IssueProject"%>
 <%@page import="java.net.URLEncoder"%>
 <%@page import="java.util.Enumeration"%>
 <%@page import="ru.ifmo.is.db.data.IssueStatus"%>
@@ -12,97 +13,7 @@
 <%@page import="java.util.Locale"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<%
-	Issue[] issues = new Issue[4];
-	issues[0] = new Issue(
-			2,
-			"SANDBOX-1",
-			"admin",
-			"Test admin",
-			"admin",
-			"Test admin",
-			"BUG",
-			"Bug",
-			"OPEN",
-			"Open",
-			"SANDBOX",
-			"Sandbox testing",
-			new Date(115, 11, 23, 16, 7, 46),
-			new Date(116, 1, 13, 11, 48, 1),
-			"Issue with kind of long description that does not fit into index table",
-			"Here we have multiline description. \n"
-					+ "We expect it to work fine. Please verify, wouldn't you? Really appreciate it.",
-			null);
-	issues[1] = new Issue(
-			3,
-			"SANDBOX-2",
-			"admin",
-			"Test admin",
-			"admin",
-			"Test admin",
-			"VERIFY",
-			"Verification",
-			"OPEN",
-			"Open",
-			"SANDBOX",
-			"Sandbox testing",
-			new Date(115, 11, 23, 16, 7, 46),
-			new Date(116, 1, 13, 11, 48, 1),
-			"The other issue",
-			"Here we have multiline description. \n"
-					+ "We expect it to work fine. Please verify, wouldn't you? Really appreciate it.",
-			null);
-	issues[2] = new Issue(
-			1,
-			"SANDBOX-412",
-			"admin",
-			"Test admin",
-			"admin",
-			"Test admin",
-			"VERIFY",
-			"Verification",
-			"OPEN",
-			"Open",
-			"SANDBOX",
-			"Sandbox testing",
-			new Date(115, 11, 23, 16, 7, 46),
-			new Date(116, 1, 13, 11, 48, 1),
-			"Please verify issue details page",
-			"Here we have multiline description. \n"
-					+ "We expect it to work fine. Please verify, wouldn't you? Really appreciate it.",
-			null);
-	issues[3] = new Issue(
-			4,
-			"SANDBOX-3",
-			"admin",
-			"Test admin",
-			"admin",
-			"Test admin",
-			"VERIFY",
-			"Verification",
-			"OPEN",
-			"Open",
-			"SANDBOX",
-			"Sandbox testing",
-			new Date(115, 11, 23, 16, 7, 46),
-			new Date(116, 1, 13, 11, 48, 1),
-			"Once more",
-			"Here we have multiline description. \n"
-					+ "We expect it to work fine. Please verify, wouldn't you? Really appreciate it.",
-			null);
-
-	IssueKind[] kinds = IssueKind.select();
-
-	IssueStatus[] statuses = new IssueStatus[4];
-	statuses[0] = new IssueStatus(1, "OPEN", "Open");
-	statuses[1] = new IssueStatus(2, "IN_PROGRESS", "In progress");
-	statuses[2] = new IssueStatus(3, "CLOSED", "Closed");
-	statuses[3] = new IssueStatus(4, "REJECTED", "Rejected");
-
-	SimpleDateFormat dateFormat = new SimpleDateFormat(
-			"EEE, MMMM d yyyy, HH:mm:ss", Locale.ENGLISH);
-%>
+<!DOCTYPE html>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
@@ -113,8 +24,37 @@
 	<%@ include file="logout.jsp"%>
 	<%
 		LogManager.log("GET index.jsp", request);
-	%>
-	<%
+
+		String from = request.getParameter(IssueServlet.ISSUE_GET_START_FROM);
+		int intFrom = 0;
+		if (from != null) {
+			try {
+				intFrom = Integer.parseInt(from);
+			} catch (NumberFormatException e) {
+			}
+		}
+		Pair<Issue[], Integer> issuesCnt = Issue.selectLike(
+				intFrom, 
+				IssueServlet.ISSUE_GET_PAGE_NUMBER, 
+				request.getParameter(IssueServlet.ISSUE_GET_BY_KEY),
+				request.getParameter(IssueServlet.ISSUE_GET_BY_SUMM),
+				request.getParameter(IssueServlet.ISSUE_GET_BY_PROJECT),
+				request.getParameter(IssueServlet.ISSUE_GET_BY_KIND),
+				request.getParameter(IssueServlet.ISSUE_GET_BY_STATUS),
+				request.getParameter(IssueServlet.ISSUE_GET_BY_REPORTER),
+				request.getParameter(IssueServlet.ISSUE_GET_BY_ASSIGNEE),
+				request.getParameter(IssueServlet.ISSUE_GET_BY_CREATED),
+				request.getParameter(IssueServlet.ISSUE_GET_BY_UPDATED));
+		
+		int totalCount = issuesCnt.second;
+		Issue[] issues = issuesCnt.first;
+		IssueKind[] kinds = IssueKind.select();
+		IssueStatus[] statuses = IssueStatus.select();
+		IssueProject[] projects = IssueProject.select();
+
+		SimpleDateFormat dateFormat = new SimpleDateFormat(
+				"HH:mm:ss dd.MM.yyyy", Locale.ENGLISH);
+
 		StringBuffer returnTo = request.getRequestURL().append("?");
 		Enumeration<String> parms = request.getParameterNames();
 
@@ -126,27 +66,36 @@
 			String attr = parms.nextElement();
 
 			returnTo.append(attr + "="
-					+ URLEncoder.encode(request.getParameter(attr)));
+					+ URLEncoder.encode(request.getParameter(attr), "ISO-8859-1"));
 			p++;
 		}
 
-		String returnToStr = URLEncoder.encode(returnTo.toString());
+		String returnToStr = URLEncoder.encode(returnTo.toString(), "ISO-8859-1");
 	%>
-	<div class="createIssueButtonDiv">
-		<button class="createIssueButton"
-			onclick="parent.location = '/Tracker<%=IssueServlet.ISSUE_CREATE%>?<%=IssueServlet.RETURN_URL%>=<%=returnToStr%>'">Create
-			issue</button>
+	<div class="indexHeader">
+		<div class="createIssueButtonDiv">
+			<button class="createIssueButton"
+				onclick="parent.location = '/Tracker<%=IssueServlet.ISSUE_CREATE%>?<%=IssueServlet.RETURN_URL%>=<%=returnToStr%>'">Create
+				issue</button>
+		</div>
+		<div class="searchInfo">
+		<%if (issues.length > 0) {%>
+		Showing issues <%=(intFrom + 1)%>-<%=intFrom + issues.length%> of <%=totalCount%>
+		<%} %>
+		</div>
+		<div class="searchInput">
+			<input type="submit" class="createIssueButton" 
+				value="Apply filter" form="issueFilter"
+				name="<%=IssueServlet.ISSUE_SELECT_WEBSERVICE%>"></input>
+		</div>
 	</div>
 	<form id="issueFilter" name="issueFilter"
 		action="/Tracker<%=LoginServlet.INDEX_PAGE%>" method="get">
-		<div class="searchInput">
-			<input type="submit" class="createIssueButton" value="Apply filter"
-				name="<%=IssueServlet.ISSUE_SELECT_WEBSERVICE%>"></input>
-		</div>
 		<div class="issuesTableDiv">
 			<table cellpadding="0" cellspacing="0" class="issuesTable">
 				<thead>
 					<tr>
+						<th class="issuesTableProject">Project</th>
 						<th class="issuesTableKey">Key</th>
 						<th class="issuesTableName">Summary</th>
 						<th class="issuesTableType">Type</th>
@@ -158,6 +107,21 @@
 					</tr>
 					<tr>
 						<!-- Filters -->
+						<td class="issuesTableProject"><select id="filterProject"
+							name="<%=IssueServlet.ISSUE_GET_BY_PROJECT%>"
+							class="selectIssueType">
+								<option value="">---</option>
+								<%
+									for (int i = 0; i < projects.length; i++) {
+								%>
+								<option value="<%=projects[i].code%>"
+									<%=projects[i].code.equals(request
+						.getParameter(IssueServlet.ISSUE_GET_BY_PROJECT)) ? "selected"
+						: ""%>><%=projects[i].name%></option>
+								<%
+									}
+								%>
+						</select></td>
 						<td class="issuesTableKey"><input type="text"
 							value="<%=IssueServlet.nvl(request
 					.getParameter(IssueServlet.ISSUE_GET_BY_KEY))%>"
@@ -211,25 +175,25 @@
 						<td class="issuesTableCreated"><select id="dateCreated"
 							value="<%=request.getParameter(IssueServlet.ISSUE_GET_BY_CREATED)%>"
 							name="<%=IssueServlet.ISSUE_GET_BY_CREATED%>"
-							class="selectIssueType" onchange="sortOrder(this)">
+							class="selectIssueType">
 								<option value="">---</option>
-								<option value="DESC1"
-									<%="DESC1".equals(request
+								<option value="1DESC"
+									<%="1DESC".equals(request
 					.getParameter(IssueServlet.ISSUE_GET_BY_CREATED)) ? "selected"
 					: ""%>>Sort
 									Desc Primary</option>
-								<option value="ASC1"
-									<%="ASC1".equals(request
+								<option value="1ASC"
+									<%="1ASC".equals(request
 					.getParameter(IssueServlet.ISSUE_GET_BY_CREATED)) ? "selected"
 					: ""%>>Sort
 									Asc Primary</option>
-								<option value="DESC2"
-									<%="DESC2".equals(request
+								<option value="2DESC"
+									<%="2DESC".equals(request
 					.getParameter(IssueServlet.ISSUE_GET_BY_CREATED)) ? "selected"
 					: ""%>>Sort
 									Desc Secondary</option>
-								<option value="ASC2"
-									<%="ASC2".equals(request
+								<option value="2ASC"
+									<%="2ASC".equals(request
 					.getParameter(IssueServlet.ISSUE_GET_BY_CREATED)) ? "selected"
 					: ""%>>Sort
 									Asc Secondary</option>
@@ -237,25 +201,25 @@
 						<td class="issuesTableUpdated"><select id="dateUpdated"
 							value="<%=request.getParameter(IssueServlet.ISSUE_GET_BY_UPDATED)%>"
 							name="<%=IssueServlet.ISSUE_GET_BY_UPDATED%>"
-							class="selectIssueType" onchange="sortOrder(this)">
+							class="selectIssueType">
 								<option value="">---</option>
-								<option value="DESC1"
-									<%="DESC1".equals(request
+								<option value="1DESC"
+									<%="1DESC".equals(request
 					.getParameter(IssueServlet.ISSUE_GET_BY_UPDATED)) ? "selected"
 					: ""%>>Sort
 									Desc Primary</option>
-								<option value="ASC1"
-									<%="ASC1".equals(request
+								<option value="1ASC"
+									<%="1ASC".equals(request
 					.getParameter(IssueServlet.ISSUE_GET_BY_UPDATED)) ? "selected"
 					: ""%>>Sort
 									Asc Primary</option>
-								<option value="DESC2"
-									<%="DESC2".equals(request
+								<option value="2DESC"
+									<%="2DESC".equals(request
 					.getParameter(IssueServlet.ISSUE_GET_BY_UPDATED)) ? "selected"
 					: ""%>>Sort
 									Desc Secondary</option>
-								<option value="ASC2"
-									<%="ASC2".equals(request
+								<option value="2ASC"
+									<%="2ASC".equals(request
 					.getParameter(IssueServlet.ISSUE_GET_BY_UPDATED)) ? "selected"
 					: ""%>>Sort
 									Asc Secondary</option>
@@ -267,6 +231,7 @@
 						for (int i = 0; i < issues.length; i++) {
 					%>
 					<tr>
+						<td class="issuesTableProjectBody"><%=issues[i].projectDisplay%></td>
 						<td class="issuesTableKeyBody"><a
 							href="/Tracker/pages/issue.jsp?<%=IssueServlet.ISSUE_GET_KEY_PARM%>=<%=issues[i].idt%>&<%=IssueServlet.RETURN_URL%>=<%=returnToStr%>">
 								<%=issues[i].idt%>

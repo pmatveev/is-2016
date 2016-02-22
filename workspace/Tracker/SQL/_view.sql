@@ -45,3 +45,37 @@ select distinct
  inner join grant_transition_map gm on g.grant_id = gm.officer_grant__id
   left join status_transition st on st.id = gm.status_transition__id
   left join project_transition pt on pt.id = gm.project_transition__id; 
+
+create view active_issues as  
+select i.id,
+       i.idt,
+       i.prev_issue,
+       c.username creator,
+       c.credentials creator_display,
+       a.username assignee,
+       a.credentials assignee_display,
+       k.code kind,
+       k.name kind_display,
+       s.code status,
+       s.name status_display,
+       p.code project,
+       p.name project_display,
+       i.date_created,
+       i.date_updated,
+       i.summary,
+       i.description,
+       i.resolution
+  from issue i,
+       officer c,
+       officer a,
+       issue_kind k,
+       issue_status s,
+       issue_project p
+ where i.active = true
+   and c.id = i.creator
+   and a.id = i.assignee
+   and k.id = i.kind
+   and s.id = i.status
+   and p.id = i.project;
+   
+select SQL_CALC_FOUND_ROWS code from status_transition; 

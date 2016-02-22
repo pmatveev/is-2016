@@ -52,16 +52,24 @@ public class IssueProject extends DataClass {
 	}
 	
 	public static IssueProject[] selectAvailable(String username) throws IOException {	
+		IssueProject mask = new IssueProject(null, 
+				"start_status_display", 
+				null, 
+				"owner_display", 
+				"project_code", 
+				"project_name");
+		
 		return new StatementExecutor().select(
-				new IssueProject(null, 
-						"start_status_display", 
-						null, 
-						"owner_display", 
-						"project_code", 
-						"project_name"),
+				mask,
 				"select start_status_display, owner_display, project_code, project_name " +
 						"from projects_available " +
 						"where available_for_code = ?",
 				new Pair<>(SQLParmKind.IN_STRING, (Object) username));
+	}
+	
+	public static IssueProject[] select() throws IOException {
+		return new StatementExecutor().select(new IssueProject(null, null,
+				null, null, "code", "name"),
+				"select code, name from issue_project");
 	}
 }
