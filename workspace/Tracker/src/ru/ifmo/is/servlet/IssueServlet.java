@@ -1,6 +1,7 @@
 package ru.ifmo.is.servlet;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.sql.Types;
 
 import javax.servlet.ServletException;
@@ -78,7 +79,9 @@ public class IssueServlet extends HttpServlet {
 		request.getSession().setAttribute(ISSUE_SET_DESCRIPTION,
 				request.getParameter(ISSUE_SET_DESCRIPTION));
 		
-		response.sendRedirect("/Tracker" + ISSUE_CREATE);
+		response.sendRedirect("/Tracker" + ISSUE_CREATE + "?" + RETURN_URL
+				+ "="
+				+ URLEncoder.encode(getReturnAddress(request), "ISO-8859-1"));
 	}
 	
 	private void createIssue(HttpServletRequest request,

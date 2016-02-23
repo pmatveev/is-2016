@@ -99,7 +99,7 @@
 		}
 
 		function validate() {
-//			return true;
+			return true;
 			
 			if (document.getElementById("<%=IssueServlet.ISSUE_SET_SUMMARY%>").value == "") {
 				document.getElementById("createErr").innerHTML = "Issue summary required";
@@ -131,6 +131,8 @@
 			action="<%=IssueServlet.SERVLET_IDT%>" method="post"
 			onsubmit="return validate()"
 			autocomplete="off">
+			<input type="hidden" name="<%=IssueServlet.RETURN_URL%>"
+				value="<%=IssueServlet.getReturnAddress(request)%>"/>
 			<div class="issueBriefInfo">
 				<h1 class="briefInformation">Summary</h1>
 				<hr>
