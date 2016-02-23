@@ -1,3 +1,4 @@
+<%@page import="ru.ifmo.is.util.Util"%>
 <%@page import="ru.ifmo.is.manager.LogManager"%>
 <%@page import="ru.ifmo.is.manager.AuthenticationManager"%>
 <%@page import="ru.ifmo.is.util.Pair"%>
@@ -67,7 +68,7 @@
 								LoginServlet.LOGIN_ERR_ATTR);
 						request.getSession().removeAttribute(LoginServlet.LOGIN_ERR_ATTR);
 						if (error != null) {
-							out.print(error);
+							out.print(Util.replaceHTML(error));
 						}
 					%>
 				</td>

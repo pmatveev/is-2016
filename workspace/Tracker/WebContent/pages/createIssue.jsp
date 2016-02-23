@@ -1,3 +1,4 @@
+<%@page import="ru.ifmo.is.util.Util"%>
 <%@page import="ru.ifmo.is.db.data.IssueProject"%>
 <%@page import="ru.ifmo.is.db.data.IssueKind"%>
 <%@page import="ru.ifmo.is.servlet.IssueServlet"%>
@@ -30,9 +31,9 @@
 				owner: ""
 			};
 			<%for (int i = 0; i < projects.length; i++) {%>
-			projectTo["<%=projects[i].code%>"] = {
-					status: "<%=projects[i].startStatusDisplay%>",
-			 		owner: "<%=projects[i].ownerDisplay%>"
+			projectTo["<%=Util.replaceStr(projects[i].code)%>"] = {
+					status: "<%=Util.replaceStr(projects[i].startStatusDisplay)%>",
+			 		owner: "<%=Util.replaceStr(projects[i].ownerDisplay)%>"
 			};
 			<%}%>
 			
@@ -42,7 +43,7 @@
 			if (error != null) {
 				request.getSession().removeAttribute(IssueServlet.ISSUE_ERROR);
 				out.println("document.getElementById(\"createErr\").innerHTML = \""
-						+ error + "\";");
+						+ Util.replaceStr(error) + "\";");
 			}
 
 			String summary = (String) request.getSession().getAttribute(
@@ -52,7 +53,7 @@
 						IssueServlet.ISSUE_SET_SUMMARY);
 				out.println("document.getElementById(\""
 						+ IssueServlet.ISSUE_SET_SUMMARY + "\").value = \""
-						+ summary + "\";");
+						+ Util.replaceStr(summary) + "\";");
 			}
 
 			String project = (String) request.getSession().getAttribute(
@@ -62,7 +63,7 @@
 						IssueServlet.ISSUE_SET_PROJECT);
 				out.println("document.getElementById(\""
 						+ IssueServlet.ISSUE_SET_PROJECT + "\").value = \""
-						+ project + "\";");
+						+ Util.replaceStr(project) + "\";");
 				out.println("setProject(document.getElementById(\""
 						+ IssueServlet.ISSUE_SET_PROJECT + "\"))");
 			}
@@ -73,8 +74,8 @@
 				request.getSession().removeAttribute(
 						IssueServlet.ISSUE_SET_KIND);
 				out.println("document.getElementById(\""
-						+ IssueServlet.ISSUE_SET_KIND + "\").value = \"" + kind
-						+ "\";");
+						+ IssueServlet.ISSUE_SET_KIND + "\").value = \"" 
+						+ Util.replaceStr(kind) + "\";");
 			}
 
 			String descr = (String) request.getSession().getAttribute(
@@ -84,7 +85,7 @@
 						IssueServlet.ISSUE_SET_DESCRIPTION);
 				out.println("document.getElementById(\""
 						+ IssueServlet.ISSUE_SET_DESCRIPTION + "\").value = \""
-						+ descr + "\";");
+						+ Util.replaceStr(descr) + "\";");
 			}
 			%>			
 		}
@@ -98,7 +99,7 @@
 		}
 
 		function validate() {
-			// return true;
+//			return true;
 			
 			if (document.getElementById("<%=IssueServlet.ISSUE_SET_SUMMARY%>").value == "") {
 				document.getElementById("createErr").innerHTML = "Issue summary required";
@@ -149,7 +150,9 @@
 								<%
 									for (int i = 0; i < projects.length; i++) {
 								%>
-								<option value="<%=projects[i].code%>"><%=projects[i].name%></option>
+								<option value="<%=Util.replaceStr(projects[i].code)%>">
+								<%=Util.replaceHTML(projects[i].name)%>
+								</option>
 								<%
 									}
 								%>
@@ -164,7 +167,9 @@
 								<%
 									for (int i = 0; i < kinds.length; i++) {
 								%>
-								<option value="<%=kinds[i].code%>"><%=kinds[i].name%></option>
+								<option value="<%=Util.replaceStr(kinds[i].code)%>">
+								<%=Util.replaceHTML(kinds[i].name)%>
+								</option>
 								<%
 									}
 								%>

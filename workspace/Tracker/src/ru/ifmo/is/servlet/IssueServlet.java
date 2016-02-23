@@ -13,6 +13,7 @@ import ru.ifmo.is.manager.AuthenticationManager;
 import ru.ifmo.is.manager.LogManager;
 import ru.ifmo.is.util.Pair;
 import ru.ifmo.is.util.SQLParmKind;
+import ru.ifmo.is.util.Util;
 
 @SuppressWarnings("serial")
 public class IssueServlet extends HttpServlet {
@@ -56,12 +57,9 @@ public class IssueServlet extends HttpServlet {
 	// out parameters
 	public static final String ISSUE_ERROR = "issueError";
 
-	public static String nvl(String a) {
-		return a == null ? "" : a;
-	}
-
 	public static String getReturnAddress(HttpServletRequest request) {
-		String searchReturnURL = request.getParameter(IssueServlet.RETURN_URL);
+		String searchReturnURL = Util.replaceStr(request
+				.getParameter(IssueServlet.RETURN_URL));
 		if (searchReturnURL == null) {
 			searchReturnURL = "/Tracker" + LoginServlet.INDEX_PAGE;
 		}

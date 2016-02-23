@@ -100,7 +100,7 @@ public class Issue extends DataClass {
 		if (parm == null || "".equals(parm)) {
 			return null;
 		} else {
-			return "%" + parm.replaceAll("_", "\\_").replaceAll("%", "\\%") + "%";
+			return "%" + parm.replace("_", "\\_").replace("%", "\\%") + "%";
 		}
 	}
 

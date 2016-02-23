@@ -1,3 +1,4 @@
+<%@page import="ru.ifmo.is.util.Util"%>
 <%@page import="java.util.HashSet"%>
 <%@page import="java.util.Set"%>
 <%@page import="ru.ifmo.is.db.data.Officer"%>
@@ -83,7 +84,8 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title><%=issue == null ? "Issue not found" : issue.idt + "/" + issue.summary%></title>
+<title><%=issue == null ? "Issue not found" : Util.replaceHTML(issue.idt)
+		+ "/" + Util.replaceHTML(issue.summary)%></title>
 <link rel='stylesheet' href='/Tracker/pages/default.css'></link>
 </head>
 <body onload="init()">
@@ -93,9 +95,9 @@
 	%>
 	<div class="centeredText">
 		Issue having key
-		<%=issueKey%>
+		Util.replaceHTML(<%=issueKey%>)
 		not found. You may continue with search on the <a
-			href="<%=searchReturnURL%>">main page</a>.
+			href="<%=Util.replaceStr(searchReturnURL)%>">main page</a>.
 	</div>
 	<%
 		} else {
@@ -110,15 +112,15 @@
 	function init() {
 		<%for (int i = 0; i < issueKinds.length; i++) {%>
 		kinds[<%=i%>] = {
-			code: "<%=issueKinds[i].code%>",
-			name: "<%=issueKinds[i].name%>"
+			code: "<%=Util.replaceStr(issueKinds[i].code)%>",
+			name: "<%=Util.replaceStr(issueKinds[i].name)%>"
 		};	
 		<%}%>
 
 		<%for (int i = 0; i < assignees.length; i++) {%>
 		assignees[<%=i%>] = {
-			code: "<%=assignees[i].username%>",
-			name: "<%=assignees[i].credentials%>"
+			code: "<%=Util.replaceStr(assignees[i].username)%>",
+			name: "<%=Util.replaceStr(assignees[i].credentials)%>"
 		};
 		<%
 		}
@@ -127,17 +129,17 @@
 			if (!projectTo.contains(projectTransitions[i].projectTo)) {
 				projectTo.add(projectTransitions[i].projectTo);
 		%>
-		projects["<%=projectTransitions[i].projectTo%>"] = {
-			name: "<%=projectTransitions[i].projectToDisplay%>",
+		projects["<%=Util.replaceStr(projectTransitions[i].projectTo)%>"] = {
+			name: "<%=Util.replaceStr(projectTransitions[i].projectToDisplay)%>",
 			statuses: [{
-				code: "<%=projectTransitions[i].statusTo%>",
-				name: "<%=projectTransitions[i].statusToDisplay%>"
+				code: "<%=Util.replaceStr(projectTransitions[i].statusTo)%>",
+				name: "<%=Util.replaceStr(projectTransitions[i].statusToDisplay)%>"
 				}]
 		};
 		<%} else {%>
-		projects["<%=projectTransitions[i].projectTo%>"].statuses.push({
-			code: "<%=projectTransitions[i].statusTo%>",
-			name: "<%=projectTransitions[i].statusToDisplay%>"			
+		projects["<%=Util.replaceStr(projectTransitions[i].projectTo)%>"].statuses.push({
+			code: "<%=Util.replaceStr(projectTransitions[i].statusTo)%>",
+			name: "<%=Util.replaceStr(projectTransitions[i].statusToDisplay)%>"			
 		});
 		<%}}%>
 		
@@ -167,13 +169,13 @@
 	}
 	
 	function resetForm() {
-		document.getElementById("issueKindTd").innerHTML = "<%=issue.kindDisplay%>";
-		document.getElementById("issueStatusTd").innerHTML = "<%=issue.statusDisplay%>";
-		document.getElementById("issueReporterTd").innerHTML = "<%=issue.creatorDisplay%>";
-		document.getElementById("issueAssigneeTd").innerHTML = "<%=issue.assigneeDisplay%>";
-		document.getElementById("issueDescription").innerHTML = "<%=issue.description == null ? "" : issue.description.replaceAll("\n", "<br/>")%>";
-		document.getElementById("issueResolution").innerHTML = "<%=issue.resolution == null ? "" : issue.resolution.replaceAll("\n", "<br/>")%>";
-		document.getElementById("issueSummary").innerHTML = "<%=issue.summary%>";
+		document.getElementById("issueKindTd").innerHTML = "<%=Util.replaceStr(Util.replaceHTML(issue.kindDisplay))%>";
+		document.getElementById("issueStatusTd").innerHTML = "<%=Util.replaceStr(Util.replaceHTML(issue.statusDisplay))%>";
+		document.getElementById("issueReporterTd").innerHTML = "<%=Util.replaceStr(Util.replaceHTML(issue.creatorDisplay))%>";
+		document.getElementById("issueAssigneeTd").innerHTML = "<%=Util.replaceStr(Util.replaceHTML(issue.assigneeDisplay))%>";
+		document.getElementById("issueDescription").innerHTML = "<%=issue.description == null ? "" : Util.replaceStr(Util.replaceHTML(issue.description)).replace("\n", "<br/>")%>";
+		document.getElementById("issueResolution").innerHTML = "<%=issue.resolution == null ? "" : Util.replaceStr(Util.replaceHTML(issue.resolution)).replace("\n", "<br/>")%>";
+		document.getElementById("issueSummary").innerHTML = "<%=Util.replaceStr(Util.replaceHTML(issue.summary))%>";
 	}
 	
 	function removeEditElements() {
@@ -260,7 +262,7 @@
 		var issueId = document.createElement("input");
 		issueId.type = "hidden";
 		issueId.name = "<%=IssueServlet.ISSUE_GET_KEY_PARM%>";
-		issueId.value = "<%=issue.idt%>";
+		issueId.value = "<%=Util.replaceStr(issue.idt)%>";
 		buttonDiv.appendChild(issueId);
 		
 		var submit = document.createElement("input");
@@ -283,13 +285,13 @@
 	function enableEdit(newStatusCode, newStatus) {
 		if (!isEditing) {
 			// have to create dropdowns
-			createSelect(document.getElementById("issueKindTd"), "<%=IssueServlet.ISSUE_SET_KIND%>", kinds, "<%=issue.kind%>");
-			createSelect(document.getElementById("issueAssigneeTd"), "<%=IssueServlet.ISSUE_SET_ASSIGNEE%>", assignees, "<%=issue.assignee%>");					
+			createSelect(document.getElementById("issueKindTd"), "<%=IssueServlet.ISSUE_SET_KIND%>", kinds, "<%=Util.replaceStr(issue.kind)%>");
+			createSelect(document.getElementById("issueAssigneeTd"), "<%=IssueServlet.ISSUE_SET_ASSIGNEE%>", assignees, "<%=Util.replaceStr(issue.assignee)%>");					
 			
 			var summEdit = document.createElement("input");
 			summEdit.id = "<%=IssueServlet.ISSUE_SET_SUMMARY%>";
 			summEdit.name = "<%=IssueServlet.ISSUE_SET_SUMMARY%>";
-			summEdit.value = "<%=issue.summary%>";
+			summEdit.value = "<%=Util.replaceStr(issue.summary)%>";
 			summEdit.className = "summaryEdit";
 			summEdit.setAttribute("form", "issueForm");
 			document.getElementById("issueSummary").innerHTML = "";
@@ -298,7 +300,7 @@
 			var descrEdit = document.createElement("textarea");
 			descrEdit.id = "<%=IssueServlet.ISSUE_SET_DESCRIPTION%>";
 			descrEdit.name = "<%=IssueServlet.ISSUE_SET_DESCRIPTION%>";
-			descrEdit.value = "<%=issue.description == null ? "" : issue.description.replaceAll("\n", "\\\\n")%>";
+			descrEdit.value = "<%=issue.description == null ? "" : Util.replaceStr(issue.description.replaceAll("\n", "\\\\n"))%>";
 			descrEdit.className = "descrEdit";
 			descrEdit.rows = editRows;
 			document.getElementById("issueDescription").innerHTML = "";
@@ -306,7 +308,7 @@
 
 			var resEdit = document.createElement("textarea");
 			resEdit.name = "<%=IssueServlet.ISSUE_SET_RESOLUTION%>";
-			resEdit.value = "<%=issue.resolution == null ? "" : issue.resolution.replaceAll("\n", "\\n")%>";
+			resEdit.value = "<%=issue.resolution == null ? "" : Util.replaceStr(issue.resolution.replaceAll("\n", "\\n"))%>";
 			resEdit.className = "descrEdit";
 			resEdit.rows = editRows;
 			document.getElementById("issueResolution").innerHTML = "";
@@ -369,7 +371,7 @@
 		<%
 			for (int i = 0; i < statusTransitions.length; i++) {
 		%>
-		disableButton("button_<%=statusTransitions[i].code%>");
+		disableButton("button_<%=Util.replaceStr(statusTransitions[i].code)%>");
 		<%
 			}
 		%>
@@ -456,7 +458,7 @@
 		<%
 		for (int i = 0; i < statusTransitions.length; i++) {
 		%>
-		enableButton("button_<%=statusTransitions[i].code%>");
+		enableButton("button_<%=Util.replaceStr(statusTransitions[i].code)%>");
 		<%
 			}
 		%>
@@ -478,9 +480,9 @@
 		</div>
 		<div>
 			<p class="issueName">
-				<%=issue.projectDisplay%>
+				<%=Util.replaceHTML(issue.projectDisplay)%>
 				/
-				<%=issue.idt%>
+				<%=Util.replaceHTML(issue.idt)%>
 			</p>
 		</div>
 		<div class="summary" id="issueSummary"></div>
@@ -489,8 +491,11 @@
 		<%
 			for (int i = 0; i < statusTransitions.length; i++) {
 		%>
-		<button class="buttonFixed" id="button_<%=statusTransitions[i].code%>"
-			onclick="enableEdit('<%=statusTransitions[i].statusTo%>', '<%=statusTransitions[i].statusToDisplay%>')"><%=statusTransitions[i].name%></button>
+		<button class="buttonFixed" id="button_<%=Util.replaceStr(statusTransitions[i].code)%>"
+			onclick="enableEdit('<%=Util.replaceStr1(statusTransitions[i].statusTo)%>', 
+				'<%=Util.replaceStr1(statusTransitions[i].statusToDisplay)%>')">
+		<%=Util.replaceHTML(statusTransitions[i].name)%>
+		</button>
 		<%
 			}
 
@@ -560,11 +565,11 @@
 						for (int i = 0; i < comments.length; i++) {
 					%>
 					<tr>
-						<td class="commentTableAuthor"><%=comments[i].authorDisplay%></td>
+						<td class="commentTableAuthor"><%=Util.replaceHTML(comments[i].authorDisplay)%></td>
 						<td class="commentTableDate"><%=dateFormat.format(comments[i].dateCreated)%></td>
 					</tr>
 					<tr>
-						<td class="commentTableText" colspan="2"><%=comments[i].text.replaceAll("\n", "<br/>")%><hr></td>
+						<td class="commentTableText" colspan="2"><%=Util.replaceHTML(comments[i].text).replace("\n", "<br/>")%><hr></td>
 					</tr>
 					<%
 						}
@@ -580,7 +585,7 @@
 					</div>
 					<div class="postComment">
 						<p>
-							<input type="hidden" name="<%=IssueServlet.ISSUE_GET_KEY_PARM%>" value="<%=issue.idt%>"></input>
+							<input type="hidden" name="<%=IssueServlet.ISSUE_GET_KEY_PARM%>" value="<%=Util.replaceStr(issue.idt)%>"></input>
 							<input id="addRegularCommentButton" type="submit" value="Add"
 								class="buttonFixed">
 						</p>

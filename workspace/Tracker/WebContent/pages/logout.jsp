@@ -1,3 +1,4 @@
+<%@page import="ru.ifmo.is.util.Util"%>
 <%@page import="ru.ifmo.is.manager.LogManager"%>
 <%@page import="ru.ifmo.is.util.Pair"%>
 <%@page import="ru.ifmo.is.manager.AuthenticationManager"%>
@@ -13,8 +14,8 @@
 		}
 	%>
 	You are logged in as
-	<%=(String) request.getAttribute(LoginServlet.LOGIN_AUTH_DISPLAYNAME) +
-	(new Boolean(true).equals((Boolean) request.getAttribute(LoginServlet.LOGIN_AUTH_USER_ADMIN)) ? " (administrator)." : ".")%> <a
+	<%=Util.replaceHTML((String) request.getAttribute(LoginServlet.LOGIN_AUTH_DISPLAYNAME) +
+	(new Boolean(true).equals((Boolean) request.getAttribute(LoginServlet.LOGIN_AUTH_USER_ADMIN)) ? " (administrator)." : "."))%> <a
 		href="<%=LoginServlet.SERVLET_IDT%>?action=logout">Logout</a>
 </div>
 <hr />

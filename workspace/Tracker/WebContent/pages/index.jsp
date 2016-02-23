@@ -1,3 +1,4 @@
+<%@page import="ru.ifmo.is.util.Util"%>
 <%@page import="ru.ifmo.is.db.data.IssueProject"%>
 <%@page import="java.net.URLEncoder"%>
 <%@page import="java.util.Enumeration"%>
@@ -131,22 +132,22 @@
 								<%
 									for (int i = 0; i < projects.length; i++) {
 								%>
-								<option value="<%=projects[i].code%>"
+								<option value="<%=Util.replaceStr(projects[i].code)%>"
 									<%=projects[i].code.equals(request
 						.getParameter(IssueServlet.ISSUE_GET_BY_PROJECT)) ? "selected"
-						: ""%>><%=projects[i].name%></option>
+						: ""%>><%=Util.replaceHTML(projects[i].name)%></option>
 								<%
 									}
 								%>
 						</select></td>
 						<td class="issuesTableKey"><input type="text"
-							value="<%=IssueServlet.nvl(request
-					.getParameter(IssueServlet.ISSUE_GET_BY_KEY))%>"
+							value="<%=Util.replaceStr(Util.nvl(request
+					.getParameter(IssueServlet.ISSUE_GET_BY_KEY)))%>"
 							name="<%=IssueServlet.ISSUE_GET_BY_KEY%>" id="filterKey"
 							class="inputKey"></td>
 						<td class="issuesTableName"><input type="text"
-							value="<%=IssueServlet.nvl(request
-					.getParameter(IssueServlet.ISSUE_GET_BY_SUMM))%>"
+							value="<%=Util.replaceStr(Util.nvl(request
+					.getParameter(IssueServlet.ISSUE_GET_BY_SUMM)))%>"
 							name="<%=IssueServlet.ISSUE_GET_BY_SUMM%>" id="filterName"
 							class="inputKey"></td>
 						<td class="issuesTableType"><select id="filterType"
@@ -156,10 +157,10 @@
 								<%
 									for (int i = 0; i < kinds.length; i++) {
 								%>
-								<option value="<%=kinds[i].code%>"
+								<option value="<%=Util.replaceStr(kinds[i].code)%>"
 									<%=kinds[i].code.equals(request
 						.getParameter(IssueServlet.ISSUE_GET_BY_KIND)) ? "selected"
-						: ""%>><%=kinds[i].name%></option>
+						: ""%>><%=Util.replaceHTML(kinds[i].name)%></option>
 								<%
 									}
 								%>
@@ -171,26 +172,26 @@
 								<%
 									for (int i = 0; i < statuses.length; i++) {
 								%>
-								<option value="<%=statuses[i].code%>"
+								<option value="<%=Util.replaceStr(statuses[i].code)%>"
 									<%=statuses[i].code.equals(request
 						.getParameter(IssueServlet.ISSUE_GET_BY_STATUS)) ? "selected"
-						: ""%>><%=statuses[i].name%></option>
+						: ""%>><%=Util.replaceHTML(statuses[i].name)%></option>
 								<%
 									}
 								%>
 						</select></td>
 						<td class="issuesTableReporter"><input type="text"
-							value="<%=IssueServlet.nvl(request
-					.getParameter(IssueServlet.ISSUE_GET_BY_REPORTER))%>"
+							value="<%=Util.replaceStr(Util.nvl(request
+					.getParameter(IssueServlet.ISSUE_GET_BY_REPORTER)))%>"
 							name="<%=IssueServlet.ISSUE_GET_BY_REPORTER%>"
 							id="filterReporter" class="inputKey"></td>
 						<td class="issuesTableAssignee"><input type="text"
-							value="<%=IssueServlet.nvl(request
-					.getParameter(IssueServlet.ISSUE_GET_BY_ASSIGNEE))%>"
+							value="<%=Util.replaceStr(Util.nvl(request
+					.getParameter(IssueServlet.ISSUE_GET_BY_ASSIGNEE)))%>"
 							name="<%=IssueServlet.ISSUE_GET_BY_ASSIGNEE%>"
 							id="filterAssignee" class="inputKey"></td>
 						<td class="issuesTableCreated"><select id="dateCreated"
-							value="<%=request.getParameter(IssueServlet.ISSUE_GET_BY_CREATED)%>"
+							value="<%=Util.replaceStr(request.getParameter(IssueServlet.ISSUE_GET_BY_CREATED))%>"
 							name="<%=IssueServlet.ISSUE_GET_BY_CREATED%>"
 							class="selectIssueType">
 								<option value="">---</option>
@@ -216,7 +217,7 @@
 									Asc Secondary</option>
 						</select></td>
 						<td class="issuesTableUpdated"><select id="dateUpdated"
-							value="<%=request.getParameter(IssueServlet.ISSUE_GET_BY_UPDATED)%>"
+							value="<%=Util.replaceStr(request.getParameter(IssueServlet.ISSUE_GET_BY_UPDATED))%>"
 							name="<%=IssueServlet.ISSUE_GET_BY_UPDATED%>"
 							class="selectIssueType">
 								<option value="">---</option>
@@ -248,19 +249,21 @@
 						for (int i = 0; i < issues.length; i++) {
 					%>
 					<tr>
-						<td class="issuesTableProjectBody"><%=issues[i].projectDisplay%></td>
+						<td class="issuesTableProjectBody"><%=Util.replaceHTML(issues[i].projectDisplay)%></td>
 						<td class="issuesTableKeyBody"><a
-							href="/Tracker/pages/issue.jsp?<%=IssueServlet.ISSUE_GET_KEY_PARM%>=<%=issues[i].idt%>&<%=IssueServlet.RETURN_URL%>=<%=returnToStr%>">
-								<%=issues[i].idt%>
+							href="/Tracker/pages/issue.jsp?<%=IssueServlet.ISSUE_GET_KEY_PARM%>=<%=Util.replaceStr(issues[i].idt)%>
+							&<%=IssueServlet.RETURN_URL%>=<%=returnToStr%>">
+								<%=Util.replaceHTML(issues[i].idt)%>
 						</a></td>
 						<td class="issuesTableNameBody"><a
-							href="/Tracker/pages/issue.jsp?<%=IssueServlet.ISSUE_GET_KEY_PARM%>=<%=issues[i].idt%>&<%=IssueServlet.RETURN_URL%>=<%=returnToStr%>">
-								<%=issues[i].summary%>
+							href="/Tracker/pages/issue.jsp?<%=IssueServlet.ISSUE_GET_KEY_PARM%>=<%=Util.replaceStr(issues[i].idt)%>
+							&<%=IssueServlet.RETURN_URL%>=<%=returnToStr%>">
+								<%=Util.replaceHTML(issues[i].summary)%>
 						</a></td>
-						<td class="issuesTableTypeBody"><%=issues[i].kindDisplay%></td>
-						<td class="issuesTableStatusBody"><%=issues[i].statusDisplay%></td>
-						<td class="issuesTableReporterBody"><%=issues[i].creatorDisplay%></td>
-						<td class="issuesTableAssigneeBody"><%=issues[i].assigneeDisplay%></td>
+						<td class="issuesTableTypeBody"><%=Util.replaceHTML(issues[i].kindDisplay)%></td>
+						<td class="issuesTableStatusBody"><%=Util.replaceHTML(issues[i].statusDisplay)%></td>
+						<td class="issuesTableReporterBody"><%=Util.replaceHTML(issues[i].creatorDisplay)%></td>
+						<td class="issuesTableAssigneeBody"><%=Util.replaceHTML(issues[i].assigneeDisplay)%></td>
 						<td class="issuesTableCreatedBody"><%=dateFormat.format(issues[i].dateCreated)%></td>
 						<td class="issuesTableUpdatedBody"><%=dateFormat.format(issues[i].dateUpdated)%></td>
 					</tr>
@@ -274,9 +277,10 @@
 			if (issues.length == 0 && key != null && !"".equals(key)) {
 			%>
 			<div class="indexNoIssue">
-			Issue having key "<%=key%>" not found. Check out
+			Issue having key "<%=Util.replaceHTML(key)%>" not found. Check out
 			<a
-				href="/Tracker/pages/issue.jsp?<%=IssueServlet.ISSUE_GET_KEY_PARM%>=<%=key%>&<%=IssueServlet.RETURN_URL%>=<%=returnToStr%>">this page</a>
+				href="/Tracker/pages/issue.jsp?<%=IssueServlet.ISSUE_GET_KEY_PARM%>=<%=Util.replaceStr(key)%>
+				&<%=IssueServlet.RETURN_URL%>=<%=returnToStr%>">this page</a>
 			to find out if it ever existed.
 			</div>
 			<%
