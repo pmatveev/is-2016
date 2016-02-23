@@ -10,6 +10,7 @@ import java.util.List;
 import ru.ifmo.is.db.DataClass;
 import ru.ifmo.is.db.StatementExecutor;
 import ru.ifmo.is.util.Pair;
+import ru.ifmo.is.util.SQLParmKind;
 
 public class Issue extends DataClass {	
 	public int id; // should always be placed in "id" column
@@ -94,15 +95,24 @@ public class Issue extends DataClass {
 		
 		return issues.toArray(new Issue[0]);
 	}
+	
+	private static String getLikeParm(String parm) {
+		if (parm == null || "".equals(parm)) {
+			return null;
+		} else {
+			return "%" + parm.replaceAll("_", "\\_").replaceAll("%", "\\%") + "%";
+		}
+	}
 
-	private static void appendWhereLike(StringBuilder where, String column,
-			String filter) {
-		if (filter != null && !"".equals(filter)) {
-			where.append(" and ")
+	private static void appendWhere(StringBuilder where, String column, boolean like) {
+		if (like) {
+			where.append(" and (")
 					.append(column)
-					.append(" like '%")
-					.append(filter.replaceAll("_", "\\_")
-							.replaceAll("%", "\\%")).append("%' ");
+					.append(" like ? or ? is null)");
+		} else {
+			where.append(" and (")
+			.append(column)
+			.append(" = ? or ? is null)");		
 		}
 	}
 	
@@ -126,19 +136,24 @@ public class Issue extends DataClass {
 			String assignee, 
 			String createdOrder, 
 			String updatedOrder) throws IOException {
+		idt = getLikeParm(idt);
+		summary = getLikeParm(summary);
+		project = getLikeParm(project);
+		kind = getLikeParm(kind);
+		status = getLikeParm(status);
+		creator = getLikeParm(creator);
+		assignee = getLikeParm(assignee);
 		
 		StringBuilder where = new StringBuilder();
-		appendWhereLike(where, "idt", idt);
-		appendWhereLike(where, "summary", summary);
-		appendWhereLike(where, "project", project);
-		appendWhereLike(where, "kind", kind);
-		appendWhereLike(where, "status", status);
-		appendWhereLike(where, "creator_display", creator);
-		appendWhereLike(where, "assignee_display", assignee);
+		appendWhere(where, "idt", true);
+		appendWhere(where, "summary", true);
+		appendWhere(where, "project", false);
+		appendWhere(where, "kind", false);
+		appendWhere(where, "status", false);
+		appendWhere(where, "creator_display", true);
+		appendWhere(where, "assignee_display", true);
 
-		if (where.length() > 3 && " and".equals(where.substring(0, 4))) {
-			where.replace(0, 4, " where");
-		}
+		where.replace(0, 4, " where");
 		
 		StringBuilder order = new StringBuilder(" order by ");
 		// 1st priority
@@ -182,6 +197,22 @@ public class Issue extends DataClass {
 				+ where.toString() + order.toString()
 				+ " limit " + from + ", " + num;
 		
-		return new StatementExecutor().selectCount(mask, stmt);
+		return new StatementExecutor().selectCount(
+				mask, 
+				stmt,
+				new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, idt),
+				new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, idt),
+				new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, summary),
+				new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, summary),
+				new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, project),
+				new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, project),
+				new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, kind),
+				new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, kind),
+				new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, status),
+				new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, status),
+				new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, creator),
+				new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, creator),
+				new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, assignee),
+				new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, assignee));
 	}
 }
