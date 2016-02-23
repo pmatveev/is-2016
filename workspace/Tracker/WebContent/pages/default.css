@@ -409,6 +409,7 @@ h4 {
 }
 
 .indexPrev,.indexNext {
+	margin-top: 10px;
 	display: inline-block;
 }
 

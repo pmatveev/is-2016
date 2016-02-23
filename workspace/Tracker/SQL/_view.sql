@@ -77,5 +77,5 @@ select i.id,
    and k.id = i.kind
    and s.id = i.status
    and p.id = i.project;
-   
-select SQL_CALC_FOUND_ROWS code from status_transition; 
+
+select SQL_CALC_FOUND_ROWS idt, creator_display, assignee_display, kind_display, status_display, project_display, date_created, date_updated, summary from active_issues a where reporter_display like '%mat%'  order by prev_issue asc limit 0, 5

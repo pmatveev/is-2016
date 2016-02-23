@@ -122,7 +122,7 @@ public class Issue extends DataClass {
 			String project,
 			String kind, 
 			String status, 
-			String reporter, 
+			String creator, 
 			String assignee, 
 			String createdOrder, 
 			String updatedOrder) throws IOException {
@@ -133,7 +133,7 @@ public class Issue extends DataClass {
 		appendWhereLike(where, "project", project);
 		appendWhereLike(where, "kind", kind);
 		appendWhereLike(where, "status", status);
-		appendWhereLike(where, "reporter_display", reporter);
+		appendWhereLike(where, "creator_display", creator);
 		appendWhereLike(where, "assignee_display", assignee);
 
 		if (where.length() > 3 && " and".equals(where.substring(0, 4))) {

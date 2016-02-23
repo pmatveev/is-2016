@@ -95,7 +95,10 @@
 		<div class="searchInfo">
 		<%if (issues.length > 0) {%>
 		Showing issues <%=(intFrom + 1)%>-<%=intFrom + issues.length%> of <%=totalCount%>
-		<%} %>
+		<%} else {
+			out.println("No issues found");
+		}
+		%>
 		</div>
 		<div class="searchInput">
 			<input type="submit" class="createIssueButton" 
