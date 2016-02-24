@@ -56,19 +56,13 @@
 		SimpleDateFormat dateFormat = new SimpleDateFormat(
 				"HH:mm:ss dd.MM.yyyy", Locale.ENGLISH);
 
-		StringBuffer returnTo = request.getRequestURL().append("?");
-		StringBuffer returnToFrom0 = request.getRequestURL().append("?");
+		String returnTo = request.getRequestURI() + "?" + Util.nvl(request.getQueryString());
+		StringBuilder returnToFrom0 = new StringBuilder(request.getRequestURI() + "?");
 		Enumeration<String> parms = request.getParameterNames();
 
 		int p = 0, p0 = 0;
 		while (parms.hasMoreElements()) {
 			String attr = parms.nextElement();
-			if (p > 0) {
-				returnTo.append("&");
-			}
-			p++;			
-			returnTo.append(attr + "="
-					+ URLEncoder.encode(request.getParameter(attr), "ISO-8859-1"));
 			
 			if (!IssueServlet.ISSUE_GET_START_FROM.equals(attr)) {
 				if (p0 > 0) {

@@ -16,13 +16,13 @@ public class Util {
 		if (s == null) {
 			return null;
 		}
-		return s.replace("\"", "\\\"");
+		return s.replace("\"", "\\\"").replace("<", "\\<").replace(">", "\\>");
 	}	
 	
 	public static String replaceStr1(String s) {
 		if (s == null) {
 			return null;
 		}
-		return s.replace("'", "\'");
+		return s.replace("'", "\'").replace("<", "\\<").replace(">", "\\>");
 	}
 }

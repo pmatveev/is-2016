@@ -1,3 +1,4 @@
+<%@page import="java.net.URLEncoder"%>
 <%@page import="ru.ifmo.is.util.Util"%>
 <%@page import="java.util.HashSet"%>
 <%@page import="java.util.Set"%>
@@ -16,36 +17,30 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
 <!DOCTYPE html>
-<%
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Issue</title>
+<link rel='stylesheet' href='/Tracker/pages/default.css'></link>
+</head>
+<body onload="init()">
+	<%@ include file="logout.jsp"%>
+	<%
 	LogManager.log("GET issue.jsp", request);
 
+	String returnTo = request.getRequestURI() + "?" + Util.nvl(request.getQueryString());
 	String searchReturnURL = IssueServlet.getReturnAddress(request);
 	SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMMM d yyyy, HH:mm:ss", Locale.ENGLISH);
 	String issueKey = (String) request.getParameter(IssueServlet.ISSUE_GET_KEY_PARM);
 
-	Issue issue = null;
-	Comment[] comments = null;
+	Issue issue = Issue.selectByIdt(issueKey);
+	Comment[] comments = Comment.selectByIssue(issue == null ? null : issue.id);
 	IssueStatusTransition[] statusTransitions = null;
 	IssueProjectTransition[] projectTransitions = null;
 	IssueKind[] issueKinds = null;
 	Officer[] assignees = null;
 
 	// TODO here to retrieve issue detailed information
-	if ("SANDBOX-412".equals(issueKey)) {
-		issue = new Issue(1, "SANDBOX-412", "admin", "Test admin", "admin", "Test admin", "VERIFY",
-		"Verification", "OPEN", "Open", "SANDBOX", "Sandbox testing", new Date(115, 11, 23, 16, 7, 46),
-		new Date(116, 1, 13, 11, 48, 1), "Please verify issue details page",
-		"Here we have multiline description. \n"
-		+ "We expect it to work fine. Please verify, wouldn't you? Really appreciate it. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
-		null);
-		issue.resolution = "Resolution";
-		
-		comments = new Comment[10];
-		for (int i = 0; i < comments.length; i++) {
-	comments[i] = new Comment(i, issue.id,"admin", "Test admin", new Date(116, 1, 15, 14, 34, 5),
-	"really, really long long long\n multiline comment #" + Integer.toString(i));
-		}
-
 		statusTransitions = new IssueStatusTransition[4];
 		statusTransitions[0] = new IssueStatusTransition(1, "SANDBOX",
 				"Sandbox testing", "OPEN", "Open", "OPEN", "Open",
@@ -79,23 +74,13 @@
 		assignees[2] = new Officer(1, "test2", true, null, "Officer2");
 		assignees[3] = new Officer(1, "test3", true, null, "Officer3");
 		assignees[4] = new Officer(1, "test4", true, null, "Officer4");
-	}
-%>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title><%=issue == null ? "Issue not found" : Util.replaceHTML(issue.idt)
-		+ "/" + Util.replaceHTML(issue.summary)%></title>
-<link rel='stylesheet' href='/Tracker/pages/default.css'></link>
-</head>
-<body onload="init()">
-	<%@ include file="logout.jsp"%>
+	%>
 	<%
 		if (issue == null) {
 	%>
 	<div class="centeredText">
 		Issue having key
-		Util.replaceHTML(<%=issueKey%>)
+		<%=Util.replaceHTML(issueKey)%>
 		not found. You may continue with search on the <a
 			href="<%=Util.replaceStr(searchReturnURL)%>">main page</a>.
 	</div>
@@ -110,6 +95,8 @@
 	var projects = [];
 	
 	function init() {
+		document.title = "<%=issue == null ? "Issue not found" : Util.replaceStr(issue.idt)
+				+ "/" + Util.replaceStr(issue.summary)%>";
 		<%for (int i = 0; i < issueKinds.length; i++) {%>
 		kinds[<%=i%>] = {
 			code: "<%=Util.replaceStr(issueKinds[i].code)%>",
@@ -144,6 +131,27 @@
 		<%}}%>
 		
 		resetForm();
+		
+		<%
+		if ("error".equals(request.getSession().
+				getAttribute(IssueServlet.ISSUE_COMMENT_WEBSERVICE))) {
+			String error = (String) request.getSession().getAttribute(
+					IssueServlet.ISSUE_ERROR);
+			if (error != null) {
+				request.getSession().removeAttribute(IssueServlet.ISSUE_ERROR);
+				out.println("document.getElementById(\"commentErr\").innerHTML = \""
+						+ Util.replaceStr(error) + "\";");
+			}
+			
+			String comment = (String) request.getSession().getAttribute(
+					IssueServlet.ISSUE_ADD_COMMENT);
+			if (comment != null) {
+				request.getSession().removeAttribute(IssueServlet.ISSUE_ADD_COMMENT);
+				out.println("document.getElementById(\"addRegularCommentArea\").value = \""
+						+ Util.replaceStr(comment) + "\";");
+			}
+		}
+		%>
 	}
 	
 	function disableButton(elem) {
@@ -473,6 +481,23 @@
 			moveAreaDiv.parentNode.removeChild(moveAreaDiv);
 		}
 	}
+	
+	function validateComment() {
+		return true;
+		
+		var comment = document.getElementById("addRegularCommentArea").value;
+		if (comment == "") {
+			document.getElementById("commentErr").innerHTML = "Comment required";
+			return false;
+		}
+		if (comment.length > 4000) {
+			document.getElementById("commentErr").innerHTML = "Maximum comment length is 4000 characters";			
+			return false;
+		}
+		
+		document.getElementById("commentErr").innerHTML = "";
+		return true;
+	}
 	</script>
 	<div>
 		<div class="linkToEdit">
@@ -575,7 +600,11 @@
 						}
 					%>
 				</table>
-				<form>
+				<form id="commentForm" name="commentForm"
+					action="<%=IssueServlet.SERVLET_IDT%>" method="post"
+					onsubmit="return validateComment()">
+					<input type="hidden" name="<%=IssueServlet.RETURN_URL%>" value="<%=returnTo%>"/>
+					<input type="hidden" name="<%=IssueServlet.ISSUE_GET_KEY_PARM%>" value="<%=Util.replaceStr(issue.idt)%>"></input>
 					<div>
 						<p>
 							<textarea id="addRegularCommentArea"
@@ -583,10 +612,11 @@
 								class="commentText"></textarea>
 						</p>
 					</div>
+					<div id="commentErr" class="dialogErr"></div>
 					<div class="postComment">
 						<p>
-							<input type="hidden" name="<%=IssueServlet.ISSUE_GET_KEY_PARM%>" value="<%=Util.replaceStr(issue.idt)%>"></input>
-							<input id="addRegularCommentButton" type="submit" value="Add"
+							<input id="addRegularCommentButton" type="submit"
+								name="<%=IssueServlet.ISSUE_COMMENT_WEBSERVICE%>" value="Add"
 								class="buttonFixed">
 						</p>
 					</div>

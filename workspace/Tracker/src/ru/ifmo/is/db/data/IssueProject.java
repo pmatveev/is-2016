@@ -61,7 +61,7 @@ public class IssueProject extends DataClass {
 		
 		return new StatementExecutor().select(
 				mask,
-				"select start_status_display, owner_display, project_code, project_name " +
+				"start_status_display, owner_display, project_code, project_name " +
 						"from projects_available " +
 						"where available_for_code = ?",
 				new Pair<>(SQLParmKind.IN_STRING, (Object) username));
@@ -70,6 +70,6 @@ public class IssueProject extends DataClass {
 	public static IssueProject[] select() throws IOException {
 		return new StatementExecutor().select(new IssueProject(null, null,
 				null, null, "code", "name"),
-				"select code, name from issue_project");
+				"code, name from issue_project");
 	}
 }

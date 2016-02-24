@@ -78,4 +78,14 @@ select i.id,
    and s.id = i.status
    and p.id = i.project;
 
-select SQL_CALC_FOUND_ROWS idt, creator_display, assignee_display, kind_display, status_display, project_display, date_created, date_updated, summary from active_issues a where reporter_display like '%mat%'  order by prev_issue asc limit 0, 5
+create view issue_comments as
+select f.id issue_id,
+       c.date_created,
+       c.summary,
+       o.username author,
+       o.credentials author_display
+  from issue f
+  join issue ib on ib.prev_issue = f.prev_issue
+  join issue ia on ia.prev_issue = f.prev_issue
+  join comment c on c.issue_before = ib.id and c.issue_after = ia.id
+  join officer o on o.id = c.officer__id;

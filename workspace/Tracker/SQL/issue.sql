@@ -58,3 +58,61 @@ begin
 	return concat('I:', v_idt);
 end 
 $$
+
+create function get_issue_by_idt(
+	p_idt varchar(32)
+) returns int(18)
+begin
+	declare v_res int(18);
+	
+	select min(id)
+	  into v_res
+	  from issue curr
+	 where curr.prev_issue in (select min(i.prev_issue) from issue i where idt = p_idt)
+	   and curr.active = true;
+	
+	return v_res;
+end 
+$$
+
+create function add_issue_comment(
+	p_user varchar(32),
+	p_idt varchar(32),
+	p_comment varchar(4000)
+) returns varchar(255)
+begin
+	declare v_user int(32);
+	declare v_issue int(32);
+	declare v_updated datetime;
+	
+	if p_comment is null then
+		return concat('E:Comment is not added: null comment specified');
+	end if;	
+	
+	select min(id)
+	  into v_user
+	  from officer
+	 where is_active = true
+	   and username = p_user;
+	   
+	if v_user is null then
+		return concat('E:Comment is not added: user ', p_user, ' not found');
+	end if;
+	
+	set v_issue = get_issue_by_idt(p_idt);
+	if v_issue is null then
+		return concat('E:Comment is not added: issue ', p_idt, ' not found');
+	end if;	
+	
+	set v_updated = now();
+	
+	insert into comment
+		(officer__id, issue_before, issue_after, date_created, summary)
+		values
+		(v_user, v_issue, v_issue, v_updated, p_comment);
+	
+	update issue set date_updated = v_updated where id = v_issue;
+	
+	return 'I:';
+end 
+$$

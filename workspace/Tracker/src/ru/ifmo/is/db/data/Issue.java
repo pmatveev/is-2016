@@ -3,6 +3,7 @@ package ru.ifmo.is.db.data;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -183,8 +184,7 @@ public class Issue extends DataClass {
 				null,
 				null);
 
-		String stmt = "select SQL_CALC_FOUND_ROWS " +
-				"idt, " +
+		String stmt = "idt, " +
 				"creator_display, " +
 				"assignee_display, " +
 				"kind_display, " +
@@ -214,5 +214,63 @@ public class Issue extends DataClass {
 				new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, creator),
 				new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, assignee),
 				new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, assignee));
+	}
+	
+	public static Issue selectByIdt(String idt) throws IOException {
+		if (idt == null) {
+			return null;
+		}
+		
+		StatementExecutor se = new StatementExecutor();
+		Object[] o = se.call("? = call get_issue_by_idt(?)", 
+				new Pair<SQLParmKind, Object>(SQLParmKind.OUT_INT, Types.INTEGER),
+				new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, idt));
+		if (o == null || o.length == 0 || o[0] == null) {
+			return null;
+		}
+		int id = (Integer) o[0];
+		
+		Issue mask = new Issue(
+				1, 
+				"idt", 
+				null, 
+				"creator_display", 
+				"assignee",
+				"assignee_display", 
+				"kind", 
+				"kind_display", 
+				"status", 
+				"status_display",
+				"project", 
+				"project_display", 
+				new Date(), 
+				new Date(), 
+				"summary",
+				"description", 
+				"resolution");
+		
+		String stmt = "id, " + 
+				"idt, " + 
+				"creator_display, " + 
+				"assignee, " +
+				"assignee_display, " + 
+				"kind, " + 
+				"kind_display, " + 
+				"status, " + 
+				"status_display, " +
+				"project, " + 
+				"project_display, " + 
+				"date_created, " + 
+				"date_updated, " + 
+				"summary, " +
+				"description, " + 
+				"resolution " +
+				"from active_issues " +
+				"where id = ?";
+
+		Issue[] issues = se.select(mask, stmt,
+				new Pair<SQLParmKind, Object>(SQLParmKind.IN_INT, id));
+		
+		return issues == null ? null : issues[0];
 	}
 }

@@ -36,6 +36,6 @@ public class IssueStatus extends DataClass {
 	
 	public static IssueStatus[] select() throws IOException {	
 		return new StatementExecutor().select(new IssueStatus("code", "name"),
-				"select code, name from issue_status");
+				"code, name from issue_status");
 	}
 }

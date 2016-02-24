@@ -1,7 +1,6 @@
 package ru.ifmo.is.servlet;
 
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.sql.Types;
 
 import javax.servlet.ServletException;
@@ -14,7 +13,6 @@ import ru.ifmo.is.manager.AuthenticationManager;
 import ru.ifmo.is.manager.LogManager;
 import ru.ifmo.is.util.Pair;
 import ru.ifmo.is.util.SQLParmKind;
-import ru.ifmo.is.util.Util;
 
 @SuppressWarnings("serial")
 public class IssueServlet extends HttpServlet {
@@ -27,6 +25,7 @@ public class IssueServlet extends HttpServlet {
 
 	// services
 	public static final String ISSUE_UPDATE_WEBSERVICE = "updateIssueService";
+	public static final String ISSUE_COMMENT_WEBSERVICE = "commentIssueService";
 	public static final String ISSUE_SELECT_WEBSERVICE = "selectIssueService";
 	public static final String ISSUE_CREATE_WEBSERVICE = "createIssueService";
 
@@ -59,8 +58,7 @@ public class IssueServlet extends HttpServlet {
 	public static final String ISSUE_ERROR = "issueError";
 
 	public static String getReturnAddress(HttpServletRequest request) {
-		String searchReturnURL = Util.replaceStr(request
-				.getParameter(IssueServlet.RETURN_URL));
+		String searchReturnURL = request.getParameter(IssueServlet.RETURN_URL);
 		if (searchReturnURL == null) {
 			searchReturnURL = "/Tracker" + LoginServlet.INDEX_PAGE;
 		}
@@ -79,9 +77,7 @@ public class IssueServlet extends HttpServlet {
 		request.getSession().setAttribute(ISSUE_SET_DESCRIPTION,
 				request.getParameter(ISSUE_SET_DESCRIPTION));
 		
-		response.sendRedirect("/Tracker" + ISSUE_CREATE + "?" + RETURN_URL
-				+ "="
-				+ URLEncoder.encode(getReturnAddress(request), "ISO-8859-1"));
+		response.sendRedirect(getReturnAddress(request));
 	}
 	
 	private void createIssue(HttpServletRequest request,
@@ -124,6 +120,50 @@ public class IssueServlet extends HttpServlet {
 				+ ISSUE_GET_KEY_PARM + "=" + message.substring(2));		
 	}
 
+
+	private void addCommentReturn(HttpServletRequest request,
+			HttpServletResponse response, String errMsg) throws IOException {
+		request.getSession().setAttribute(ISSUE_COMMENT_WEBSERVICE, "error");
+		request.getSession().setAttribute(ISSUE_ADD_COMMENT, request.getParameter(ISSUE_ADD_COMMENT));
+		request.getSession().setAttribute(ISSUE_ERROR, errMsg);
+		
+		response.sendRedirect(getReturnAddress(request));
+	}
+	
+	private void addComment(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String creator = (String) request.
+				getAttribute(LoginServlet.LOGIN_AUTH_USERNAME);
+		String idt = request.getParameter(ISSUE_GET_KEY_PARM);
+		String comment = request.getParameter(ISSUE_ADD_COMMENT);
+		Object[] res = null;
+		
+		try {
+			res = new StatementExecutor().call(
+					"? = call add_issue_comment(?, ?, ?)",  
+					new Pair<SQLParmKind, Object>(SQLParmKind.OUT_STRING, Types.VARCHAR),
+					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, creator),
+					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, idt),
+					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, comment));
+		} catch (IOException e) {
+			LogManager.log(e);
+			addCommentReturn(request, response, "Service failed: " + e.getMessage());
+			return;
+		}
+		
+		if (res.length == 0 || res[0] == null || !(res[0] instanceof String)) {
+			addCommentReturn(request, response, "Service failed: no response from DB");
+			return;			
+		}
+		
+		String message = (String) res[0];
+		if (message.startsWith("E:")) {
+			addCommentReturn(request, response, message.substring(2));
+			return;				
+		}
+		
+		response.sendRedirect(getReturnAddress(request));
+	}
+
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		LogManager.log("POST IssueServlet", request);
@@ -135,6 +175,11 @@ public class IssueServlet extends HttpServlet {
 		
 		if (request.getParameter(ISSUE_CREATE_WEBSERVICE) != null) {
 			createIssue(request, response);
+			return;
+		}
+		
+		if (request.getParameter(ISSUE_COMMENT_WEBSERVICE) != null) {
+			addComment(request, response);
 			return;
 		}
 		

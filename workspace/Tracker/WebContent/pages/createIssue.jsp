@@ -132,7 +132,7 @@
 			onsubmit="return validate()"
 			autocomplete="off">
 			<input type="hidden" name="<%=IssueServlet.RETURN_URL%>"
-				value="<%=IssueServlet.getReturnAddress(request)%>"/>
+				value="<%=request.getRequestURI() + "?" + Util.nvl(request.getQueryString())%>"/>
 			<div class="issueBriefInfo">
 				<h1 class="briefInformation">Summary</h1>
 				<hr>

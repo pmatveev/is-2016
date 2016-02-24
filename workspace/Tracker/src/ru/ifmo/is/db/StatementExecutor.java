@@ -41,13 +41,15 @@ public class StatementExecutor {
 					}
 					stmt.setString(i + 1, parm);
 					break;
+				case IN_INT:
+					stmt.setInt(i + 1, (Integer) a.second);
+					break;
 				case OUT_STRING:
+				case OUT_BOOL:
+				case OUT_INT:
 					out.add(i + 1);
 					stmt.registerOutParameter(i + 1, (Integer) a.second);
 					break;
-				case OUT_BOOL:
-					out.add(i + 1);
-					stmt.registerOutParameter(i + 1, (Integer) a.second);
 				}
 			}
 
@@ -61,7 +63,12 @@ public class StatementExecutor {
 					break;
 				case OUT_BOOL:
 					res[i] = stmt.getBoolean(out.get(i));
-				case IN_STRING: // should not be like this
+					break;
+				case OUT_INT:
+					res[i] = stmt.getInt(out.get(i));
+					break;
+				case IN_STRING:
+				case IN_INT: // should not be like this
 					break;
 				}
 
@@ -101,8 +108,12 @@ public class StatementExecutor {
 			case IN_STRING:
 				stmt.setString(i + 1, (String) a.second);
 				break;
+			case IN_INT:
+				stmt.setInt(i + 1, (Integer) a.second);
+				break;
 			case OUT_STRING:
-			case OUT_BOOL: // out parms not expected
+			case OUT_BOOL:
+			case OUT_INT:// out parms not expected
 				break;
 			}
 		}
@@ -114,6 +125,7 @@ public class StatementExecutor {
 	@SafeVarargs
 	public final <T extends DataClass> T[] select(T data, String sql,
 			Pair<SQLParmKind, Object>... attributes) throws IOException {
+		sql = "select " + sql;
 		LogManager.log(sql, attributes);
 		Connection conn = null;
 		
@@ -141,6 +153,7 @@ public class StatementExecutor {
 	@SafeVarargs
 	public final <T extends DataClass> Pair<T[], Integer> selectCount(T data, String sql,
 			Pair<SQLParmKind, Object>... attributes) throws IOException {
+		sql = "select SQL_CALC_FOUND_ROWS " + sql;
 		LogManager.log(sql, attributes);
 		Connection conn = null;
 		
