@@ -99,7 +99,7 @@
 		}
 
 		function validate() {
-			return true;
+//			return true;
 			
 			if (document.getElementById("<%=IssueServlet.ISSUE_SET_SUMMARY%>").value == "") {
 				document.getElementById("createErr").innerHTML = "Issue summary required";

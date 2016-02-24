@@ -483,7 +483,7 @@
 	}
 	
 	function validateComment() {
-		return true;
+//		return true;
 		
 		var comment = document.getElementById("addRegularCommentArea").value;
 		if (comment == "") {

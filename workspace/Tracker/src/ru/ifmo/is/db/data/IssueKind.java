@@ -35,6 +35,6 @@ public class IssueKind extends DataClass {
 	
 	public static IssueKind[] select() throws IOException {	
 		return new StatementExecutor().select(new IssueKind("code", "name"),
-				"code, name from issue_kind");
+				"code, name from issue_kind order by name asc");
 	}
 }

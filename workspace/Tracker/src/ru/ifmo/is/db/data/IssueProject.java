@@ -63,13 +63,15 @@ public class IssueProject extends DataClass {
 				mask,
 				"start_status_display, owner_display, project_code, project_name " +
 						"from projects_available " +
-						"where available_for_code = ?",
+						"where available_for_code = ? " +
+						"order by project_name asc",
 				new Pair<>(SQLParmKind.IN_STRING, (Object) username));
 	}
 	
 	public static IssueProject[] select() throws IOException {
 		return new StatementExecutor().select(new IssueProject(null, null,
 				null, null, "code", "name"),
-				"code, name from issue_project");
+				"code, name from issue_project " +
+				"order by name asc");
 	}
 }

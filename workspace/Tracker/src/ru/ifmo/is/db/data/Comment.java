@@ -65,7 +65,8 @@ public class Comment extends DataClass {
 				"author, " +
 				"author_display " +
 				"from issue_comments " +
-				"where issue_id = ?";
+				"where issue_id = ? " +
+				"order by date_created asc";
 		
 		return new StatementExecutor().select(
 				mask, 
