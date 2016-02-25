@@ -65,7 +65,7 @@ public class IssueProject extends DataClass {
 						"from projects_available " +
 						"where available_for_code = ? " +
 						"order by project_name asc",
-				new Pair<>(SQLParmKind.IN_STRING, (Object) username));
+				new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, username));
 	}
 	
 	public static IssueProject[] select() throws IOException {

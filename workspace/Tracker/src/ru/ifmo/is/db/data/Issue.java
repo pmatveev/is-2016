@@ -139,9 +139,9 @@ public class Issue extends DataClass {
 			String updatedOrder) throws IOException {
 		idt = getLikeParm(idt);
 		summary = getLikeParm(summary);
-		project = getLikeParm(project);
-		kind = getLikeParm(kind);
-		status = getLikeParm(status);
+		project = "".equals(project) ? null : project;
+		kind = "".equals(kind) ? null : kind;
+		status = "".equals(status) ? null : status;
 		creator = getLikeParm(creator);
 		assignee = getLikeParm(assignee);
 		

@@ -261,18 +261,27 @@ h4 {
 }
 
 .commentTableAuthor {
-	width: 50%;
+	width: 30%;
 	font-weight: bold;
 }
 
 .commentTableDate {
-	width: 50%;
 	text-align: right;
+	font-style: italic;
+	width: 70%;
+}
+
+.commentTableText,.commentTableParm,.commentTableParmVal {
+	padding-top: 5px;
+}
+
+.commentTableParm {
 	font-style: italic;
 }
 
-.commentTableText {
-	padding-top: 5px;
+.commentTableParmVal {
+	text-align: center;
+	width: 35%;
 }
 
 .commentScroll {

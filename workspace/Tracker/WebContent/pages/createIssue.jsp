@@ -38,54 +38,58 @@
 			<%}%>
 			
 			<%
-			String error = (String) request.getSession().getAttribute(
-					IssueServlet.ISSUE_ERROR);
-			if (error != null) {
-				request.getSession().removeAttribute(IssueServlet.ISSUE_ERROR);
-				out.println("document.getElementById(\"createErr\").innerHTML = \""
-						+ Util.replaceStr(error) + "\";");
-			}
+			if ("error".equals(request.getSession().getAttribute(IssueServlet.ISSUE_CREATE_WEBSERVICE))) {
+				request.getSession().removeAttribute(IssueServlet.ISSUE_CREATE_WEBSERVICE);
+				
+				String error = (String) request.getSession().getAttribute(
+						IssueServlet.ISSUE_ERROR);
+				if (error != null) {
+					request.getSession().removeAttribute(IssueServlet.ISSUE_ERROR);
+					out.println("document.getElementById(\"createErr\").innerHTML = \""
+							+ Util.replaceStr(error) + "\";");
+				}
 
-			String summary = (String) request.getSession().getAttribute(
-					IssueServlet.ISSUE_SET_SUMMARY);
-			if (summary != null) {
-				request.getSession().removeAttribute(
+				String summary = (String) request.getSession().getAttribute(
 						IssueServlet.ISSUE_SET_SUMMARY);
-				out.println("document.getElementById(\""
-						+ IssueServlet.ISSUE_SET_SUMMARY + "\").value = \""
-						+ Util.replaceStr(summary) + "\";");
-			}
+				if (summary != null) {
+					request.getSession().removeAttribute(
+							IssueServlet.ISSUE_SET_SUMMARY);
+					out.println("document.getElementById(\""
+							+ IssueServlet.ISSUE_SET_SUMMARY + "\").value = \""
+							+ Util.replaceStr(summary) + "\";");
+				}
 
-			String project = (String) request.getSession().getAttribute(
-					IssueServlet.ISSUE_SET_PROJECT);
-			if (project != null) {
-				request.getSession().removeAttribute(
+				String project = (String) request.getSession().getAttribute(
 						IssueServlet.ISSUE_SET_PROJECT);
-				out.println("document.getElementById(\""
-						+ IssueServlet.ISSUE_SET_PROJECT + "\").value = \""
-						+ Util.replaceStr(project) + "\";");
-				out.println("setProject(document.getElementById(\""
-						+ IssueServlet.ISSUE_SET_PROJECT + "\"))");
-			}
+				if (project != null) {
+					request.getSession().removeAttribute(
+							IssueServlet.ISSUE_SET_PROJECT);
+					out.println("document.getElementById(\""
+							+ IssueServlet.ISSUE_SET_PROJECT + "\").value = \""
+							+ Util.replaceStr(project) + "\";");
+					out.println("setProject(document.getElementById(\""
+							+ IssueServlet.ISSUE_SET_PROJECT + "\"))");
+				}
 
-			String kind = (String) request.getSession().getAttribute(
-					IssueServlet.ISSUE_SET_KIND);
-			if (kind != null) {
-				request.getSession().removeAttribute(
+				String kind = (String) request.getSession().getAttribute(
 						IssueServlet.ISSUE_SET_KIND);
-				out.println("document.getElementById(\""
-						+ IssueServlet.ISSUE_SET_KIND + "\").value = \"" 
-						+ Util.replaceStr(kind) + "\";");
-			}
+				if (kind != null) {
+					request.getSession().removeAttribute(
+							IssueServlet.ISSUE_SET_KIND);
+					out.println("document.getElementById(\""
+							+ IssueServlet.ISSUE_SET_KIND + "\").value = \"" 
+							+ Util.replaceStr(kind) + "\";");
+				}
 
-			String descr = (String) request.getSession().getAttribute(
-					IssueServlet.ISSUE_SET_DESCRIPTION);
-			if (descr != null) {
-				request.getSession().removeAttribute(
+				String descr = (String) request.getSession().getAttribute(
 						IssueServlet.ISSUE_SET_DESCRIPTION);
-				out.println("document.getElementById(\""
-						+ IssueServlet.ISSUE_SET_DESCRIPTION + "\").value = \""
-						+ Util.replaceStr(descr) + "\";");
+				if (descr != null) {
+					request.getSession().removeAttribute(
+							IssueServlet.ISSUE_SET_DESCRIPTION);
+					out.println("document.getElementById(\""
+							+ IssueServlet.ISSUE_SET_DESCRIPTION + "\").value = \""
+							+ Util.replaceStr(descr) + "\";");
+				}
 			}
 			%>			
 		}

@@ -26,54 +26,24 @@
 <body onload="init()">
 	<%@ include file="logout.jsp"%>
 	<%
-	LogManager.log("GET issue.jsp", request);
-
-	String returnTo = request.getRequestURI() + "?" + Util.nvl(request.getQueryString());
-	String searchReturnURL = IssueServlet.getReturnAddress(request);
-	SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMMM d yyyy, HH:mm:ss", Locale.ENGLISH);
-	String issueKey = (String) request.getParameter(IssueServlet.ISSUE_GET_KEY_PARM);
-
-	Issue issue = Issue.selectByIdt(issueKey);
-	Comment[] comments = Comment.selectByIssue(issue == null ? null : issue.id);
-	IssueStatusTransition[] statusTransitions = null;
-	IssueProjectTransition[] projectTransitions = null;
-	IssueKind[] issueKinds = null;
-	Officer[] assignees = null;
-
-	// TODO here to retrieve issue detailed information
-		statusTransitions = new IssueStatusTransition[4];
-		statusTransitions[0] = new IssueStatusTransition(1, "SANDBOX",
-				"Sandbox testing", "OPEN", "Open", "OPEN", "Open",
-				"EDIT_SANDBOX", "Edit");
-		statusTransitions[1] = new IssueStatusTransition(2, "SANDBOX",
-				"Sandbox testing", "OPEN", "Open", "IN_PROGRESS",
-				"In progress", "START_SANDBOX", "Start progress");
-		statusTransitions[2] = new IssueStatusTransition(3, "SANDBOX",
-				"Sandbox testing", "OPEN", "Open", "CLOSE", "Closed",
-				"CLOSE_SANDBOX", "Close");
-		statusTransitions[3] = new IssueStatusTransition(4, "SANDBOX",
-				"Sandbox testing", "OPEN", "Open", "REJECTED",
-				"Rejected", "REJECT_SANDBOX", "Reject");
-
-		projectTransitions = new IssueProjectTransition[3];
-		projectTransitions[0] = new IssueProjectTransition(1,
-				"SANDBOX", "Sandbox testing", "WISH", "Delayed issues",
-				"OPEN", "Open", "TO_REVIEW", "To be reviewed");
-		projectTransitions[1] = new IssueProjectTransition(1,
-				"SANDBOX", "Sandbox testing", "PBOX", "Inbox",
-				"OPEN", "Open", "WAITING", "Waiting");
-		projectTransitions[2] = new IssueProjectTransition(1,
-				"SANDBOX", "Sandbox testing", "WISH", "Delayed issues",
-				"OPEN", "Open", "CLOSE", "To be closed");
-
-		issueKinds = IssueKind.select();
-
-		assignees = new Officer[5];
-		assignees[0] = new Officer(1, "admin", true, null, "Test Admin");
-		assignees[1] = new Officer(1, "test1", true, null, "Officer1");
-		assignees[2] = new Officer(1, "test2", true, null, "Officer2");
-		assignees[3] = new Officer(1, "test3", true, null, "Officer3");
-		assignees[4] = new Officer(1, "test4", true, null, "Officer4");
+		LogManager.log("GET issue.jsp", request);
+	
+		String returnTo = request.getRequestURI() + "?" + Util.nvl(request.getQueryString());
+		String searchReturnURL = IssueServlet.getReturnAddress(request);
+		SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMMM d yyyy, HH:mm:ss", Locale.ENGLISH);
+		String issueKey = (String) request.getParameter(IssueServlet.ISSUE_GET_KEY_PARM);
+	
+		Issue issue = Issue.selectByIdt(issueKey);
+		Comment[] comments = Comment.selectByIssue(issue == null ? null : issue.id);
+		IssueStatusTransition[] statusTransitions = IssueStatusTransition.selectByIssue(
+				issue == null ? null : issue.id, 
+				(String) request.getAttribute(LoginServlet.LOGIN_AUTH_USERNAME));
+		IssueProjectTransition[] projectTransitions = IssueProjectTransition.selectByIssue(
+				issue == null ? null : issue.id, 
+				(String) request.getAttribute(LoginServlet.LOGIN_AUTH_USERNAME));
+		IssueKind[] issueKinds = IssueKind.select();
+		// TODO currently we can assign to everyone. See task #24
+		Officer[] assignees = Officer.select(); 
 	%>
 	<%
 		if (issue == null) {
@@ -120,13 +90,15 @@
 			name: "<%=Util.replaceStr(projectTransitions[i].projectToDisplay)%>",
 			statuses: [{
 				code: "<%=Util.replaceStr(projectTransitions[i].statusTo)%>",
-				name: "<%=Util.replaceStr(projectTransitions[i].statusToDisplay)%>"
+				name: "<%=Util.replaceStr(projectTransitions[i].statusToDisplay)%>",
+				transCode: "<%=Util.replaceStr(projectTransitions[i].code)%>"
 				}]
 		};
 		<%} else {%>
 		projects["<%=Util.replaceStr(projectTransitions[i].projectTo)%>"].statuses.push({
 			code: "<%=Util.replaceStr(projectTransitions[i].statusTo)%>",
-			name: "<%=Util.replaceStr(projectTransitions[i].statusToDisplay)%>"			
+			name: "<%=Util.replaceStr(projectTransitions[i].statusToDisplay)%>",
+			transCode: "<%=Util.replaceStr(projectTransitions[i].code)%>"			
 		});
 		<%}}%>
 		
@@ -134,7 +106,92 @@
 		
 		<%
 		if ("error".equals(request.getSession().
+				getAttribute(IssueServlet.ISSUE_UPDATE_WEBSERVICE))) {
+			request.getSession().removeAttribute(IssueServlet.ISSUE_UPDATE_WEBSERVICE);
+			
+			// error during status transition
+			String statusTransition = (String) request.getSession().getAttribute(IssueServlet.ISSUE_STATUS_TRANSITION);
+			if (statusTransition != null) {
+				request.getSession().removeAttribute(IssueServlet.ISSUE_STATUS_TRANSITION);
+
+				boolean edit = false;
+				for (IssueStatusTransition t : statusTransitions) {
+					if (statusTransition.equals(t.code)) {
+						out.println("enableEdit(\"" + Util.replaceStr(t.statusTo) + "\", \"" +
+								Util.replaceStr(t.statusToDisplay) + "\", \"" +
+								Util.replaceStr(t.code) + "\");");
+						edit = true;
+						break;
+					}
+				}
+				
+				if (edit) {
+					String error = (String) request.getSession().getAttribute(
+							IssueServlet.ISSUE_ERROR);
+					if (error != null) {
+						request.getSession().removeAttribute(IssueServlet.ISSUE_ERROR);
+						out.println("document.getElementById(\"editErr\").innerHTML = \""
+								+ Util.replaceStr(error) + "\";");
+					}
+					
+					String summary = (String) request.getSession().getAttribute(IssueServlet.ISSUE_SET_SUMMARY);
+					if (summary != null) {
+						request.getSession().removeAttribute(IssueServlet.ISSUE_SET_SUMMARY);
+						out.println("document.getElementById(\"" + IssueServlet.ISSUE_SET_SUMMARY + "\").value = \""
+								+ Util.replaceStr(summary) + "\";");
+					}
+					
+					String assignee = (String) request.getSession().getAttribute(IssueServlet.ISSUE_SET_ASSIGNEE);
+					if (assignee != null) {
+						request.getSession().removeAttribute(IssueServlet.ISSUE_SET_ASSIGNEE);
+						out.println("document.getElementById(\"" + IssueServlet.ISSUE_SET_ASSIGNEE + "\").value = \""
+								+ Util.replaceStr(assignee) + "\";");
+					}
+					
+					String kind = (String) request.getSession().getAttribute(IssueServlet.ISSUE_SET_KIND);
+					if (kind != null) {
+						request.getSession().removeAttribute(IssueServlet.ISSUE_SET_KIND);
+						out.println("document.getElementById(\"" + IssueServlet.ISSUE_SET_KIND + "\").value = \""
+								+ Util.replaceStr(kind) + "\";");
+					}
+					
+					String descr = (String) request.getSession().getAttribute(IssueServlet.ISSUE_SET_DESCRIPTION);
+					if (descr != null) {
+						request.getSession().removeAttribute(IssueServlet.ISSUE_SET_DESCRIPTION);
+						out.println("document.getElementById(\"" + IssueServlet.ISSUE_SET_DESCRIPTION + "\").value = \""
+								+ Util.replaceStr(descr) + "\";");
+					}
+					
+					String resol = (String) request.getSession().getAttribute(IssueServlet.ISSUE_SET_RESOLUTION);
+					if (resol != null) {
+						request.getSession().removeAttribute(IssueServlet.ISSUE_SET_RESOLUTION);
+						out.println("document.getElementById(\"" + IssueServlet.ISSUE_SET_RESOLUTION + "\").value = \""
+								+ Util.replaceStr(resol) + "\";");
+					}
+					
+					String comm = (String) request.getSession().getAttribute(IssueServlet.ISSUE_ADD_COMMENT);
+					if (descr != null) {
+						request.getSession().removeAttribute(IssueServlet.ISSUE_ADD_COMMENT);
+						out.println("document.getElementById(\"" + IssueServlet.ISSUE_ADD_COMMENT + "\").value = \""
+								+ Util.replaceStr(comm) + "\";");
+					}
+				} else {
+					request.getSession().removeAttribute(IssueServlet.ISSUE_ERROR);
+					request.getSession().removeAttribute(IssueServlet.ISSUE_SET_SUMMARY);
+					request.getSession().removeAttribute(IssueServlet.ISSUE_SET_ASSIGNEE);
+					request.getSession().removeAttribute(IssueServlet.ISSUE_SET_KIND);
+					request.getSession().removeAttribute(IssueServlet.ISSUE_SET_DESCRIPTION);
+					request.getSession().removeAttribute(IssueServlet.ISSUE_SET_RESOLUTION);
+					request.getSession().removeAttribute(IssueServlet.ISSUE_ADD_COMMENT);
+
+				}
+			}
+		}
+		// error while adding comments
+		if ("error".equals(request.getSession().
 				getAttribute(IssueServlet.ISSUE_COMMENT_WEBSERVICE))) {
+			request.getSession().removeAttribute(IssueServlet.ISSUE_COMMENT_WEBSERVICE);
+			
 			String error = (String) request.getSession().getAttribute(
 					IssueServlet.ISSUE_ERROR);
 			if (error != null) {
@@ -156,14 +213,18 @@
 	
 	function disableButton(elem) {
 		var button = document.getElementById(elem);
-		button.disabled = "disabled";
-		button.className = "disabledButtonFixed";
+		if (button != null) {
+			button.disabled = "disabled";
+			button.className = "disabledButtonFixed";
+		}
 	}
 	
 	function enableButton(elem) {
 		var button = document.getElementById(elem);
-		button.disabled = "";
-		button.className = "buttonFixed";
+		if (button != null) {
+			button.disabled = "";
+			button.className = "buttonFixed";
+		}
 	}
 	
 	function disableComment() {
@@ -181,8 +242,8 @@
 		document.getElementById("issueStatusTd").innerHTML = "<%=Util.replaceStr(Util.replaceHTML(issue.statusDisplay))%>";
 		document.getElementById("issueReporterTd").innerHTML = "<%=Util.replaceStr(Util.replaceHTML(issue.creatorDisplay))%>";
 		document.getElementById("issueAssigneeTd").innerHTML = "<%=Util.replaceStr(Util.replaceHTML(issue.assigneeDisplay))%>";
-		document.getElementById("issueDescription").innerHTML = "<%=issue.description == null ? "" : Util.replaceStr(Util.replaceHTML(issue.description)).replace("\n", "<br/>")%>";
-		document.getElementById("issueResolution").innerHTML = "<%=issue.resolution == null ? "" : Util.replaceStr(Util.replaceHTML(issue.resolution)).replace("\n", "<br/>")%>";
+		document.getElementById("issueDescription").innerHTML = "<%=issue.description == null ? "" : Util.replaceStr(Util.replaceHTML(issue.description)).replace("\r", "").replace("\n", "<br/>")%>";
+		document.getElementById("issueResolution").innerHTML = "<%=issue.resolution == null ? "" : Util.replaceStr(Util.replaceHTML(issue.resolution)).replace("\r", "").replace("\n", "<br/>")%>";
 		document.getElementById("issueSummary").innerHTML = "<%=Util.replaceStr(Util.replaceHTML(issue.summary))%>";
 	}
 	
@@ -217,27 +278,6 @@
 		isEditing = false;
 	}
 	
-	function createSelect(parElem, selectId, data, defaultData) {
-		var select = document.createElement("select");
-		select.id = selectId;
-		select.name = selectId;
-		select.className = "editIssue";
-			
-		for (var i = 0; i < data.length; i++) {
-		    var option = document.createElement("option");
-		    option.value = data[i].code;
-		    option.text = data[i].name;
-		    
-		    if (data[i].code == defaultData) {
-		    	option.selected = "selected";
-		    }
-		    select.appendChild(option);
-		}
-		
-		parElem.innerHTML = "";
-		parElem.appendChild(select);
-	}
-	
 	function addEditElements(cancelFunc) {
 		var container = document.getElementById("issueForm");
 		
@@ -252,6 +292,7 @@
 		container.appendChild(commentAreaDiv);
 		
 		var commentArea = document.createElement("textarea");
+		commentArea.id = "<%=IssueServlet.ISSUE_ADD_COMMENT%>";
 		commentArea.name = "<%=IssueServlet.ISSUE_ADD_COMMENT%>";
 		commentArea.className = "descrEdit";
 		commentArea.rows = editRows;
@@ -266,6 +307,12 @@
 		buttonDiv.id = "issueCommitButtonsDiv";
 		buttonDiv.className = "issueCommitButtons";
 		container.appendChild(buttonDiv);
+		
+		var returnUrl = document.createElement("input");
+		returnUrl.type = "hidden";
+		returnUrl.name = "<%=IssueServlet.RETURN_URL%>";
+		returnUrl.value = "<%=returnTo%>";
+		buttonDiv.appendChild(returnUrl);
 		
 		var issueId = document.createElement("input");
 		issueId.type = "hidden";
@@ -290,7 +337,28 @@
 		disableComment();		
 	}
 	
-	function enableEdit(newStatusCode, newStatus) {
+	function createSelect(parElem, selectId, data, defaultData) {
+		var select = document.createElement("select");
+		select.id = selectId;
+		select.name = selectId;
+		select.className = "editIssue";
+			
+		for (var i = 0; i < data.length; i++) {
+		    var option = document.createElement("option");
+		    option.value = data[i].code;
+		    option.text = data[i].name;
+		    
+		    if (data[i].code == defaultData) {
+		    	option.selected = "selected";
+		    }
+		    select.appendChild(option);
+		}
+		
+		parElem.innerHTML = "";
+		parElem.appendChild(select);
+	}
+	
+	function enableEdit(newStatusCode, newStatus, transitionCode) {
 		if (!isEditing) {
 			// have to create dropdowns
 			createSelect(document.getElementById("issueKindTd"), "<%=IssueServlet.ISSUE_SET_KIND%>", kinds, "<%=Util.replaceStr(issue.kind)%>");
@@ -308,15 +376,16 @@
 			var descrEdit = document.createElement("textarea");
 			descrEdit.id = "<%=IssueServlet.ISSUE_SET_DESCRIPTION%>";
 			descrEdit.name = "<%=IssueServlet.ISSUE_SET_DESCRIPTION%>";
-			descrEdit.value = "<%=issue.description == null ? "" : Util.replaceStr(issue.description.replaceAll("\n", "\\\\n"))%>";
+			descrEdit.value = "<%=issue.description == null ? "" : Util.replaceStr(issue.description.replace("\r", "").replace("\n", "\\\\n"))%>";
 			descrEdit.className = "descrEdit";
 			descrEdit.rows = editRows;
 			document.getElementById("issueDescription").innerHTML = "";
 			document.getElementById("issueDescription").appendChild(descrEdit);
 
 			var resEdit = document.createElement("textarea");
+			resEdit.id = "<%=IssueServlet.ISSUE_SET_RESOLUTION%>";
 			resEdit.name = "<%=IssueServlet.ISSUE_SET_RESOLUTION%>";
-			resEdit.value = "<%=issue.resolution == null ? "" : Util.replaceStr(issue.resolution.replaceAll("\n", "\\n"))%>";
+			resEdit.value = "<%=issue.resolution == null ? "" : Util.replaceStr(issue.resolution.replace("\r", "").replace("\n", "\\n"))%>";
 			resEdit.className = "descrEdit";
 			resEdit.rows = editRows;
 			document.getElementById("issueResolution").innerHTML = "";
@@ -331,16 +400,25 @@
 			hiddenStatus.id = "<%=IssueServlet.ISSUE_SET_STATUS%>";
 			buttonDiv.appendChild(hiddenStatus);
 			
+			var hiddenTransitionCode = document.createElement("input");
+			hiddenTransitionCode.type = "hidden";
+			hiddenTransitionCode.name = "<%=IssueServlet.ISSUE_STATUS_TRANSITION%>";
+			hiddenTransitionCode.id = "<%=IssueServlet.ISSUE_STATUS_TRANSITION%>";
+			buttonDiv.appendChild(hiddenTransitionCode);
+			
 			disableButton("moveButton");			
 			isEditing = true;
 		}
 		
 		document.getElementById("issueStatusTd").innerHTML = newStatus;
 		document.getElementById("<%=IssueServlet.ISSUE_SET_STATUS%>").value = newStatusCode;
+		document.getElementById("<%=IssueServlet.ISSUE_STATUS_TRANSITION%>").value = transitionCode;
 		return;
 	}
 	
 	function validate() {
+		return true;
+		
 		if (document.getElementById("<%=IssueServlet.ISSUE_SET_SUMMARY%>").value == "") {
 			document.getElementById("editErr").innerHTML = "Issue summary required";
 			return false;				
@@ -356,25 +434,38 @@
 		return true;
 	}
 	
+	function setProjStatus(project, status) {
+		var transCode = projects[project.value].statuses
+					.filter(function(obj) {
+						return obj.code == status.value;
+					});
+		
+		if (transCode.length > 0) {
+			document.getElementById("<%=IssueServlet.ISSUE_PROJECT_TRANSITION%>").value = transCode[0].transCode;		
+		} else {
+			document.getElementById("<%=IssueServlet.ISSUE_PROJECT_TRANSITION%>").value = "";					
+		}
+	}
+
 	function setProjStatusList(project, status) {
 		status.innerHTML = "";
-		
+
 		var def = document.createElement("option");
 		def.selected = "selected";
 		def.disabled = "disabled";
 		status.appendChild(def);
-		
+
 		if (project.value != null) {
-			var list = projects[project.value].statuses;		
-			for (var i = 0; i < list.length; i++) {
-			    var option = document.createElement("option");
-			    option.value = list[i].code;
-			    option.text = list[i].name;
-			    status.appendChild(option);
+			var list = projects[project.value].statuses;
+			for ( var i = 0; i < list.length; i++) {
+				var option = document.createElement("option");
+				option.value = list[i].code;
+				option.text = list[i].name;
+				status.appendChild(option);
 			}
 		}
 	}
-	
+
 	function enableMove() {
 		<%
 			for (int i = 0; i < statusTransitions.length; i++) {
@@ -386,6 +477,14 @@
 		disableButton("moveButton");
 		addEditElements(disableMove);
 
+		var buttonDiv = document.getElementById("issueCommitButtonsDiv");
+		
+		var hiddenTransitionCode = document.createElement("input");
+		hiddenTransitionCode.type = "hidden";
+		hiddenTransitionCode.name = "<%=IssueServlet.ISSUE_PROJECT_TRANSITION%>";
+		hiddenTransitionCode.id = "<%=IssueServlet.ISSUE_PROJECT_TRANSITION%>";
+		buttonDiv.appendChild(hiddenTransitionCode);	
+		
 		var container = document.getElementById("issueForm");
 		var brief = document.getElementById("issueBriefInfo");
 
@@ -460,6 +559,7 @@
 		def.disabled = "disabled";
 		selectStatus.appendChild(def);
 		selectProj.onchange = function() { setProjStatusList(selectProj, selectStatus);};
+		selectStatus.onchange = function() { setProjStatus(selectProj, selectStatus);};
 	}
 	
 	function disableMove() {
@@ -518,7 +618,8 @@
 		%>
 		<button class="buttonFixed" id="button_<%=Util.replaceStr(statusTransitions[i].code)%>"
 			onclick="enableEdit('<%=Util.replaceStr1(statusTransitions[i].statusTo)%>', 
-				'<%=Util.replaceStr1(statusTransitions[i].statusToDisplay)%>')">
+				'<%=Util.replaceStr1(statusTransitions[i].statusToDisplay)%>',
+				'<%=Util.replaceStr1(statusTransitions[i].code)%>')">
 		<%=Util.replaceHTML(statusTransitions[i].name)%>
 		</button>
 		<%
@@ -591,10 +692,99 @@
 					%>
 					<tr>
 						<td class="commentTableAuthor"><%=Util.replaceHTML(comments[i].authorDisplay)%></td>
-						<td class="commentTableDate"><%=dateFormat.format(comments[i].dateCreated)%></td>
+						<td class="commentTableDate" colspan="2"><%=dateFormat.format(comments[i].dateCreated)%></td>
 					</tr>
+					<%
+						if (!"".equals(Util.nvl(comments[i].statusTransitionDisplay))) {
+					%>
 					<tr>
-						<td class="commentTableText" colspan="2"><%=Util.replaceHTML(comments[i].text).replace("\n", "<br/>")%><hr></td>
+						<td class="commentTableParm">Action</td>
+						<td class="commentTableParmVal">
+							<%=Util.replaceHTML(comments[i].statusTransitionDisplay)%>
+						</td>						
+						<td class="commentTableParmVal">
+						</td>						
+					</tr>
+					<%
+						}
+					%>
+					<%
+						if (!Util.stringEquals(comments[i].before.idt, comments[i].after.idt)) {
+					%>
+					<tr>
+						<td class="commentTableParm">Identifier</td>
+						<td class="commentTableParmVal">
+							<del><%=Util.replaceHTML(comments[i].before.idt)%></del>
+						</td>						
+						<td class="commentTableParmVal">
+							<%=Util.replaceHTML(comments[i].after.idt)%>
+						</td>						
+					</tr>
+					<%
+						}
+					%>
+					<%
+						if (!Util.stringEquals(comments[i].before.projectDisplay, comments[i].after.projectDisplay)) {
+					%>
+					<tr>
+						<td class="commentTableParm">Project</td>
+						<td class="commentTableParmVal">
+							<del><%=Util.replaceHTML(comments[i].before.projectDisplay)%></del>
+						</td>						
+						<td class="commentTableParmVal">
+							<%=Util.replaceHTML(comments[i].after.projectDisplay)%>
+						</td>						
+					</tr>
+					<%
+						}
+					%>
+					<%
+						if (!Util.stringEquals(comments[i].before.kindDisplay, comments[i].after.kindDisplay)) {
+					%>
+					<tr>
+						<td class="commentTableParm">Issue type</td>
+						<td class="commentTableParmVal">
+							<del><%=Util.replaceHTML(comments[i].before.kindDisplay)%></del>
+						</td>						
+						<td class="commentTableParmVal">
+							<%=Util.replaceHTML(comments[i].after.kindDisplay)%>
+						</td>						
+					</tr>
+					<%
+						}
+					%>
+					<%
+						if (!Util.stringEquals(comments[i].before.statusDisplay, comments[i].after.statusDisplay)) {
+					%>
+					<tr>
+						<td class="commentTableParm">Issue status</td>
+						<td class="commentTableParmVal">
+							<del><%=Util.replaceHTML(comments[i].before.statusDisplay)%></del>
+						</td>						
+						<td class="commentTableParmVal">
+							<%=Util.replaceHTML(comments[i].after.statusDisplay)%>
+						</td>						
+					</tr>
+					<%
+						}
+					%>
+					<%
+						if (!Util.stringEquals(comments[i].before.assigneeDisplay, comments[i].after.assigneeDisplay)) {
+					%>
+					<tr>
+						<td class="commentTableParm">Assignee</td>
+						<td class="commentTableParmVal">
+							<del><%=Util.replaceHTML(comments[i].before.assigneeDisplay)%></del>
+						</td>						
+						<td class="commentTableParmVal">
+							<%=Util.replaceHTML(comments[i].after.assigneeDisplay)%>
+						</td>						
+					</tr>
+					<%
+						}
+					%>
+					<tr>
+						<td class="commentTableText" colspan="3"><%=Util.replaceHTML(comments[i].text).replace("\r", "").replace("\n", "<br/>")%><hr></td>
 					</tr>
 					<%
 						}

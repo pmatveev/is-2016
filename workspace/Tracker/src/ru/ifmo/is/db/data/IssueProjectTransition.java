@@ -1,12 +1,17 @@
 package ru.ifmo.is.db.data;
 
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
 
 import ru.ifmo.is.db.DataClass;
+import ru.ifmo.is.db.StatementExecutor;
+import ru.ifmo.is.util.Pair;
+import ru.ifmo.is.util.SQLParmKind;
 
 public class IssueProjectTransition extends DataClass {
-	public int id;
 	public String projectFrom;
 	public String projectFromDisplay;
 	public String projectTo;
@@ -15,9 +20,9 @@ public class IssueProjectTransition extends DataClass {
 	public String statusFromDisplay;
 	public String statusTo;
 	public String statusToDisplay;
+	public String code;
 	
 	public IssueProjectTransition(
-			int id,
 			String projectFrom,
 			String projectFromDisplay,
 			String projectTo,
@@ -25,8 +30,8 @@ public class IssueProjectTransition extends DataClass {
 			String statusFrom,
 			String statusFromDisplay,
 			String statusTo,
-			String statusToDisplay) {
-		this.id = id;
+			String statusToDisplay,
+			String code) {
 		this.projectFrom = projectFrom;
 		this.projectFromDisplay = projectFromDisplay;
 		this.projectTo = projectTo;
@@ -35,11 +40,59 @@ public class IssueProjectTransition extends DataClass {
 		this.statusFromDisplay = statusFromDisplay;
 		this.statusTo = statusTo;
 		this.statusToDisplay = statusToDisplay;
+		this.code = code;
 	}
 
 	@Override
 	public DataClass[] parseResultSet(ResultSet rs) throws SQLException {
-		// TODO Auto-generated method stub
-		return null;
+		List<IssueProjectTransition> transitions = new LinkedList<IssueProjectTransition>();
+		
+		while (rs.next()) {
+			transitions.add(new IssueProjectTransition(
+					projectFrom == null ? null : rs.getString(projectFrom),
+					projectFromDisplay == null ? null : rs.getString(projectFromDisplay),
+					projectTo == null ? null : rs.getString(projectTo),
+					projectToDisplay == null ? null : rs.getString(projectToDisplay),
+					statusFrom == null ? null : rs.getString(statusFrom),
+					statusFromDisplay == null ? null : rs.getString(statusFromDisplay),
+					statusTo == null ? null : rs.getString(statusTo),
+					statusToDisplay == null ? null : rs.getString(statusToDisplay),
+					code == null ? null : rs.getString(code)));
+		}
+		
+		return transitions.toArray(new IssueProjectTransition[0]);
+	}
+	
+	public static IssueProjectTransition[] selectByIssue(Integer id, String username) throws IOException {
+		if (id == null || username == null) {
+			return null;
+		}
+		IssueProjectTransition mask = new IssueProjectTransition(
+				null, 
+				null, 
+				"project_to_code", 
+				"project_to_name", 
+				null,
+				null,
+				"status_to_code", 
+				"status_to_name",
+				"code");
+		
+		String stmt = "project_to_code, " +
+				"project_to_name, " +
+				"status_to_code, " +
+				"status_to_name, " +
+				"code " +
+				"from issue_project_transitions_available " +
+				"where issue_for = ? " +
+				"and available_for_code = ? " +
+				"order by project_to_name asc, " +
+				"status_to_name asc";
+
+		return new StatementExecutor().select(
+				mask, 
+				stmt, 
+				new Pair<SQLParmKind, Object>(SQLParmKind.IN_INT, id),
+				new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, username));
 	}
 }

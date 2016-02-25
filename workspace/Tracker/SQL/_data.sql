@@ -51,7 +51,7 @@ select add_status_transition('OTH_OPEN_REJECT', 'Reject', 'OTHER', 'OPEN', 'REJE
 select add_status_transition('OTH_OPEN_WORK', 'Start progress', 'OTHER', 'OPEN', 'WORK');
 select add_status_transition('OTH_REOPEN_WORK', 'Start progress', 'OTHER', 'REOPEN', 'WORK');
 select add_status_transition('OTH_WORK_CLOSE', 'Close', 'OTHER', 'WORK', 'CLOSE');
-select add_status_transition('OTH_CLOSE_REOPEN', 'Reopen', 'DEV', 'CLOSE', 'REOPEN');
+select add_status_transition('OTH_CLOSE_REOPEN', 'Reopen', 'OTHER', 'CLOSE', 'REOPEN');
 
 -- simple to dev
 select add_project_transition('OTH_DEV_OPEN_OPEN', 'OTHER', 'DEV', 'OPEN', 'OPEN');
@@ -86,6 +86,8 @@ select add_grant_mapping('DEV_DEV', null, 'DEV_EDIT_WORK');
 select add_grant_mapping('DEV_DEV', null, 'DEV_EDIT_TEST');
 select add_grant_mapping('DEV_DEV', null, 'DEV_OPEN_ANALYT');
 select add_grant_mapping('DEV_DEV', null, 'DEV_OPEN_WORK');
+select add_grant_mapping('DEV_DEV', null, 'DEV_REOPEN_ANALYT');
+select add_grant_mapping('DEV_DEV', null, 'DEV_REOPEN_WORK');
 select add_grant_mapping('DEV_DEV', null, 'DEV_ANALYT_WORK');
 select add_grant_mapping('DEV_DEV', null, 'DEV_WORK_TEST');
 
@@ -119,3 +121,6 @@ select add_grant_mapping('OTH_SOLVE', 'OTH_DEV_REOPEN_REOPEN', null);
 select grant_officer(null, 'ADMIN', 'ADMIN');
 select grant_officer(null, 'DEV', 'REPORT');
 select grant_officer('pmatveev', null, 'DEV_MAN');
+select grant_officer('pmatveev', null, 'DEV_TEST');
+select grant_officer('pmatveev', null, 'OTH_SOLVE');
+select grant_officer('akuzmin', null, 'DEV_DEV');

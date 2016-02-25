@@ -53,6 +53,8 @@ public class IssueServlet extends HttpServlet {
 	public static final String ISSUE_SET_DESCRIPTION = "issueDescrSet";
 	public static final String ISSUE_SET_RESOLUTION = "issueResSet";
 	public static final String ISSUE_ADD_COMMENT = "issueAddComment";
+	public static final String ISSUE_STATUS_TRANSITION = "issueStatusTransition";
+	public static final String ISSUE_PROJECT_TRANSITION = "issueProjectTransition";
 	
 	// out parameters
 	public static final String ISSUE_ERROR = "issueError";
@@ -67,6 +69,7 @@ public class IssueServlet extends HttpServlet {
 
 	private void createIssueReturn(HttpServletRequest request,
 			HttpServletResponse response, String errMsg) throws IOException {
+		request.getSession().setAttribute(ISSUE_CREATE_WEBSERVICE, "error");
 		request.getSession().setAttribute(ISSUE_ERROR, errMsg);
 		request.getSession().setAttribute(ISSUE_SET_PROJECT,
 				request.getParameter(ISSUE_SET_PROJECT));
@@ -124,7 +127,8 @@ public class IssueServlet extends HttpServlet {
 	private void addCommentReturn(HttpServletRequest request,
 			HttpServletResponse response, String errMsg) throws IOException {
 		request.getSession().setAttribute(ISSUE_COMMENT_WEBSERVICE, "error");
-		request.getSession().setAttribute(ISSUE_ADD_COMMENT, request.getParameter(ISSUE_ADD_COMMENT));
+		request.getSession().setAttribute(ISSUE_ADD_COMMENT, 
+				request.getParameter(ISSUE_ADD_COMMENT));
 		request.getSession().setAttribute(ISSUE_ERROR, errMsg);
 		
 		response.sendRedirect(getReturnAddress(request));
@@ -163,6 +167,76 @@ public class IssueServlet extends HttpServlet {
 		
 		response.sendRedirect(getReturnAddress(request));
 	}
+	
+	private void issueStatusTransitReturn(HttpServletRequest request, 
+			HttpServletResponse response, String errMsg)
+			throws ServletException, IOException {
+		request.getSession().setAttribute(ISSUE_UPDATE_WEBSERVICE, "error");
+		request.getSession().setAttribute(ISSUE_STATUS_TRANSITION, 
+				request.getParameter(ISSUE_STATUS_TRANSITION));
+		request.getSession().setAttribute(ISSUE_ERROR, errMsg);
+		request.getSession().setAttribute(ISSUE_SET_SUMMARY, 
+				request.getParameter(ISSUE_SET_SUMMARY));
+		request.getSession().setAttribute(ISSUE_SET_ASSIGNEE, 
+				request.getParameter(ISSUE_SET_ASSIGNEE));
+		request.getSession().setAttribute(ISSUE_SET_KIND, 
+				request.getParameter(ISSUE_SET_KIND));
+		request.getSession().setAttribute(ISSUE_SET_DESCRIPTION, 
+				request.getParameter(ISSUE_SET_DESCRIPTION));
+		request.getSession().setAttribute(ISSUE_SET_RESOLUTION, 
+				request.getParameter(ISSUE_SET_RESOLUTION));
+		request.getSession().setAttribute(ISSUE_ADD_COMMENT, 
+				request.getParameter(ISSUE_ADD_COMMENT));
+		
+		response.sendRedirect(getReturnAddress(request));
+	}
+	
+	private void issueStatusTransit(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		String user = (String) request.
+				getAttribute(LoginServlet.LOGIN_AUTH_USERNAME);
+		String idt = request.getParameter(ISSUE_GET_KEY_PARM);
+		String transition = request.getParameter(ISSUE_STATUS_TRANSITION);
+		String summary = request.getParameter(ISSUE_SET_SUMMARY);
+		String assignee = request.getParameter(ISSUE_SET_ASSIGNEE);
+		String kind = request.getParameter(ISSUE_SET_KIND);
+		String descr = request.getParameter(ISSUE_SET_DESCRIPTION);
+		String resol = request.getParameter(ISSUE_SET_RESOLUTION);
+		String comment = request.getParameter(ISSUE_ADD_COMMENT);
+		
+		Object[] res = null;
+		try {
+			res = new StatementExecutor().call(
+					"? = call transit_issue(?, ?, ?, ?, ?, ?, ?, ?, ?)",  
+					new Pair<SQLParmKind, Object>(SQLParmKind.OUT_STRING, Types.VARCHAR),
+					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, user),
+					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, idt),
+					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, transition),
+					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, summary),
+					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, assignee),
+					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, kind),
+					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, descr),
+					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, resol),
+					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, comment));
+		} catch (IOException e) {
+			LogManager.log(e);
+			issueStatusTransitReturn(request, response, "Service failed: " + e.getMessage());
+			return;
+		}
+		
+		if (res.length == 0 || res[0] == null || !(res[0] instanceof String)) {
+			issueStatusTransitReturn(request, response, "Service failed: no response from DB");
+			return;			
+		}
+		
+		String message = (String) res[0];
+		if (message.startsWith("E:")) {
+			issueStatusTransitReturn(request, response, message.substring(2));
+			return;				
+		}
+		
+		response.sendRedirect(getReturnAddress(request));
+	}
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -181,6 +255,14 @@ public class IssueServlet extends HttpServlet {
 		if (request.getParameter(ISSUE_COMMENT_WEBSERVICE) != null) {
 			addComment(request, response);
 			return;
+		}
+		
+		if (request.getParameter(ISSUE_UPDATE_WEBSERVICE) != null) {
+			// status or project transition
+			if (request.getParameter(ISSUE_STATUS_TRANSITION) != null) {
+				issueStatusTransit(request, response);
+				return;
+			}
 		}
 		
 		String toIssue = request.getParameter(ISSUE_GET_KEY_PARM);

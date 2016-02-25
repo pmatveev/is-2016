@@ -81,8 +81,8 @@ create function add_issue_comment(
 	p_comment varchar(4000)
 ) returns varchar(255)
 begin
-	declare v_user int(32);
-	declare v_issue int(32);
+	declare v_user int(18);
+	declare v_issue int(18);
 	declare v_updated datetime;
 	
 	if p_comment is null then
@@ -112,6 +112,88 @@ begin
 		(v_user, v_issue, v_issue, v_updated, p_comment);
 	
 	update issue set date_updated = v_updated where id = v_issue;
+	
+	return 'I:';
+end 
+$$
+
+-- no workflow change
+create function transit_issue(
+	p_user varchar(32),
+	p_idt varchar(32),
+	p_transit varchar(32),
+	p_summary varchar(255),
+	p_assignee varchar(32),
+	p_kind varchar(32),
+	p_description varchar(4000),
+	p_resolution varchar(4000),
+	p_comment varchar(4000)
+) returns varchar(255)
+begin
+	declare v_user int(18);
+	declare v_issue int(18);
+	declare v_transition int(18);
+	declare v_status_to int(18);
+	declare v_assignee int(18);
+	declare v_kind int(18);
+	declare v_updated datetime;
+	declare v_new_issue int(18);
+		
+	set v_issue = get_issue_by_idt(p_idt);
+		
+	if v_issue is null then
+		return concat('E:', p_transit, ' is not completed: issue ', p_idt, ' not found');
+	end if;	
+
+	select id into v_issue from issue where id = v_issue for update;
+	
+	select min(id)
+	  into v_assignee
+	  from officer
+	 where username = p_assignee
+	   and is_active = true;
+	
+	if v_assignee is null then
+		return concat('E:', p_transit, ' is not completed: assignee ', p_assignee, ' not found');
+	end if;	   
+	
+	select min(id)
+	  into v_kind
+	  from issue_kind
+	 where code = p_kind;
+	
+	if v_kind is null then
+		return concat('E:', p_transit, ' is not completed: issue kind ', p_kind, ' not found');
+	end if;	  
+	
+	select min(available_for),
+	       min(transition),
+	       min(status_to)
+	  into v_user, 
+	       v_transition,
+	       v_status_to
+	  from issue_status_transitions_available
+	 where available_for_code = p_user
+	   and issue_for = v_issue
+	   and code = p_transit;
+	   
+	if v_user is null or v_transition is null or v_status_to is null then
+		return concat('E:', p_transit, ' is not completed. You may be lacking grants.');
+	end if;
+	
+	update issue set active = false where id = v_issue;
+	set v_updated = now();
+	
+	insert into issue
+		(idt, active, creator, assignee, kind, status, project, prev_issue, date_created, date_updated, summary, description, resolution)
+		select idt, true, creator, v_assignee, v_kind, v_status_to, project, prev_issue, date_created, v_updated, p_summary, p_description, p_resolution
+			from issue where id = v_issue;
+	select last_insert_id() into v_new_issue;			
+	
+	insert into comment
+		(officer__id, issue_before, issue_after, status_transition, date_created, summary)
+		values
+		(v_user, v_issue, v_new_issue, v_transition, v_updated, p_comment);
 	
 	return 'I:';
 end 
