@@ -9,21 +9,21 @@ public class Util {
 		if (s == null) {
 			return "";
 		}
-		return s.replace("<", "&lt").replace(">", "&gt");
+		return s.replace("<", "&lt").replace(">", "&gt").replace("\r", "").replace("\n", "<br/>");
 	}
 	
 	public static String replaceStr(String s) {
 		if (s == null) {
 			return "";
 		}
-		return s.replace("\"", "\\\"").replace("<", "\\<").replace(">", "\\>");
+		return s.replace("\"", "\\\"").replace("<", "\\<").replace(">", "\\>").replace("\r", "").replace("\n", "\\n");
 	}	
 	
 	public static String replaceStr1(String s) {
 		if (s == null) {
 			return "";
 		}
-		return s.replace("'", "\'").replace("<", "\\<").replace(">", "\\>");
+		return s.replace("'", "\'").replace("<", "\\<").replace(">", "\\>").replace("\r", "").replace("\n", "\\n");
 	}
 	
 	public static boolean stringEquals(String s1, String s2) {

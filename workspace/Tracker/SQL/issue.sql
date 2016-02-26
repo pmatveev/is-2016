@@ -118,7 +118,7 @@ end
 $$
 
 -- no workflow change
-create function transit_issue(
+create procedure transit_issue(
 	p_user varchar(32),
 	p_idt varchar(32),
 	p_transit varchar(32),
@@ -127,9 +127,10 @@ create function transit_issue(
 	p_kind varchar(32),
 	p_description varchar(4000),
 	p_resolution varchar(4000),
-	p_comment varchar(4000)
-) returns varchar(255)
-begin
+	p_comment varchar(4000),
+	out p_res varchar(255)
+)
+proc_label: begin
 	declare v_user int(18);
 	declare v_issue int(18);
 	declare v_transition int(18);
@@ -138,14 +139,37 @@ begin
 	declare v_kind int(18);
 	declare v_updated datetime;
 	declare v_new_issue int(18);
+	declare v_active bool;
+	declare v_counter int(3);
+	
+	set v_counter = 0;
+	get_lock: loop
+		commit; -- we've got the wrong lock, remove it
+		-- no data affected so far
+		set v_counter = v_counter + 1;
+		if v_counter > 10 then
+			set p_res = concat('E:', p_transit, ' is not completed: cannot lock the issue. Please try again later.');
+			leave proc_label;
+		end if;
 		
-	set v_issue = get_issue_by_idt(p_idt);
-		
-	if v_issue is null then
-		return concat('E:', p_transit, ' is not completed: issue ', p_idt, ' not found');
-	end if;	
-
-	select id into v_issue from issue where id = v_issue for update;
+		set v_issue = get_issue_by_idt(p_idt);
+			
+		if v_issue is null then
+			set p_res = concat('E:', p_transit, ' is not completed: issue ', p_idt, ' not found');
+			leave proc_label;
+		end if;	
+	
+		select min(id), min(active) 
+		  into v_issue, v_active 
+		  from issue 
+		 where id = v_issue 
+		   for update;
+		   
+		if coalesce(v_active, false) = false then
+			iterate get_lock;
+		end if;
+		leave get_lock;
+	end loop get_lock;
 	
 	select min(id)
 	  into v_assignee
@@ -154,7 +178,8 @@ begin
 	   and is_active = true;
 	
 	if v_assignee is null then
-		return concat('E:', p_transit, ' is not completed: assignee ', p_assignee, ' not found');
+		set p_res = concat('E:', p_transit, ' is not completed: assignee ', p_assignee, ' not found');
+		leave proc_label;
 	end if;	   
 	
 	select min(id)
@@ -163,7 +188,8 @@ begin
 	 where code = p_kind;
 	
 	if v_kind is null then
-		return concat('E:', p_transit, ' is not completed: issue kind ', p_kind, ' not found');
+		set p_res =  concat('E:', p_transit, ' is not completed: issue kind ', p_kind, ' not found');
+		leave proc_label;
 	end if;	  
 	
 	select min(available_for),
@@ -178,7 +204,8 @@ begin
 	   and code = p_transit;
 	   
 	if v_user is null or v_transition is null or v_status_to is null then
-		return concat('E:', p_transit, ' is not completed. You may be lacking grants.');
+		set p_res =  concat('E:', p_transit, ' is not completed. You may be lacking grants.');
+		leave proc_label;
 	end if;
 	
 	update issue set active = false where id = v_issue;
@@ -195,6 +222,101 @@ begin
 		values
 		(v_user, v_issue, v_new_issue, v_transition, v_updated, p_comment);
 	
-	return 'I:';
+	set p_res = 'I:';
+end 
+$$
+
+-- workflow change only
+create procedure move_issue(
+	p_user varchar(32),
+	p_idt varchar(32),
+	p_transit varchar(32),
+	p_comment varchar(4000),
+	out p_res varchar(255)
+)
+proc_label: begin
+	declare v_user int(18);
+	declare v_issue int(18);
+	declare v_transition int(18);
+	declare v_status_to int(18);
+	declare v_project_to int(18);
+	declare v_idt varchar(32);
+	declare v_updated datetime;
+	declare v_new_issue int(18);
+	declare v_active bool;
+	declare v_counter int(3);
+	
+	set v_counter = 0;
+	get_lock: loop
+		commit; -- we've got the wrong lock, remove it
+		-- no data affected so far
+		set v_counter = v_counter + 1;
+		if v_counter > 10 then
+			set p_res = concat('E:', p_transit, ' is not completed: cannot lock the issue. Please try again later.');
+			leave proc_label;
+		end if;
+		
+		set v_issue = get_issue_by_idt(p_idt);
+			
+		if v_issue is null then
+			set p_res = concat('E:', p_transit, ' is not completed: issue ', p_idt, ' not found');
+			leave proc_label;
+		end if;	
+	
+		select min(id), min(active) 
+		  into v_issue, v_active 
+		  from issue 
+		 where id = v_issue 
+		   for update;
+		   
+		if coalesce(v_active, false) = false then
+			iterate get_lock;
+		end if;
+		leave get_lock;
+	end loop get_lock;
+	
+	select min(available_for),
+	       min(transition),
+	       min(project_to),
+	       min(status_to)
+	  into v_user, 
+	       v_transition,
+	       v_project_to,
+	       v_status_to
+	  from issue_project_transitions_available
+	 where available_for_code = p_user
+	   and issue_for = v_issue
+	   and code = p_transit;
+	   
+	if v_user is null or v_transition is null or v_project_to is null or v_status_to is null then
+		set p_res = concat('E:', p_transit, ' is not completed. You may be lacking grants.');
+		leave proc_label;
+	end if;
+	
+	select concat(code, '-', counter)
+	  into v_idt
+	  from issue_project
+	 where id = v_project_to
+	   for update; -- here we guaratee that no issues will be having the same IDT
+	   
+	update issue_project
+	   set counter = counter + 1
+	 where id = v_project_to;
+	
+	update issue set active = false where id = v_issue;
+	set v_updated = now();
+	
+	insert into issue
+		(idt, active, creator, assignee, kind, status, project, prev_issue, date_created, date_updated, summary, description, resolution)
+		select v_idt, true, creator, assignee, kind, v_status_to, v_project_to, prev_issue, date_created, v_updated, summary, description, resolution
+			from issue where id = v_issue;
+	select last_insert_id() into v_new_issue;			
+	
+	insert into comment
+		(officer__id, issue_before, issue_after, project_transition, date_created, summary)
+		values
+		(v_user, v_issue, v_new_issue, v_transition, v_updated, p_comment);
+	
+	set p_res = concat('I:', v_idt);
 end 
 $$

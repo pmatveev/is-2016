@@ -207,8 +207,7 @@ public class IssueServlet extends HttpServlet {
 		Object[] res = null;
 		try {
 			res = new StatementExecutor().call(
-					"? = call transit_issue(?, ?, ?, ?, ?, ?, ?, ?, ?)",  
-					new Pair<SQLParmKind, Object>(SQLParmKind.OUT_STRING, Types.VARCHAR),
+					"call transit_issue(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",  
 					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, user),
 					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, idt),
 					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, transition),
@@ -217,7 +216,8 @@ public class IssueServlet extends HttpServlet {
 					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, kind),
 					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, descr),
 					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, resol),
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, comment));
+					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, comment),
+					new Pair<SQLParmKind, Object>(SQLParmKind.OUT_STRING, Types.VARCHAR));
 		} catch (IOException e) {
 			LogManager.log(e);
 			issueStatusTransitReturn(request, response, "Service failed: " + e.getMessage());
@@ -235,6 +235,57 @@ public class IssueServlet extends HttpServlet {
 			return;				
 		}
 		
+		response.sendRedirect(getReturnAddress(request));
+	}
+	
+	private void issueProjectTransitReturn(HttpServletRequest request, 
+			HttpServletResponse response, String errMsg)
+			throws ServletException, IOException {
+		request.getSession().setAttribute(ISSUE_UPDATE_WEBSERVICE, "error");
+		request.getSession().setAttribute(ISSUE_PROJECT_TRANSITION, 
+				request.getParameter(ISSUE_PROJECT_TRANSITION));
+		request.getSession().setAttribute(ISSUE_ERROR, errMsg);
+		request.getSession().setAttribute(ISSUE_ADD_COMMENT, 
+				request.getParameter(ISSUE_ADD_COMMENT));
+		
+		response.sendRedirect(getReturnAddress(request));
+	}
+	
+	private void issueProjectTransit(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		String user = (String) request.
+				getAttribute(LoginServlet.LOGIN_AUTH_USERNAME);
+		String idt = request.getParameter(ISSUE_GET_KEY_PARM);
+		String transition = request.getParameter(ISSUE_PROJECT_TRANSITION);
+		String comment = request.getParameter(ISSUE_ADD_COMMENT);
+		
+		Object[] res = null;
+		try {
+			res = new StatementExecutor().call(
+					"call move_issue(?, ?, ?, ?, ?)",  
+					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, user),
+					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, idt),
+					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, transition),
+					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, comment),
+					new Pair<SQLParmKind, Object>(SQLParmKind.OUT_STRING, Types.VARCHAR));
+		} catch (IOException e) {
+			LogManager.log(e);
+			issueProjectTransitReturn(request, response, "Service failed: " + e.getMessage());
+			return;
+		}
+		
+		if (res.length == 0 || res[0] == null || !(res[0] instanceof String)) {
+			issueProjectTransitReturn(request, response, "Service failed: no response from DB");
+			return;			
+		}
+		
+		String message = (String) res[0];
+		if (message.startsWith("E:")) {
+			issueProjectTransitReturn(request, response, message.substring(2));
+			return;				
+		}
+
+		request.getSession().setAttribute(ISSUE_ERROR, "New identifier is " + ((String) res[0]).substring(2));
 		response.sendRedirect(getReturnAddress(request));
 	}
 
@@ -261,6 +312,11 @@ public class IssueServlet extends HttpServlet {
 			// status or project transition
 			if (request.getParameter(ISSUE_STATUS_TRANSITION) != null) {
 				issueStatusTransit(request, response);
+				return;
+			}
+
+			if (request.getParameter(ISSUE_PROJECT_TRANSITION) != null) {
+				issueProjectTransit(request, response);
 				return;
 			}
 		}

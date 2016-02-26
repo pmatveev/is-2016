@@ -170,20 +170,58 @@
 					}
 					
 					String comm = (String) request.getSession().getAttribute(IssueServlet.ISSUE_ADD_COMMENT);
-					if (descr != null) {
+					if (comm != null) {
 						request.getSession().removeAttribute(IssueServlet.ISSUE_ADD_COMMENT);
 						out.println("document.getElementById(\"" + IssueServlet.ISSUE_ADD_COMMENT + "\").value = \""
 								+ Util.replaceStr(comm) + "\";");
 					}
-				} else {
-					request.getSession().removeAttribute(IssueServlet.ISSUE_ERROR);
+				} else {					
 					request.getSession().removeAttribute(IssueServlet.ISSUE_SET_SUMMARY);
 					request.getSession().removeAttribute(IssueServlet.ISSUE_SET_ASSIGNEE);
 					request.getSession().removeAttribute(IssueServlet.ISSUE_SET_KIND);
 					request.getSession().removeAttribute(IssueServlet.ISSUE_SET_DESCRIPTION);
 					request.getSession().removeAttribute(IssueServlet.ISSUE_SET_RESOLUTION);
 					request.getSession().removeAttribute(IssueServlet.ISSUE_ADD_COMMENT);
+				}
+			}
+			
+			// error during project transition
+			String projectTransition = (String) request.getSession().getAttribute(IssueServlet.ISSUE_PROJECT_TRANSITION);
+			if (projectTransition != null) {
+				request.getSession().removeAttribute(IssueServlet.ISSUE_PROJECT_TRANSITION);
 
+				boolean edit = false;
+				for (IssueProjectTransition t : projectTransitions) {
+					if (projectTransition.equals(t.code)) {
+						out.println("enableMove()");
+						out.println("document.getElementById(\"" + IssueServlet.ISSUE_SET_PROJECT + 
+								"\").value = \"" + Util.replaceStr(t.projectTo) + "\"");
+						out.println("document.getElementById(\"" + IssueServlet.ISSUE_SET_STATUS + 
+								"\").value = \"" + Util.replaceStr(t.statusTo) + "\"");
+						out.println("document.getElementById(\"" + IssueServlet.ISSUE_PROJECT_TRANSITION + 
+								"\").value = \"" + Util.replaceStr(t.code) + "\"");
+						edit = true;
+						break;
+					}
+				}
+				
+				if (edit) {
+					String error = (String) request.getSession().getAttribute(
+							IssueServlet.ISSUE_ERROR);
+					if (error != null) {
+						request.getSession().removeAttribute(IssueServlet.ISSUE_ERROR);
+						out.println("document.getElementById(\"editErr\").innerHTML = \""
+								+ Util.replaceStr(error) + "\";");
+					}
+					
+					String comm = (String) request.getSession().getAttribute(IssueServlet.ISSUE_ADD_COMMENT);
+					if (comm != null) {
+						request.getSession().removeAttribute(IssueServlet.ISSUE_ADD_COMMENT);
+						out.println("document.getElementById(\"" + IssueServlet.ISSUE_ADD_COMMENT + "\").value = \""
+								+ Util.replaceStr(comm) + "\";");
+					}
+				} else {
+					request.getSession().removeAttribute(IssueServlet.ISSUE_ADD_COMMENT);
 				}
 			}
 		}
@@ -207,6 +245,15 @@
 				out.println("document.getElementById(\"addRegularCommentArea\").value = \""
 						+ Util.replaceStr(comment) + "\";");
 			}
+		}
+		
+
+		String error = (String) request.getSession().getAttribute(
+				IssueServlet.ISSUE_ERROR);
+		if (error != null) {
+			request.getSession().removeAttribute(IssueServlet.ISSUE_ERROR);
+			out.println("document.getElementById(\"generalErr\").innerHTML = \""
+					+ Util.replaceStr(error) + "\";");
 		}
 		%>
 	}
@@ -242,8 +289,8 @@
 		document.getElementById("issueStatusTd").innerHTML = "<%=Util.replaceStr(Util.replaceHTML(issue.statusDisplay))%>";
 		document.getElementById("issueReporterTd").innerHTML = "<%=Util.replaceStr(Util.replaceHTML(issue.creatorDisplay))%>";
 		document.getElementById("issueAssigneeTd").innerHTML = "<%=Util.replaceStr(Util.replaceHTML(issue.assigneeDisplay))%>";
-		document.getElementById("issueDescription").innerHTML = "<%=issue.description == null ? "" : Util.replaceStr(Util.replaceHTML(issue.description)).replace("\r", "").replace("\n", "<br/>")%>";
-		document.getElementById("issueResolution").innerHTML = "<%=issue.resolution == null ? "" : Util.replaceStr(Util.replaceHTML(issue.resolution)).replace("\r", "").replace("\n", "<br/>")%>";
+		document.getElementById("issueDescription").innerHTML = "<%=issue.description == null ? "" : Util.replaceStr(Util.replaceHTML(issue.description))%>";
+		document.getElementById("issueResolution").innerHTML = "<%=issue.resolution == null ? "" : Util.replaceStr(Util.replaceHTML(issue.resolution))%>";
 		document.getElementById("issueSummary").innerHTML = "<%=Util.replaceStr(Util.replaceHTML(issue.summary))%>";
 	}
 	
@@ -376,7 +423,7 @@
 			var descrEdit = document.createElement("textarea");
 			descrEdit.id = "<%=IssueServlet.ISSUE_SET_DESCRIPTION%>";
 			descrEdit.name = "<%=IssueServlet.ISSUE_SET_DESCRIPTION%>";
-			descrEdit.value = "<%=issue.description == null ? "" : Util.replaceStr(issue.description.replace("\r", "").replace("\n", "\\\\n"))%>";
+			descrEdit.value = "<%=issue.description == null ? "" : Util.replaceStr(issue.description)%>";
 			descrEdit.className = "descrEdit";
 			descrEdit.rows = editRows;
 			document.getElementById("issueDescription").innerHTML = "";
@@ -385,7 +432,7 @@
 			var resEdit = document.createElement("textarea");
 			resEdit.id = "<%=IssueServlet.ISSUE_SET_RESOLUTION%>";
 			resEdit.name = "<%=IssueServlet.ISSUE_SET_RESOLUTION%>";
-			resEdit.value = "<%=issue.resolution == null ? "" : Util.replaceStr(issue.resolution.replace("\r", "").replace("\n", "\\n"))%>";
+			resEdit.value = "<%=issue.resolution == null ? "" : Util.replaceStr(issue.resolution)%>";
 			resEdit.className = "descrEdit";
 			resEdit.rows = editRows;
 			document.getElementById("issueResolution").innerHTML = "";
@@ -612,6 +659,7 @@
 		</div>
 		<div class="summary" id="issueSummary"></div>
 	</div>
+	<div id="generalErr" class="dialogErr"></div>
 	<div class="buttons">
 		<%
 			for (int i = 0; i < statusTransitions.length; i++) {
@@ -784,7 +832,7 @@
 						}
 					%>
 					<tr>
-						<td class="commentTableText" colspan="3"><%=Util.replaceHTML(comments[i].text).replace("\r", "").replace("\n", "<br/>")%><hr></td>
+						<td class="commentTableText" colspan="3"><%=Util.replaceHTML(comments[i].text)%><hr></td>
 					</tr>
 					<%
 						}
