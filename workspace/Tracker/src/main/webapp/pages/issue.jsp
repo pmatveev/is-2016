@@ -1,9 +1,13 @@
+<%@page import="ru.ifmo.is.db.entity.IssueKind"%>
+<%@page import="java.util.List"%>
+<%@page import="ru.ifmo.is.db.service.IssueKindService"%>
+<%@page import="ru.ifmo.is.util.Context"%>
+<%@page import="org.springframework.context.ApplicationContext"%>
 <%@page import="java.net.URLEncoder"%>
 <%@page import="ru.ifmo.is.util.Util"%>
 <%@page import="java.util.HashSet"%>
 <%@page import="java.util.Set"%>
 <%@page import="ru.ifmo.is.db.data.OfficerData"%>
-<%@page import="ru.ifmo.is.db.data.IssueKindData"%>
 <%@page import="ru.ifmo.is.db.data.IssueProjectTransitionData"%>
 <%@page import="ru.ifmo.is.db.data.IssueStatusTransitionData"%>
 <%@page import="ru.ifmo.is.servlet.IssueServlet"%>
@@ -33,6 +37,8 @@
 			SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMMM d yyyy, HH:mm:ss", Locale.ENGLISH);
 			String issueKey = (String) request.getParameter(IssueServlet.ISSUE_GET_KEY_PARM);
 		
+			ApplicationContext ctx = Context.getContext();
+			
 			IssueData issue = IssueData.selectByIdt(issueKey);
 			CommentData[] comments = CommentData.selectByIssue(issue == null ? null : issue.id);
 			IssueStatusTransitionData[] statusTransitions = IssueStatusTransitionData.selectByIssue(
@@ -41,7 +47,9 @@
 			IssueProjectTransitionData[] projectTransitions = IssueProjectTransitionData.selectByIssue(
 			issue == null ? null : issue.id, 
 			(String) request.getAttribute(LoginServlet.LOGIN_AUTH_USERNAME));
-			IssueKindData[] issueKinds = IssueKindData.select();
+
+			IssueKindService kindService = ctx.getBean(IssueKindService.class);
+			List<IssueKind> kinds = kindService.selectAll();
 			// TODO currently we can assign to everyone. See task #24
 			OfficerData[] assignees = OfficerData.select();
 	%>
@@ -67,10 +75,10 @@
 	function init() {
 		document.title = "<%=issue == null ? "Issue not found" : Util.replaceStr(issue.idt)
 				+ "/" + Util.replaceStr(issue.summary)%>";
-		<%for (int i = 0; i < issueKinds.length; i++) {%>
+		<%for (int i = 0; i < kinds.size(); i++) {%>
 		kinds[<%=i%>] = {
-			code: "<%=Util.replaceStr(issueKinds[i].code)%>",
-			name: "<%=Util.replaceStr(issueKinds[i].name)%>"
+			code: "<%=Util.replaceStr(kinds.get(i).getCode())%>",
+			name: "<%=Util.replaceStr(kinds.get(i).getName())%>"
 		};	
 		<%}%>
 

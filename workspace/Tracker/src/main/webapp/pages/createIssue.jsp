@@ -5,7 +5,6 @@
 <%@page import="ru.ifmo.is.db.entity.IssueKind"%>
 <%@page import="ru.ifmo.is.util.Util"%>
 <%@page import="ru.ifmo.is.db.data.IssueProjectData"%>
-<%@page import="ru.ifmo.is.db.data.IssueKindData"%>
 <%@page import="ru.ifmo.is.servlet.IssueServlet"%>
 <%@page import="ru.ifmo.is.manager.LogManager"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
@@ -23,9 +22,8 @@
 		LogManager.log("GET createIssue.jsp", request);
 		String searchReturnURL = IssueServlet.getReturnAddress(request);
 			
-//		IssueKindData[] kinds = IssueKindData.select();
-
 		ApplicationContext ctx = Context.getContext();
+		
 		IssueKindService kindService = ctx.getBean(IssueKindService.class);
 		List<IssueKind> kinds = kindService.selectAll();
 		

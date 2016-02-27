@@ -1,9 +1,13 @@
+<%@page import="ru.ifmo.is.db.entity.IssueKind"%>
+<%@page import="java.util.List"%>
+<%@page import="ru.ifmo.is.db.service.IssueKindService"%>
+<%@page import="ru.ifmo.is.util.Context"%>
+<%@page import="org.springframework.context.ApplicationContext"%>
 <%@page import="ru.ifmo.is.util.Util"%>
 <%@page import="ru.ifmo.is.db.data.IssueProjectData"%>
 <%@page import="java.net.URLEncoder"%>
 <%@page import="java.util.Enumeration"%>
 <%@page import="ru.ifmo.is.db.data.IssueStatusData"%>
-<%@page import="ru.ifmo.is.db.data.IssueKindData"%>
 <%@page import="ru.ifmo.is.servlet.IssueServlet"%>
 <%@page import="ru.ifmo.is.db.data.IssueData"%>
 <%@page import="ru.ifmo.is.util.LogLevel"%>
@@ -34,6 +38,8 @@
 			} catch (NumberFormatException e) {
 			}
 		}
+		ApplicationContext ctx = Context.getContext();
+		
 		Pair<IssueData[], Integer> issuesCnt = IssueData.selectLike(
 		intFrom, 
 		IssueServlet.ISSUE_GET_PAGE_NUMBER, 
@@ -49,7 +55,10 @@
 		
 		int totalCount = issuesCnt.second;
 		IssueData[] issues = issuesCnt.first;
-		IssueKindData[] kinds = IssueKindData.select();
+//		IssueKindData[] kinds = IssueKindData.select();
+		
+		IssueKindService kindService = ctx.getBean(IssueKindService.class);
+		List<IssueKind> kinds = kindService.selectAll();
 		IssueStatusData[] statuses = IssueStatusData.select();
 		IssueProjectData[] projects = IssueProjectData.select();
 
@@ -149,12 +158,12 @@
 							class="selectIssueType">
 								<option value="">---</option>
 								<%
-									for (int i = 0; i < kinds.length; i++) {
+									for (int i = 0; i < kinds.size(); i++) {
 								%>
-								<option value="<%=Util.replaceStr(kinds[i].code)%>"
-									<%=kinds[i].code.equals(request
+								<option value="<%=Util.replaceStr(kinds.get(i).getCode())%>"
+									<%=kinds.get(i).getCode().equals(request
 						.getParameter(IssueServlet.ISSUE_GET_BY_KIND)) ? "selected"
-						: ""%>><%=Util.replaceHTML(kinds[i].name)%></option>
+						: ""%>><%=Util.replaceHTML(kinds.get(i).getName())%></option>
 								<%
 									}
 								%>
