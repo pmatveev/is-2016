@@ -1,10 +1,11 @@
+<%@page import="ru.ifmo.is.db.entity.IssueProject"%>
+<%@page import="ru.ifmo.is.db.service.IssueProjectService"%>
 <%@page import="java.util.List"%>
 <%@page import="ru.ifmo.is.db.service.IssueKindService"%>
 <%@page import="ru.ifmo.is.util.Context"%>
 <%@page import="org.springframework.context.ApplicationContext"%>
 <%@page import="ru.ifmo.is.db.entity.IssueKind"%>
 <%@page import="ru.ifmo.is.util.Util"%>
-<%@page import="ru.ifmo.is.db.data.IssueProjectData"%>
 <%@page import="ru.ifmo.is.servlet.IssueServlet"%>
 <%@page import="ru.ifmo.is.manager.LogManager"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
@@ -27,8 +28,9 @@
 		IssueKindService kindService = ctx.getBean(IssueKindService.class);
 		List<IssueKind> kinds = kindService.selectAll();
 		
-		IssueProjectData[] projects = IssueProjectData.selectAvailable(
-		(String) request.getAttribute(LoginServlet.LOGIN_AUTH_USERNAME));
+		IssueProjectService projectService = ctx.getBean(IssueProjectService.class);
+		List<IssueProject> projects = projectService.selectAvailable(
+				(String) request.getAttribute(LoginServlet.LOGIN_AUTH_USERNAME));
 	%>
 	<script>
 	var projectTo = [];
@@ -38,10 +40,10 @@
 				status: "",
 				owner: ""
 			};
-			<%for (int i = 0; i < projects.length; i++) {%>
-			projectTo["<%=Util.replaceStr(projects[i].code)%>"] = {
-					status: "<%=Util.replaceStr(projects[i].startStatusDisplay)%>",
-			 		owner: "<%=Util.replaceStr(projects[i].ownerDisplay)%>"
+			<%for (int i = 0; i < projects.size(); i++) {%>
+			projectTo["<%=Util.replaceStr(projects.get(i).getCode())%>"] = {
+					status: "<%=Util.replaceStr(projects.get(i).getStartStatus().getName())%>",
+			 		owner: "<%=Util.replaceStr(projects.get(i).getOwner().getCredentials())%>"
 			};
 			<%}%>
 			
@@ -162,10 +164,10 @@
 							onchange="setProject(this)">
 								<option value="-"></option>
 								<%
-									for (int i = 0; i < projects.length; i++) {
+									for (int i = 0; i < projects.size(); i++) {
 								%>
-								<option value="<%=Util.replaceStr(projects[i].code)%>">
-								<%=Util.replaceHTML(projects[i].name)%>
+								<option value="<%=Util.replaceStr(projects.get(i).getCode())%>">
+								<%=Util.replaceHTML(projects.get(i).getName())%>
 								</option>
 								<%
 									}

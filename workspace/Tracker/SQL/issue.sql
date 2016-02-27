@@ -14,7 +14,7 @@ begin
 	declare v_idt varchar(32);
 	declare v_iss int(18);
 	
-	select min(project_id), min(available_for), min(owner), min(start_status)
+	select min(id), min(available_for), min(owner), min(start_status)
 	  into v_project, v_creator, v_assignee, v_status
 	  from projects_available
 	 where available_for_code = p_creator

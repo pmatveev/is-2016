@@ -22,24 +22,14 @@ select distinct
   left join project_transition pt on pt.id = gm.project_transition__id; 
 
 create view projects_available as
-select s.id start_status,
-       s.name start_status_display,
-       o.id owner,
-       o.credentials owner_display,
-       p.id project_id,
-       p.code project_code,
-       p.name project_name,
+select p.*,
        u.id available_for,
        u.username available_for_code
   from issue_project p, 
-       issue_status s, 
-       officer o, 
        officer u,
        available_transitions t,
        status_transition st
- where s.id = p.start_status
-   and o.id = p.owner
-   and p.is_active = true
+ where p.is_active = true
    and t.officer_id = u.id
    and st.id = t.status_transition_id
    and st.issue_project__id = p.id
