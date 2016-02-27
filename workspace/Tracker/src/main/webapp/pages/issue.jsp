@@ -1,3 +1,5 @@
+<%@page import="ru.ifmo.is.db.service.OfficerService"%>
+<%@page import="ru.ifmo.is.db.entity.Officer"%>
 <%@page import="ru.ifmo.is.db.entity.IssueKind"%>
 <%@page import="java.util.List"%>
 <%@page import="ru.ifmo.is.db.service.IssueKindService"%>
@@ -7,7 +9,6 @@
 <%@page import="ru.ifmo.is.util.Util"%>
 <%@page import="java.util.HashSet"%>
 <%@page import="java.util.Set"%>
-<%@page import="ru.ifmo.is.db.data.OfficerData"%>
 <%@page import="ru.ifmo.is.db.data.IssueProjectTransitionData"%>
 <%@page import="ru.ifmo.is.db.data.IssueStatusTransitionData"%>
 <%@page import="ru.ifmo.is.servlet.IssueServlet"%>
@@ -50,8 +51,10 @@
 
 			IssueKindService kindService = ctx.getBean(IssueKindService.class);
 			List<IssueKind> kinds = kindService.selectAll();
+			
 			// TODO currently we can assign to everyone. See task #24
-			OfficerData[] assignees = OfficerData.select();
+			OfficerService officerService = ctx.getBean(OfficerService.class);
+			List<Officer> assignees = officerService.selectAll();
 	%>
 	<%
 		if (issue == null) {
@@ -82,10 +85,10 @@
 		};	
 		<%}%>
 
-		<%for (int i = 0; i < assignees.length; i++) {%>
+		<%for (int i = 0; i < assignees.size(); i++) {%>
 		assignees[<%=i%>] = {
-			code: "<%=Util.replaceStr(assignees[i].username)%>",
-			name: "<%=Util.replaceStr(assignees[i].credentials)%>"
+			code: "<%=Util.replaceStr(assignees.get(i).getUsername())%>",
+			name: "<%=Util.replaceStr(assignees.get(i).getCredentials())%>"
 		};
 		<%}
 		Set<String> projectTo = new HashSet<String>();
