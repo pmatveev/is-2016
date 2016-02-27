@@ -4,5 +4,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import ru.ifmo.is.db.entity.IssueKind;
 
-public interface IssueKindRepository extends JpaRepository<IssueKind, Long>{
+public interface IssueKindRepository extends JpaRepository<IssueKind, Long> {
 }

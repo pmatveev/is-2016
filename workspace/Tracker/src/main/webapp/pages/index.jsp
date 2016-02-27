@@ -1,3 +1,5 @@
+<%@page import="ru.ifmo.is.db.service.IssueStatusService"%>
+<%@page import="ru.ifmo.is.db.entity.IssueStatus"%>
 <%@page import="ru.ifmo.is.db.entity.IssueKind"%>
 <%@page import="java.util.List"%>
 <%@page import="ru.ifmo.is.db.service.IssueKindService"%>
@@ -7,7 +9,6 @@
 <%@page import="ru.ifmo.is.db.data.IssueProjectData"%>
 <%@page import="java.net.URLEncoder"%>
 <%@page import="java.util.Enumeration"%>
-<%@page import="ru.ifmo.is.db.data.IssueStatusData"%>
 <%@page import="ru.ifmo.is.servlet.IssueServlet"%>
 <%@page import="ru.ifmo.is.db.data.IssueData"%>
 <%@page import="ru.ifmo.is.util.LogLevel"%>
@@ -59,7 +60,8 @@
 		
 		IssueKindService kindService = ctx.getBean(IssueKindService.class);
 		List<IssueKind> kinds = kindService.selectAll();
-		IssueStatusData[] statuses = IssueStatusData.select();
+		IssueStatusService statusService = ctx.getBean(IssueStatusService.class);
+		List<IssueStatus> statuses = statusService.selectAll();
 		IssueProjectData[] projects = IssueProjectData.select();
 
 		SimpleDateFormat dateFormat = new SimpleDateFormat(
@@ -173,12 +175,12 @@
 							class="selectIssueType">
 								<option value="">---</option>
 								<%
-									for (int i = 0; i < statuses.length; i++) {
+									for (int i = 0; i < statuses.size(); i++) {
 								%>
-								<option value="<%=Util.replaceStr(statuses[i].code)%>"
-									<%=statuses[i].code.equals(request
+								<option value="<%=Util.replaceStr(statuses.get(i).getCode())%>"
+									<%=statuses.get(i).getCode().equals(request
 						.getParameter(IssueServlet.ISSUE_GET_BY_STATUS)) ? "selected"
-						: ""%>><%=Util.replaceHTML(statuses[i].name)%></option>
+						: ""%>><%=Util.replaceHTML(statuses.get(i).getName())%></option>
 								<%
 									}
 								%>
