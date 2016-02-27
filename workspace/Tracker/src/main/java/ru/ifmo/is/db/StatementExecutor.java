@@ -12,6 +12,7 @@ import java.util.List;
 import javax.naming.NamingException;
 
 import ru.ifmo.is.manager.LogManager;
+import ru.ifmo.is.util.Context;
 import ru.ifmo.is.util.LogLevel;
 import ru.ifmo.is.util.Pair;
 import ru.ifmo.is.util.SQLParmKind;
@@ -25,7 +26,7 @@ public class StatementExecutor {
 		Object[] res = null;
 		Connection conn = null;
 		try {
-			conn = new ConnectionManager().getConnection();
+			conn = Context.getConnection();
 			conn.setAutoCommit(false);
 			
 			CallableStatement stmt = conn.prepareCall("{" + sql + "}");
@@ -74,7 +75,7 @@ public class StatementExecutor {
 
 				conn.commit();
 			}
-		} catch (NamingException | SQLException e) {
+		} catch (SQLException e) {
 			try {
 				conn.rollback();
 			} catch (SQLException e1) {
@@ -96,7 +97,7 @@ public class StatementExecutor {
 				res);
 		return res;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private <T extends DataClass> T[] selectData(Connection conn, T data, String sql,
 			Pair<SQLParmKind, Object>[] attributes) throws SQLException {
@@ -121,7 +122,8 @@ public class StatementExecutor {
 		ResultSet rs = stmt.executeQuery();
 		return (T[]) data.parseResultSet(rs);		
 	}
-	
+
+	@Deprecated
 	@SafeVarargs
 	public final <T extends DataClass> T[] select(T data, String sql,
 			Pair<SQLParmKind, Object>... attributes) throws IOException {
@@ -130,12 +132,12 @@ public class StatementExecutor {
 		Connection conn = null;
 		
 		try {
-			conn = new ConnectionManager().getConnection();			
+			conn = Context.getConnection();		
 			T[] res = selectData(conn, data, sql, attributes);
 			LogManager.log(LogLevel.SQL, "finished " + sql, LogLevel.SQL_RESULT,
 					res.length + " rows extracted");
 			return res;
-		} catch (NamingException | SQLException e) {
+		} catch (SQLException e) {
 			LogManager.log(e);
 			throw new IOException(e);
 		} finally {
@@ -149,7 +151,8 @@ public class StatementExecutor {
 			}			
 		}
 	}
-	
+
+	@Deprecated
 	@SafeVarargs
 	public final <T extends DataClass> Pair<T[], Integer> selectCount(T data, String sql,
 			Pair<SQLParmKind, Object>... attributes) throws IOException {
@@ -158,7 +161,7 @@ public class StatementExecutor {
 		Connection conn = null;
 		
 		try {
-			conn = new ConnectionManager().getConnection();
+			conn = Context.getConnection();
 			
 			T[] res = selectData(conn, data, sql, attributes);
 			LogManager.log(LogLevel.SQL, "finished " + sql, LogLevel.SQL_RESULT,
@@ -174,7 +177,7 @@ public class StatementExecutor {
 			LogManager.log(LogLevel.SQL, "finished SELECT FOUND_ROWS()",
 					LogLevel.SQL_RESULT, num);
 			return new Pair<T[], Integer>(res, num);
-		} catch (NamingException | SQLException e) {
+		} catch (SQLException e) {
 			LogManager.log(e);
 			throw new IOException(e);
 		} finally {

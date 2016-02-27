@@ -11,7 +11,8 @@ import ru.ifmo.is.db.StatementExecutor;
 import ru.ifmo.is.util.Pair;
 import ru.ifmo.is.util.SQLParmKind;
 
-public class IssueProject extends DataClass {
+@Deprecated
+public class IssueProjectData extends DataClass {
 	public String startStatus;
 	public String startStatusDisplay;
 	public String owner;
@@ -19,7 +20,7 @@ public class IssueProject extends DataClass {
 	public String code;
 	public String name;
 
-	public IssueProject(
+	public IssueProjectData(
 			String startStatus,
 			String startStatusDisplay,
 			String owner,
@@ -35,11 +36,11 @@ public class IssueProject extends DataClass {
 	}
 	
 	@Override
-	public IssueProject[] parseResultSet(ResultSet rs) throws SQLException {
-		List<IssueProject> projects = new LinkedList<IssueProject>();
+	public IssueProjectData[] parseResultSet(ResultSet rs) throws SQLException {
+		List<IssueProjectData> projects = new LinkedList<IssueProjectData>();
 		
 		while (rs.next()) {
-			projects.add(new IssueProject(
+			projects.add(new IssueProjectData(
 					startStatus == null ? null : rs.getString(startStatus),
 					startStatusDisplay == null ? null : rs.getString(startStatusDisplay),
 					owner == null ? null : rs.getString(owner), 
@@ -48,11 +49,11 @@ public class IssueProject extends DataClass {
 					name == null ? null : rs.getString(name)));
 		}
 		
-		return projects.toArray(new IssueProject[0]);
+		return projects.toArray(new IssueProjectData[0]);
 	}
 	
-	public static IssueProject[] selectAvailable(String username) throws IOException {	
-		IssueProject mask = new IssueProject(null, 
+	public static IssueProjectData[] selectAvailable(String username) throws IOException {	
+		IssueProjectData mask = new IssueProjectData(null, 
 				"start_status_display", 
 				null, 
 				"owner_display", 
@@ -68,8 +69,8 @@ public class IssueProject extends DataClass {
 				new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, username));
 	}
 	
-	public static IssueProject[] select() throws IOException {
-		return new StatementExecutor().select(new IssueProject(null, null,
+	public static IssueProjectData[] select() throws IOException {
+		return new StatementExecutor().select(new IssueProjectData(null, null,
 				null, null, "code", "name"),
 				"code, name from issue_project " +
 				"order by name asc");

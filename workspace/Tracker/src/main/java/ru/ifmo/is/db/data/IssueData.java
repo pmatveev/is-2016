@@ -13,7 +13,8 @@ import ru.ifmo.is.db.StatementExecutor;
 import ru.ifmo.is.util.Pair;
 import ru.ifmo.is.util.SQLParmKind;
 
-public class Issue extends DataClass {	
+@Deprecated
+public class IssueData extends DataClass {	
 	public int id; // should always be placed in "id" column
 	public String idt;
 	public String creator;
@@ -32,7 +33,7 @@ public class Issue extends DataClass {
 	public String description;
 	public String resolution;
 	
-	public Issue(
+	public IssueData(
 			int id,
 			String idt,
 			String creator,
@@ -71,10 +72,10 @@ public class Issue extends DataClass {
 
 	@Override
 	public DataClass[] parseResultSet(ResultSet rs) throws SQLException {
-		List<Issue> issues = new LinkedList<Issue>();
+		List<IssueData> issues = new LinkedList<IssueData>();
 		
 		while (rs.next()) {
-				issues.add(new Issue(
+				issues.add(new IssueData(
 					id == -1 ? -1 : rs.getInt("id"),
 					idt == null ? null : rs.getString(idt),
 					creator == null ? null : rs.getString(creator),
@@ -94,7 +95,7 @@ public class Issue extends DataClass {
 					resolution == null ? null : rs.getString(resolution)));
 		}
 		
-		return issues.toArray(new Issue[0]);
+		return issues.toArray(new IssueData[0]);
 	}
 	
 	private static String getLikeParm(String parm) {
@@ -125,7 +126,7 @@ public class Issue extends DataClass {
 		}
 	}
 	
-	public static Pair<Issue[], Integer> selectLike(
+	public static Pair<IssueData[], Integer> selectLike(
 			int from,
 			int num,
 			String idt, 
@@ -165,7 +166,7 @@ public class Issue extends DataClass {
 		appendOrderBy(order, 2, "date_updated", updatedOrder);
 		order.append("prev_issue asc");
 		
-		Issue mask = new Issue(
+		IssueData mask = new IssueData(
 				-1,
 				"idt",
 				null,
@@ -216,7 +217,7 @@ public class Issue extends DataClass {
 				new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, assignee));
 	}
 	
-	public static Issue selectByIdt(String idt) throws IOException {
+	public static IssueData selectByIdt(String idt) throws IOException {
 		if (idt == null) {
 			return null;
 		}
@@ -230,7 +231,7 @@ public class Issue extends DataClass {
 		}
 		int id = (Integer) o[0];
 		
-		Issue mask = new Issue(
+		IssueData mask = new IssueData(
 				1, 
 				"idt", 
 				null, 
@@ -268,7 +269,7 @@ public class Issue extends DataClass {
 				"from active_issues " +
 				"where id = ?";
 
-		Issue[] issues = se.select(mask, stmt,
+		IssueData[] issues = se.select(mask, stmt,
 				new Pair<SQLParmKind, Object>(SQLParmKind.IN_INT, id));
 		
 		return issues == null ? null : issues[0];

@@ -1,6 +1,11 @@
+<%@page import="java.util.List"%>
+<%@page import="ru.ifmo.is.db.service.IssueKindService"%>
+<%@page import="ru.ifmo.is.util.Context"%>
+<%@page import="org.springframework.context.ApplicationContext"%>
+<%@page import="ru.ifmo.is.db.entity.IssueKind"%>
 <%@page import="ru.ifmo.is.util.Util"%>
-<%@page import="ru.ifmo.is.db.data.IssueProject"%>
-<%@page import="ru.ifmo.is.db.data.IssueKind"%>
+<%@page import="ru.ifmo.is.db.data.IssueProjectData"%>
+<%@page import="ru.ifmo.is.db.data.IssueKindData"%>
 <%@page import="ru.ifmo.is.servlet.IssueServlet"%>
 <%@page import="ru.ifmo.is.manager.LogManager"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
@@ -17,10 +22,15 @@
 	<%
 		LogManager.log("GET createIssue.jsp", request);
 		String searchReturnURL = IssueServlet.getReturnAddress(request);
-	
-		IssueKind[] kinds = IssueKind.select();
-		IssueProject[] projects = IssueProject.selectAvailable(
-				(String) request.getAttribute(LoginServlet.LOGIN_AUTH_USERNAME));
+			
+//		IssueKindData[] kinds = IssueKindData.select();
+
+		ApplicationContext ctx = Context.getContext();
+		IssueKindService kindService = ctx.getBean(IssueKindService.class);
+		List<IssueKind> kinds = kindService.selectAll();
+		
+		IssueProjectData[] projects = IssueProjectData.selectAvailable(
+		(String) request.getAttribute(LoginServlet.LOGIN_AUTH_USERNAME));
 	%>
 	<script>
 	var projectTo = [];
@@ -171,10 +181,10 @@
 							name="<%=IssueServlet.ISSUE_SET_KIND%>" class="editIssue">
 								<option value=""></option>
 								<%
-									for (int i = 0; i < kinds.length; i++) {
+									for (int i = 0; i < kinds.size(); i++) {
 								%>
-								<option value="<%=Util.replaceStr(kinds[i].code)%>">
-								<%=Util.replaceHTML(kinds[i].name)%>
+								<option value="<%=Util.replaceStr(kinds.get(i).getCode())%>">
+								<%=Util.replaceHTML(kinds.get(i).getName())%>
 								</option>
 								<%
 									}

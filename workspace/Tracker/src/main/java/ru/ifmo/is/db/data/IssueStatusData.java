@@ -9,11 +9,12 @@ import java.util.List;
 import ru.ifmo.is.db.DataClass;
 import ru.ifmo.is.db.StatementExecutor;
 
-public class IssueStatus extends DataClass {
+@Deprecated
+public class IssueStatusData extends DataClass {
 	public String code;
 	public String name;
 	
-	public IssueStatus (
+	public IssueStatusData (
 			String code,
 			String name
 			) {
@@ -23,19 +24,19 @@ public class IssueStatus extends DataClass {
 
 	@Override
 	public DataClass[] parseResultSet(ResultSet rs) throws SQLException {
-		List<IssueStatus> statuses = new LinkedList<IssueStatus>();
+		List<IssueStatusData> statuses = new LinkedList<IssueStatusData>();
 		
 		while (rs.next()) {
-			statuses.add(new IssueStatus(
+			statuses.add(new IssueStatusData(
 					code == null ? null : rs.getString(code), 
 					name == null ? null : rs.getString(name)));
 		}
 		
-		return statuses.toArray(new IssueStatus[0]);
+		return statuses.toArray(new IssueStatusData[0]);
 	}
 	
-	public static IssueStatus[] select() throws IOException {	
-		return new StatementExecutor().select(new IssueStatus("code", "name"),
+	public static IssueStatusData[] select() throws IOException {	
+		return new StatementExecutor().select(new IssueStatusData("code", "name"),
 				"code, name from issue_status order by name asc");
 	}
 }

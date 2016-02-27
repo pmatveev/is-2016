@@ -11,7 +11,8 @@ import ru.ifmo.is.db.StatementExecutor;
 import ru.ifmo.is.util.Pair;
 import ru.ifmo.is.util.SQLParmKind;
 
-public class IssueProjectTransition extends DataClass {
+@Deprecated
+public class IssueProjectTransitionData extends DataClass {
 	public String projectFrom;
 	public String projectFromDisplay;
 	public String projectTo;
@@ -22,7 +23,7 @@ public class IssueProjectTransition extends DataClass {
 	public String statusToDisplay;
 	public String code;
 	
-	public IssueProjectTransition(
+	public IssueProjectTransitionData(
 			String projectFrom,
 			String projectFromDisplay,
 			String projectTo,
@@ -45,10 +46,10 @@ public class IssueProjectTransition extends DataClass {
 
 	@Override
 	public DataClass[] parseResultSet(ResultSet rs) throws SQLException {
-		List<IssueProjectTransition> transitions = new LinkedList<IssueProjectTransition>();
+		List<IssueProjectTransitionData> transitions = new LinkedList<IssueProjectTransitionData>();
 		
 		while (rs.next()) {
-			transitions.add(new IssueProjectTransition(
+			transitions.add(new IssueProjectTransitionData(
 					projectFrom == null ? null : rs.getString(projectFrom),
 					projectFromDisplay == null ? null : rs.getString(projectFromDisplay),
 					projectTo == null ? null : rs.getString(projectTo),
@@ -60,14 +61,14 @@ public class IssueProjectTransition extends DataClass {
 					code == null ? null : rs.getString(code)));
 		}
 		
-		return transitions.toArray(new IssueProjectTransition[0]);
+		return transitions.toArray(new IssueProjectTransitionData[0]);
 	}
 	
-	public static IssueProjectTransition[] selectByIssue(Integer id, String username) throws IOException {
+	public static IssueProjectTransitionData[] selectByIssue(Integer id, String username) throws IOException {
 		if (id == null || username == null) {
 			return null;
 		}
-		IssueProjectTransition mask = new IssueProjectTransition(
+		IssueProjectTransitionData mask = new IssueProjectTransitionData(
 				null, 
 				null, 
 				"project_to_code", 

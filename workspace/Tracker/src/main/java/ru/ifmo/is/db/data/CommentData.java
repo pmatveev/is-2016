@@ -12,7 +12,8 @@ import ru.ifmo.is.db.StatementExecutor;
 import ru.ifmo.is.util.Pair;
 import ru.ifmo.is.util.SQLParmKind;
 
-public class Comment extends DataClass {
+@Deprecated
+public class CommentData extends DataClass {
 	public String issueIdt;
 	public String author;
 	public String authorDisplay;
@@ -20,11 +21,11 @@ public class Comment extends DataClass {
 	public String statusTransition;
 	public String statusTransitionDisplay;
 	public String projectTransition;
-	public Issue before;
-	public Issue after;
+	public IssueData before;
+	public IssueData after;
 	public String text;
 	
-	public Comment(
+	public CommentData(
 			String issueIdt,
 			String author,
 			String authorDisplay,
@@ -32,8 +33,8 @@ public class Comment extends DataClass {
 			String statusTransition,
 			String statusTransitionDisplay,
 			String projectTransition,
-			Issue before,
-			Issue after,
+			IssueData before,
+			IssueData after,
 			String text)
 	{
 		this.issueIdt = issueIdt;
@@ -50,10 +51,10 @@ public class Comment extends DataClass {
 
 	@Override
 	public DataClass[] parseResultSet(ResultSet rs) throws SQLException {
-		List<Comment> comments = new LinkedList<Comment>();
+		List<CommentData> comments = new LinkedList<CommentData>();
 		
 		while (rs.next()) {
-			comments.add(new Comment(
+			comments.add(new CommentData(
 					issueIdt == null ? null : rs.getString(issueIdt),
 					author == null ? null : rs.getString(author),
 					authorDisplay == null ? null : rs.getString(authorDisplay),
@@ -61,7 +62,7 @@ public class Comment extends DataClass {
 					statusTransition == null ? null : rs.getString(statusTransition),
 					statusTransitionDisplay == null ? null : rs.getString(statusTransitionDisplay),
 					projectTransition == null ? null : rs.getString(projectTransition),
-					new Issue(
+					new IssueData(
 							0,
 							before.idt == null ? null : rs.getString(before.idt),
 							before.creator == null ? null : rs.getString(before.creator),
@@ -80,7 +81,7 @@ public class Comment extends DataClass {
 							before.description == null ? null : rs.getString(before.description),
 							before.resolution == null ? null : rs.getString(before.resolution)
 							),
-					new Issue(
+					new IssueData(
 							0,
 							after.idt == null ? null : rs.getString(after.idt),
 							after.creator == null ? null : rs.getString(after.creator),
@@ -102,14 +103,14 @@ public class Comment extends DataClass {
 					text == null ? null : rs.getString(text)));
 		}
 		
-		return comments.toArray(new Comment[0]);
+		return comments.toArray(new CommentData[0]);
 	}
 	
-	public static Comment[] selectByIssue(Integer id) throws IOException {
+	public static CommentData[] selectByIssue(Integer id) throws IOException {
 		if (id == null) {
 			return null;
 		}
-		Issue beforeMask = new Issue(
+		IssueData beforeMask = new IssueData(
 				-1,
 				"idt_before",
 				null,
@@ -128,7 +129,7 @@ public class Comment extends DataClass {
 				null,
 				null
 				);
-		Issue afterMask = new Issue(
+		IssueData afterMask = new IssueData(
 				-1,
 				"idt_after",
 				null,
@@ -148,7 +149,7 @@ public class Comment extends DataClass {
 				null
 				);
 		
-		Comment mask = new Comment(
+		CommentData mask = new CommentData(
 				null,
 				null,
 				"author_display",

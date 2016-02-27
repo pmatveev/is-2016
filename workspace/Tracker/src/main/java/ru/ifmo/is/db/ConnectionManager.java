@@ -8,6 +8,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
+@Deprecated
 public class ConnectionManager {	
 	public Connection getConnection() throws NamingException, SQLException {
 		InitialContext ic = new InitialContext();

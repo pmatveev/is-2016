@@ -2,18 +2,18 @@
 <%@page import="ru.ifmo.is.util.Util"%>
 <%@page import="java.util.HashSet"%>
 <%@page import="java.util.Set"%>
-<%@page import="ru.ifmo.is.db.data.Officer"%>
-<%@page import="ru.ifmo.is.db.data.IssueKind"%>
-<%@page import="ru.ifmo.is.db.data.IssueProjectTransition"%>
-<%@page import="ru.ifmo.is.db.data.IssueStatusTransition"%>
+<%@page import="ru.ifmo.is.db.data.OfficerData"%>
+<%@page import="ru.ifmo.is.db.data.IssueKindData"%>
+<%@page import="ru.ifmo.is.db.data.IssueProjectTransitionData"%>
+<%@page import="ru.ifmo.is.db.data.IssueStatusTransitionData"%>
 <%@page import="ru.ifmo.is.servlet.IssueServlet"%>
 <%@page import="java.util.Locale"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="ru.ifmo.is.manager.LogManager"%>
 <%@page import="java.util.Calendar"%>
 <%@page import="java.util.Date"%>
-<%@page import="ru.ifmo.is.db.data.Issue"%>
-<%@page import="ru.ifmo.is.db.data.Comment"%>
+<%@page import="ru.ifmo.is.db.data.IssueData"%>
+<%@page import="ru.ifmo.is.db.data.CommentData"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
 <!DOCTYPE html>
@@ -27,23 +27,23 @@
 	<%@ include file="logout.jsp"%>
 	<%
 		LogManager.log("GET issue.jsp", request);
-	
-		String returnTo = request.getRequestURI() + "?" + Util.nvl(request.getQueryString());
-		String searchReturnURL = IssueServlet.getReturnAddress(request);
-		SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMMM d yyyy, HH:mm:ss", Locale.ENGLISH);
-		String issueKey = (String) request.getParameter(IssueServlet.ISSUE_GET_KEY_PARM);
-	
-		Issue issue = Issue.selectByIdt(issueKey);
-		Comment[] comments = Comment.selectByIssue(issue == null ? null : issue.id);
-		IssueStatusTransition[] statusTransitions = IssueStatusTransition.selectByIssue(
-				issue == null ? null : issue.id, 
-				(String) request.getAttribute(LoginServlet.LOGIN_AUTH_USERNAME));
-		IssueProjectTransition[] projectTransitions = IssueProjectTransition.selectByIssue(
-				issue == null ? null : issue.id, 
-				(String) request.getAttribute(LoginServlet.LOGIN_AUTH_USERNAME));
-		IssueKind[] issueKinds = IssueKind.select();
-		// TODO currently we can assign to everyone. See task #24
-		Officer[] assignees = Officer.select(); 
+		
+			String returnTo = request.getRequestURI() + "?" + Util.nvl(request.getQueryString());
+			String searchReturnURL = IssueServlet.getReturnAddress(request);
+			SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMMM d yyyy, HH:mm:ss", Locale.ENGLISH);
+			String issueKey = (String) request.getParameter(IssueServlet.ISSUE_GET_KEY_PARM);
+		
+			IssueData issue = IssueData.selectByIdt(issueKey);
+			CommentData[] comments = CommentData.selectByIssue(issue == null ? null : issue.id);
+			IssueStatusTransitionData[] statusTransitions = IssueStatusTransitionData.selectByIssue(
+			issue == null ? null : issue.id, 
+			(String) request.getAttribute(LoginServlet.LOGIN_AUTH_USERNAME));
+			IssueProjectTransitionData[] projectTransitions = IssueProjectTransitionData.selectByIssue(
+			issue == null ? null : issue.id, 
+			(String) request.getAttribute(LoginServlet.LOGIN_AUTH_USERNAME));
+			IssueKindData[] issueKinds = IssueKindData.select();
+			// TODO currently we can assign to everyone. See task #24
+			OfficerData[] assignees = OfficerData.select();
 	%>
 	<%
 		if (issue == null) {
@@ -79,13 +79,11 @@
 			code: "<%=Util.replaceStr(assignees[i].username)%>",
 			name: "<%=Util.replaceStr(assignees[i].credentials)%>"
 		};
-		<%
-		}
+		<%}
 		Set<String> projectTo = new HashSet<String>();
 		for (int i = 0; i < projectTransitions.length; i++) {
 			if (!projectTo.contains(projectTransitions[i].projectTo)) {
-				projectTo.add(projectTransitions[i].projectTo);
-		%>
+				projectTo.add(projectTransitions[i].projectTo);%>
 		projects["<%=Util.replaceStr(projectTransitions[i].projectTo)%>"] = {
 			name: "<%=Util.replaceStr(projectTransitions[i].projectToDisplay)%>",
 			statuses: [{
@@ -104,8 +102,7 @@
 		
 		resetForm();
 		
-		<%
-		if ("error".equals(request.getSession().
+		<%if ("error".equals(request.getSession().
 				getAttribute(IssueServlet.ISSUE_UPDATE_WEBSERVICE))) {
 			request.getSession().removeAttribute(IssueServlet.ISSUE_UPDATE_WEBSERVICE);
 			
@@ -115,7 +112,7 @@
 				request.getSession().removeAttribute(IssueServlet.ISSUE_STATUS_TRANSITION);
 
 				boolean edit = false;
-				for (IssueStatusTransition t : statusTransitions) {
+				for (IssueStatusTransitionData t : statusTransitions) {
 					if (statusTransition.equals(t.code)) {
 						out.println("enableEdit(\"" + Util.replaceStr(t.statusTo) + "\", \"" +
 								Util.replaceStr(t.statusToDisplay) + "\", \"" +
@@ -191,7 +188,7 @@
 				request.getSession().removeAttribute(IssueServlet.ISSUE_PROJECT_TRANSITION);
 
 				boolean edit = false;
-				for (IssueProjectTransition t : projectTransitions) {
+				for (IssueProjectTransitionData t : projectTransitions) {
 					if (projectTransition.equals(t.code)) {
 						out.println("enableMove()");
 						out.println("document.getElementById(\"" + IssueServlet.ISSUE_SET_PROJECT + 
@@ -254,8 +251,7 @@
 			request.getSession().removeAttribute(IssueServlet.ISSUE_ERROR);
 			out.println("document.getElementById(\"generalErr\").innerHTML = \""
 					+ Util.replaceStr(error) + "\";");
-		}
-		%>
+		}%>
 	}
 	
 	function disableButton(elem) {

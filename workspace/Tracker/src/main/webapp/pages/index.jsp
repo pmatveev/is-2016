@@ -1,14 +1,14 @@
 <%@page import="ru.ifmo.is.util.Util"%>
-<%@page import="ru.ifmo.is.db.data.IssueProject"%>
+<%@page import="ru.ifmo.is.db.data.IssueProjectData"%>
 <%@page import="java.net.URLEncoder"%>
 <%@page import="java.util.Enumeration"%>
-<%@page import="ru.ifmo.is.db.data.IssueStatus"%>
-<%@page import="ru.ifmo.is.db.data.IssueKind"%>
+<%@page import="ru.ifmo.is.db.data.IssueStatusData"%>
+<%@page import="ru.ifmo.is.db.data.IssueKindData"%>
 <%@page import="ru.ifmo.is.servlet.IssueServlet"%>
-<%@page import="ru.ifmo.is.db.data.Issue"%>
+<%@page import="ru.ifmo.is.db.data.IssueData"%>
 <%@page import="ru.ifmo.is.util.LogLevel"%>
 <%@page import="ru.ifmo.is.manager.LogManager"%>
-<%@page import="ru.ifmo.is.db.data.Issue"%>
+<%@page import="ru.ifmo.is.db.data.IssueData"%>
 <%@page import="java.util.Date"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="java.util.Locale"%>
@@ -30,31 +30,31 @@
 		int intFrom = 0;
 		if (from != null) {
 			try {
-				intFrom = Integer.parseInt(from);
+		intFrom = Integer.parseInt(from);
 			} catch (NumberFormatException e) {
 			}
 		}
-		Pair<Issue[], Integer> issuesCnt = Issue.selectLike(
-				intFrom, 
-				IssueServlet.ISSUE_GET_PAGE_NUMBER, 
-				request.getParameter(IssueServlet.ISSUE_GET_BY_KEY),
-				request.getParameter(IssueServlet.ISSUE_GET_BY_SUMM),
-				request.getParameter(IssueServlet.ISSUE_GET_BY_PROJECT),
-				request.getParameter(IssueServlet.ISSUE_GET_BY_KIND),
-				request.getParameter(IssueServlet.ISSUE_GET_BY_STATUS),
-				request.getParameter(IssueServlet.ISSUE_GET_BY_REPORTER),
-				request.getParameter(IssueServlet.ISSUE_GET_BY_ASSIGNEE),
-				request.getParameter(IssueServlet.ISSUE_GET_BY_CREATED),
-				request.getParameter(IssueServlet.ISSUE_GET_BY_UPDATED));
+		Pair<IssueData[], Integer> issuesCnt = IssueData.selectLike(
+		intFrom, 
+		IssueServlet.ISSUE_GET_PAGE_NUMBER, 
+		request.getParameter(IssueServlet.ISSUE_GET_BY_KEY),
+		request.getParameter(IssueServlet.ISSUE_GET_BY_SUMM),
+		request.getParameter(IssueServlet.ISSUE_GET_BY_PROJECT),
+		request.getParameter(IssueServlet.ISSUE_GET_BY_KIND),
+		request.getParameter(IssueServlet.ISSUE_GET_BY_STATUS),
+		request.getParameter(IssueServlet.ISSUE_GET_BY_REPORTER),
+		request.getParameter(IssueServlet.ISSUE_GET_BY_ASSIGNEE),
+		request.getParameter(IssueServlet.ISSUE_GET_BY_CREATED),
+		request.getParameter(IssueServlet.ISSUE_GET_BY_UPDATED));
 		
 		int totalCount = issuesCnt.second;
-		Issue[] issues = issuesCnt.first;
-		IssueKind[] kinds = IssueKind.select();
-		IssueStatus[] statuses = IssueStatus.select();
-		IssueProject[] projects = IssueProject.select();
+		IssueData[] issues = issuesCnt.first;
+		IssueKindData[] kinds = IssueKindData.select();
+		IssueStatusData[] statuses = IssueStatusData.select();
+		IssueProjectData[] projects = IssueProjectData.select();
 
 		SimpleDateFormat dateFormat = new SimpleDateFormat(
-				"HH:mm:ss dd.MM.yyyy", Locale.ENGLISH);
+		"HH:mm:ss dd.MM.yyyy", Locale.ENGLISH);
 
 		String returnTo = request.getRequestURI() + "?" + Util.nvl(request.getQueryString());
 		StringBuilder returnToFrom0 = new StringBuilder(request.getRequestURI() + "?");
@@ -65,12 +65,12 @@
 			String attr = parms.nextElement();
 			
 			if (!IssueServlet.ISSUE_GET_START_FROM.equals(attr)) {
-				if (p0 > 0) {
-					returnToFrom0.append("&");
-				}
-				p0++;
-				returnToFrom0.append(attr + "="
-						+ URLEncoder.encode(request.getParameter(attr), "ISO-8859-1"));
+		if (p0 > 0) {
+			returnToFrom0.append("&");
+		}
+		p0++;
+		returnToFrom0.append(attr + "="
+		+ URLEncoder.encode(request.getParameter(attr), "ISO-8859-1"));
 			}
 		}
 		
