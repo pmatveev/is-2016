@@ -24,3 +24,5 @@
 /workspace/Tracker/WebContent/WEB-INF/lib/javassist-3.17.1-GA.jar
 /workspace/Tracker/WebContent/WEB-INF/lib/jboss-logging-3.1.0.GA.jar
 /model.vpp.saving*
+/workspace/testProject
+/workspace/Tracker/target
