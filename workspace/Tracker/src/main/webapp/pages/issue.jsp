@@ -1,3 +1,5 @@
+<%@page import="ru.ifmo.is.db.entity.IssueProjectTransition"%>
+<%@page import="ru.ifmo.is.db.service.IssueProjectTransitionService"%>
 <%@page import="ru.ifmo.is.db.entity.IssueStatusTransition"%>
 <%@page import="ru.ifmo.is.db.service.IssueStatusTransitionService"%>
 <%@page import="ru.ifmo.is.db.entity.Issue"%>
@@ -13,7 +15,6 @@
 <%@page import="ru.ifmo.is.util.Util"%>
 <%@page import="java.util.HashSet"%>
 <%@page import="java.util.Set"%>
-<%@page import="ru.ifmo.is.db.data.IssueProjectTransitionData"%>
 <%@page import="ru.ifmo.is.servlet.IssueServlet"%>
 <%@page import="java.util.Locale"%>
 <%@page import="java.text.SimpleDateFormat"%>
@@ -55,9 +56,13 @@
 							(String) request.getAttribute(
 									LoginServlet.LOGIN_AUTH_USERNAME));
 			
-			IssueProjectTransitionData[] projectTransitions = IssueProjectTransitionData.selectByIssue(
-					issue == null ? null : issue.getId(), 
-			(String) request.getAttribute(LoginServlet.LOGIN_AUTH_USERNAME));
+			IssueProjectTransitionService issueProjectTransitionService =
+					ctx.getBean(IssueProjectTransitionService.class);
+			List<IssueProjectTransition> projectTransitions = 
+					issueProjectTransitionService.selectAvailable(
+							issue == null ? null : issue.getId(), 
+							(String) request.getAttribute(
+									LoginServlet.LOGIN_AUTH_USERNAME));
 
 			IssueKindService kindService = ctx.getBean(IssueKindService.class);
 			List<IssueKind> kinds = kindService.selectAll();
@@ -102,22 +107,22 @@
 		};
 		<%}
 		Set<String> projectTo = new HashSet<String>();
-		for (int i = 0; i < projectTransitions.length; i++) {
-			if (!projectTo.contains(projectTransitions[i].projectTo)) {
-				projectTo.add(projectTransitions[i].projectTo);%>
-		projects["<%=Util.replaceStr(projectTransitions[i].projectTo)%>"] = {
-			name: "<%=Util.replaceStr(projectTransitions[i].projectToDisplay)%>",
+		for (int i = 0; i < projectTransitions.size(); i++) {
+			if (!projectTo.contains(projectTransitions.get(i).getProjectTo().getCode())) {
+				projectTo.add(projectTransitions.get(i).getProjectTo().getCode());%>
+		projects["<%=Util.replaceStr(projectTransitions.get(i).getProjectTo().getCode())%>"] = {
+			name: "<%=Util.replaceStr(projectTransitions.get(i).getProjectTo().getName())%>",
 			statuses: [{
-				code: "<%=Util.replaceStr(projectTransitions[i].statusTo)%>",
-				name: "<%=Util.replaceStr(projectTransitions[i].statusToDisplay)%>",
-				transCode: "<%=Util.replaceStr(projectTransitions[i].code)%>"
+				code: "<%=Util.replaceStr(projectTransitions.get(i).getStatusTo().getCode())%>",
+				name: "<%=Util.replaceStr(projectTransitions.get(i).getStatusTo().getName())%>",
+				transCode: "<%=Util.replaceStr(projectTransitions.get(i).getCode())%>"
 				}]
 		};
 		<%} else {%>
-		projects["<%=Util.replaceStr(projectTransitions[i].projectTo)%>"].statuses.push({
-			code: "<%=Util.replaceStr(projectTransitions[i].statusTo)%>",
-			name: "<%=Util.replaceStr(projectTransitions[i].statusToDisplay)%>",
-			transCode: "<%=Util.replaceStr(projectTransitions[i].code)%>"			
+		projects["<%=Util.replaceStr(projectTransitions.get(i).getProjectTo().getCode())%>"].statuses.push({
+			code: "<%=Util.replaceStr(projectTransitions.get(i).getStatusTo().getCode())%>",
+			name: "<%=Util.replaceStr(projectTransitions.get(i).getStatusTo().getName())%>",
+			transCode: "<%=Util.replaceStr(projectTransitions.get(i).getCode())%>"			
 		});
 		<%}}%>
 		
@@ -212,15 +217,15 @@
 				request.getSession().removeAttribute(IssueServlet.ISSUE_PROJECT_TRANSITION);
 
 				boolean edit = false;
-				for (IssueProjectTransitionData t : projectTransitions) {
-					if (projectTransition.equals(t.code)) {
+				for (IssueProjectTransition t : projectTransitions) {
+					if (projectTransition.equals(t.getCode())) {
 						out.println("enableMove()");
 						out.println("document.getElementById(\"" + IssueServlet.ISSUE_SET_PROJECT + 
-								"\").value = \"" + Util.replaceStr(t.projectTo) + "\"");
+								"\").value = \"" + Util.replaceStr(t.getProjectTo().getCode()) + "\"");
 						out.println("document.getElementById(\"" + IssueServlet.ISSUE_SET_STATUS + 
-								"\").value = \"" + Util.replaceStr(t.statusTo) + "\"");
+								"\").value = \"" + Util.replaceStr(t.getStatusTo().getCode()) + "\"");
 						out.println("document.getElementById(\"" + IssueServlet.ISSUE_PROJECT_TRANSITION + 
-								"\").value = \"" + Util.replaceStr(t.code) + "\"");
+								"\").value = \"" + Util.replaceStr(t.getCode()) + "\"");
 						edit = true;
 						break;
 					}
@@ -694,7 +699,7 @@
 		<%
 			}
 
-				if (projectTransitions.length > 0) {
+				if (projectTransitions.size() > 0) {
 		%>
 		<button class="buttonFixed" id="moveButton" onclick="enableMove()">Move...</button>
 		<%

@@ -276,7 +276,7 @@ proc_label: begin
 	end loop get_lock;
 	
 	select min(available_for),
-	       min(transition),
+	       min(id),
 	       min(project_to),
 	       min(status_to)
 	  into v_user, 
