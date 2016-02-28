@@ -41,12 +41,7 @@ select i.id issue_for,
        i.idt issue_for_idt,
        o.id available_for,
        o.username available_for_code,
-       st.id status_to,
-       st.code status_to_code,
-       st.name status_to_name,
-       str.id transition,
-       str.code,
-       str.name
+       str.*
   from available_transitions tr,
        status_transition str, 
        officer o,

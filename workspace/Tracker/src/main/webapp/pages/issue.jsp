@@ -1,3 +1,5 @@
+<%@page import="ru.ifmo.is.db.entity.IssueStatusTransition"%>
+<%@page import="ru.ifmo.is.db.service.IssueStatusTransitionService"%>
 <%@page import="ru.ifmo.is.db.entity.Issue"%>
 <%@page import="ru.ifmo.is.db.service.IssueService"%>
 <%@page import="ru.ifmo.is.db.service.OfficerService"%>
@@ -12,7 +14,6 @@
 <%@page import="java.util.HashSet"%>
 <%@page import="java.util.Set"%>
 <%@page import="ru.ifmo.is.db.data.IssueProjectTransitionData"%>
-<%@page import="ru.ifmo.is.db.data.IssueStatusTransitionData"%>
 <%@page import="ru.ifmo.is.servlet.IssueServlet"%>
 <%@page import="java.util.Locale"%>
 <%@page import="java.text.SimpleDateFormat"%>
@@ -43,10 +44,17 @@
 			
 			IssueService issueService = ctx.getBean(IssueService.class);
 			Issue issue = issueService.selectById(issueKey); 
+			
 			CommentData[] comments = CommentData.selectByIssue(issue == null ? null : issue.getId());
-			IssueStatusTransitionData[] statusTransitions = IssueStatusTransitionData.selectByIssue(
-					issue == null ? null : issue.getId(), 
-			(String) request.getAttribute(LoginServlet.LOGIN_AUTH_USERNAME));
+			
+			IssueStatusTransitionService issueStatusTransitionService = 
+					ctx.getBean(IssueStatusTransitionService.class);
+			List<IssueStatusTransition> statusTransitions = 
+					issueStatusTransitionService.selectAvailable(
+							issue == null ? null : issue.getId(), 
+							(String) request.getAttribute(
+									LoginServlet.LOGIN_AUTH_USERNAME));
+			
 			IssueProjectTransitionData[] projectTransitions = IssueProjectTransitionData.selectByIssue(
 					issue == null ? null : issue.getId(), 
 			(String) request.getAttribute(LoginServlet.LOGIN_AUTH_USERNAME));
@@ -125,11 +133,14 @@
 				request.getSession().removeAttribute(IssueServlet.ISSUE_STATUS_TRANSITION);
 
 				boolean edit = false;
-				for (IssueStatusTransitionData t : statusTransitions) {
-					if (statusTransition.equals(t.code)) {
-						out.println("enableEdit(\"" + Util.replaceStr(t.statusTo) + "\", \"" +
-								Util.replaceStr(t.statusToDisplay) + "\", \"" +
-								Util.replaceStr(t.code) + "\");");
+				for (IssueStatusTransition t : statusTransitions) {
+					if (statusTransition.equals(t.getCode())) {
+						out.println("enableEdit(\"" + 
+								Util.replaceStr(t.getStatusTo().getCode()) + 
+								"\", \"" +
+								Util.replaceStr(t.getStatusTo().getName()) + 
+								"\", \"" +
+								Util.replaceStr(t.getCode()) + "\");");
 						edit = true;
 						break;
 					}
@@ -524,9 +535,9 @@
 
 	function enableMove() {
 		<%
-			for (int i = 0; i < statusTransitions.length; i++) {
+			for (int i = 0; i < statusTransitions.size(); i++) {
 		%>
-		disableButton("button_<%=Util.replaceStr(statusTransitions[i].code)%>");
+		disableButton("button_<%=Util.replaceStr(statusTransitions.get(i).getCode())%>");
 		<%
 			}
 		%>
@@ -620,9 +631,9 @@
 	
 	function disableMove() {
 		<%
-		for (int i = 0; i < statusTransitions.length; i++) {
+		for (int i = 0; i < statusTransitions.size(); i++) {
 		%>
-		enableButton("button_<%=Util.replaceStr(statusTransitions[i].code)%>");
+		enableButton("button_<%=Util.replaceStr(statusTransitions.get(i).getCode())%>");
 		<%
 			}
 		%>
@@ -671,13 +682,14 @@
 	<div id="generalErr" class="dialogErr"></div>
 	<div class="buttons">
 		<%
-			for (int i = 0; i < statusTransitions.length; i++) {
+			for (int i = 0; i < statusTransitions.size(); i++) {
 		%>
-		<button class="buttonFixed" id="button_<%=Util.replaceStr(statusTransitions[i].code)%>"
-			onclick="enableEdit('<%=Util.replaceStr1(statusTransitions[i].statusTo)%>', 
-				'<%=Util.replaceStr1(statusTransitions[i].statusToDisplay)%>',
-				'<%=Util.replaceStr1(statusTransitions[i].code)%>')">
-		<%=Util.replaceHTML(statusTransitions[i].name)%>
+		<button class="buttonFixed" 
+			id="button_<%=Util.replaceStr(statusTransitions.get(i).getCode())%>"
+			onclick="enableEdit('<%=Util.replaceStr1(statusTransitions.get(i).getStatusTo().getCode())%>', 
+				'<%=Util.replaceStr1(statusTransitions.get(i).getStatusTo().getName())%>',
+				'<%=Util.replaceStr1(statusTransitions.get(i).getCode())%>')">
+		<%=Util.replaceHTML(statusTransitions.get(i).getName())%>
 		</button>
 		<%
 			}

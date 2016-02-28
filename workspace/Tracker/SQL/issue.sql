@@ -193,7 +193,7 @@ proc_label: begin
 	end if;	  
 	
 	select min(available_for),
-	       min(transition),
+	       min(id),
 	       min(status_to)
 	  into v_user, 
 	       v_transition,

@@ -10,5 +10,5 @@ import ru.ifmo.is.db.entity.Issue;
 public interface IssueRepository extends JpaRepository<Issue, Long>, JpaSpecificationExecutor<Issue> {
 	@Query(value = "select * from issue where id = get_issue_by_idt(:idt)",
 			nativeQuery = true)
-	Issue findActiveByIdt(@Param("idt") String idt);
+	public Issue findActiveByIdt(@Param("idt") String idt);
 }
