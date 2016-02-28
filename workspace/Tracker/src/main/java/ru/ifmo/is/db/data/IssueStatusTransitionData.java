@@ -60,7 +60,7 @@ public class IssueStatusTransitionData extends DataClass {
 		return transitions.toArray(new IssueStatusTransitionData[0]);
 	}
 	
-	public static IssueStatusTransitionData[] selectByIssue(Integer id, String username) throws IOException {
+	public static IssueStatusTransitionData[] selectByIssue(Long id, String username) throws IOException {
 		if (id == null || username == null) {
 			return null;
 		}

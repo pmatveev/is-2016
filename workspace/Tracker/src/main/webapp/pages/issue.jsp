@@ -1,3 +1,5 @@
+<%@page import="ru.ifmo.is.db.entity.Issue"%>
+<%@page import="ru.ifmo.is.db.service.IssueService"%>
 <%@page import="ru.ifmo.is.db.service.OfficerService"%>
 <%@page import="ru.ifmo.is.db.entity.Officer"%>
 <%@page import="ru.ifmo.is.db.entity.IssueKind"%>
@@ -17,7 +19,6 @@
 <%@page import="ru.ifmo.is.manager.LogManager"%>
 <%@page import="java.util.Calendar"%>
 <%@page import="java.util.Date"%>
-<%@page import="ru.ifmo.is.db.data.IssueData"%>
 <%@page import="ru.ifmo.is.db.data.CommentData"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
@@ -40,13 +41,14 @@
 		
 			ApplicationContext ctx = Context.getContext();
 			
-			IssueData issue = IssueData.selectByIdt(issueKey);
-			CommentData[] comments = CommentData.selectByIssue(issue == null ? null : issue.id);
+			IssueService issueService = ctx.getBean(IssueService.class);
+			Issue issue = issueService.selectById(issueKey); 
+			CommentData[] comments = CommentData.selectByIssue(issue == null ? null : issue.getId());
 			IssueStatusTransitionData[] statusTransitions = IssueStatusTransitionData.selectByIssue(
-			issue == null ? null : issue.id, 
+					issue == null ? null : issue.getId(), 
 			(String) request.getAttribute(LoginServlet.LOGIN_AUTH_USERNAME));
 			IssueProjectTransitionData[] projectTransitions = IssueProjectTransitionData.selectByIssue(
-			issue == null ? null : issue.id, 
+					issue == null ? null : issue.getId(), 
 			(String) request.getAttribute(LoginServlet.LOGIN_AUTH_USERNAME));
 
 			IssueKindService kindService = ctx.getBean(IssueKindService.class);
@@ -76,8 +78,8 @@
 	var projects = [];
 	
 	function init() {
-		document.title = "<%=issue == null ? "Issue not found" : Util.replaceStr(issue.idt)
-				+ "/" + Util.replaceStr(issue.summary)%>";
+		document.title = "<%=issue == null ? "Issue not found" : Util.replaceStr(issue.getIdt())
+				+ "/" + Util.replaceStr(issue.getSummary())%>";
 		<%for (int i = 0; i < kinds.size(); i++) {%>
 		kinds[<%=i%>] = {
 			code: "<%=Util.replaceStr(kinds.get(i).getCode())%>",
@@ -292,13 +294,13 @@
 	}
 	
 	function resetForm() {
-		document.getElementById("issueKindTd").innerHTML = "<%=Util.replaceStr(Util.replaceHTML(issue.kindDisplay))%>";
-		document.getElementById("issueStatusTd").innerHTML = "<%=Util.replaceStr(Util.replaceHTML(issue.statusDisplay))%>";
-		document.getElementById("issueReporterTd").innerHTML = "<%=Util.replaceStr(Util.replaceHTML(issue.creatorDisplay))%>";
-		document.getElementById("issueAssigneeTd").innerHTML = "<%=Util.replaceStr(Util.replaceHTML(issue.assigneeDisplay))%>";
-		document.getElementById("issueDescription").innerHTML = "<%=issue.description == null ? "" : Util.replaceStr(Util.replaceHTML(issue.description))%>";
-		document.getElementById("issueResolution").innerHTML = "<%=issue.resolution == null ? "" : Util.replaceStr(Util.replaceHTML(issue.resolution))%>";
-		document.getElementById("issueSummary").innerHTML = "<%=Util.replaceStr(Util.replaceHTML(issue.summary))%>";
+		document.getElementById("issueKindTd").innerHTML = "<%=Util.replaceStr(Util.replaceHTML(issue.getKind().getName()))%>";
+		document.getElementById("issueStatusTd").innerHTML = "<%=Util.replaceStr(Util.replaceHTML(issue.getStatus().getName()))%>";
+		document.getElementById("issueReporterTd").innerHTML = "<%=Util.replaceStr(Util.replaceHTML(issue.getCreator().getCredentials()))%>";
+		document.getElementById("issueAssigneeTd").innerHTML = "<%=Util.replaceStr(Util.replaceHTML(issue.getAssignee().getCredentials()))%>";
+		document.getElementById("issueDescription").innerHTML = "<%=issue.getDescription() == null ? "" : Util.replaceStr(Util.replaceHTML(issue.getDescription()))%>";
+		document.getElementById("issueResolution").innerHTML = "<%=issue.getResolution() == null ? "" : Util.replaceStr(Util.replaceHTML(issue.getResolution()))%>";
+		document.getElementById("issueSummary").innerHTML = "<%=Util.replaceStr(Util.replaceHTML(issue.getSummary()))%>";
 	}
 	
 	function removeEditElements() {
@@ -371,7 +373,7 @@
 		var issueId = document.createElement("input");
 		issueId.type = "hidden";
 		issueId.name = "<%=IssueServlet.ISSUE_GET_KEY_PARM%>";
-		issueId.value = "<%=Util.replaceStr(issue.idt)%>";
+		issueId.value = "<%=Util.replaceStr(issue.getIdt())%>";
 		buttonDiv.appendChild(issueId);
 		
 		var submit = document.createElement("input");
@@ -415,13 +417,13 @@
 	function enableEdit(newStatusCode, newStatus, transitionCode) {
 		if (!isEditing) {
 			// have to create dropdowns
-			createSelect(document.getElementById("issueKindTd"), "<%=IssueServlet.ISSUE_SET_KIND%>", kinds, "<%=Util.replaceStr(issue.kind)%>");
-			createSelect(document.getElementById("issueAssigneeTd"), "<%=IssueServlet.ISSUE_SET_ASSIGNEE%>", assignees, "<%=Util.replaceStr(issue.assignee)%>");					
+			createSelect(document.getElementById("issueKindTd"), "<%=IssueServlet.ISSUE_SET_KIND%>", kinds, "<%=Util.replaceStr(issue.getKind().getCode())%>");
+			createSelect(document.getElementById("issueAssigneeTd"), "<%=IssueServlet.ISSUE_SET_ASSIGNEE%>", assignees, "<%=Util.replaceStr(issue.getAssignee().getUsername())%>");					
 			
 			var summEdit = document.createElement("input");
 			summEdit.id = "<%=IssueServlet.ISSUE_SET_SUMMARY%>";
 			summEdit.name = "<%=IssueServlet.ISSUE_SET_SUMMARY%>";
-			summEdit.value = "<%=Util.replaceStr(issue.summary)%>";
+			summEdit.value = "<%=Util.replaceStr(issue.getSummary())%>";
 			summEdit.className = "summaryEdit";
 			summEdit.setAttribute("form", "issueForm");
 			document.getElementById("issueSummary").innerHTML = "";
@@ -430,7 +432,7 @@
 			var descrEdit = document.createElement("textarea");
 			descrEdit.id = "<%=IssueServlet.ISSUE_SET_DESCRIPTION%>";
 			descrEdit.name = "<%=IssueServlet.ISSUE_SET_DESCRIPTION%>";
-			descrEdit.value = "<%=issue.description == null ? "" : Util.replaceStr(issue.description)%>";
+			descrEdit.value = "<%=issue.getDescription() == null ? "" : Util.replaceStr(issue.getDescription())%>";
 			descrEdit.className = "descrEdit";
 			descrEdit.rows = editRows;
 			document.getElementById("issueDescription").innerHTML = "";
@@ -439,7 +441,7 @@
 			var resEdit = document.createElement("textarea");
 			resEdit.id = "<%=IssueServlet.ISSUE_SET_RESOLUTION%>";
 			resEdit.name = "<%=IssueServlet.ISSUE_SET_RESOLUTION%>";
-			resEdit.value = "<%=issue.resolution == null ? "" : Util.replaceStr(issue.resolution)%>";
+			resEdit.value = "<%=issue.getResolution() == null ? "" : Util.replaceStr(issue.getResolution())%>";
 			resEdit.className = "descrEdit";
 			resEdit.rows = editRows;
 			document.getElementById("issueResolution").innerHTML = "";
@@ -659,9 +661,9 @@
 		</div>
 		<div>
 			<p class="issueName">
-				<%=Util.replaceHTML(issue.projectDisplay)%>
+				<%=Util.replaceHTML(issue.getProject().getName())%>
 				/
-				<%=Util.replaceHTML(issue.idt)%>
+				<%=Util.replaceHTML(issue.getIdt())%>
 			</p>
 		</div>
 		<div class="summary" id="issueSummary"></div>
@@ -716,11 +718,11 @@
 						</tr>
 						<tr>
 							<td class="widthTd">Date created</td>
-							<td><%=dateFormat.format(issue.dateCreated)%></td>
+							<td><%=dateFormat.format(issue.getDateCreated())%></td>
 						</tr>
 						<tr>
 							<td class="widthTd">Last updated</td>
-							<td><%=dateFormat.format(issue.dateUpdated)%></td>
+							<td><%=dateFormat.format(issue.getDateUpdated())%></td>
 						</tr>
 					</table>
 				</div>
@@ -849,7 +851,7 @@
 					action="<%=IssueServlet.SERVLET_IDT%>" method="post"
 					onsubmit="return validateComment()">
 					<input type="hidden" name="<%=IssueServlet.RETURN_URL%>" value="<%=returnTo%>"/>
-					<input type="hidden" name="<%=IssueServlet.ISSUE_GET_KEY_PARM%>" value="<%=Util.replaceStr(issue.idt)%>"></input>
+					<input type="hidden" name="<%=IssueServlet.ISSUE_GET_KEY_PARM%>" value="<%=Util.replaceStr(issue.getIdt())%>"></input>
 					<div>
 						<p>
 							<textarea id="addRegularCommentArea"

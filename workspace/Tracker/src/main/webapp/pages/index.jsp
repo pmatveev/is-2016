@@ -1,3 +1,6 @@
+<%@page import="org.springframework.data.domain.Page"%>
+<%@page import="ru.ifmo.is.db.entity.Issue"%>
+<%@page import="ru.ifmo.is.db.service.IssueService"%>
 <%@page import="ru.ifmo.is.db.entity.IssueProject"%>
 <%@page import="ru.ifmo.is.db.service.IssueProjectService"%>
 <%@page import="ru.ifmo.is.db.service.IssueStatusService"%>
@@ -11,10 +14,8 @@
 <%@page import="java.net.URLEncoder"%>
 <%@page import="java.util.Enumeration"%>
 <%@page import="ru.ifmo.is.servlet.IssueServlet"%>
-<%@page import="ru.ifmo.is.db.data.IssueData"%>
 <%@page import="ru.ifmo.is.util.LogLevel"%>
 <%@page import="ru.ifmo.is.manager.LogManager"%>
-<%@page import="ru.ifmo.is.db.data.IssueData"%>
 <%@page import="java.util.Date"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="java.util.Locale"%>
@@ -42,7 +43,7 @@
 		}
 		ApplicationContext ctx = Context.getContext();
 		
-		Pair<IssueData[], Integer> issuesCnt = IssueData.selectLike(
+/*		Pair<IssueData[], Integer> issuesCnt = IssueData.selectLike(
 		intFrom, 
 		IssueServlet.ISSUE_GET_PAGE_NUMBER, 
 		request.getParameter(IssueServlet.ISSUE_GET_BY_KEY),
@@ -53,10 +54,25 @@
 		request.getParameter(IssueServlet.ISSUE_GET_BY_REPORTER),
 		request.getParameter(IssueServlet.ISSUE_GET_BY_ASSIGNEE),
 		request.getParameter(IssueServlet.ISSUE_GET_BY_CREATED),
-		request.getParameter(IssueServlet.ISSUE_GET_BY_UPDATED));
+		request.getParameter(IssueServlet.ISSUE_GET_BY_UPDATED)); */
 		
-		int totalCount = issuesCnt.second;
-		IssueData[] issues = issuesCnt.first;
+// TODO		int totalCount = issuesCnt.second;		
+		IssueService issueService = ctx.getBean(IssueService.class);
+		Page<Issue> issuePage = issueService.selectLike(
+				intFrom, 
+				IssueServlet.ISSUE_GET_PAGE_NUMBER, 
+				request.getParameter(IssueServlet.ISSUE_GET_BY_KEY),
+				request.getParameter(IssueServlet.ISSUE_GET_BY_SUMM),
+				request.getParameter(IssueServlet.ISSUE_GET_BY_PROJECT),
+				request.getParameter(IssueServlet.ISSUE_GET_BY_KIND),
+				request.getParameter(IssueServlet.ISSUE_GET_BY_STATUS),
+				request.getParameter(IssueServlet.ISSUE_GET_BY_REPORTER),
+				request.getParameter(IssueServlet.ISSUE_GET_BY_ASSIGNEE),
+				request.getParameter(IssueServlet.ISSUE_GET_BY_CREATED),
+				request.getParameter(IssueServlet.ISSUE_GET_BY_UPDATED));
+		
+		List<Issue> issues = issuePage.getContent();
+		long totalCount = issuePage.getTotalElements();
 //		IssueKindData[] kinds = IssueKindData.select();
 		
 		IssueKindService kindService = ctx.getBean(IssueKindService.class);
@@ -103,8 +119,8 @@
 				issue</button>
 		</div>
 		<div class="searchInfo">
-		<%if (issues.length > 0) {%>
-		Showing issues <%=(intFrom + 1)%>-<%=intFrom + issues.length%> of <%=totalCount%>
+		<%if (issues.size() > 0) {%>
+		Showing issues <%=(intFrom * IssueServlet.ISSUE_GET_PAGE_NUMBER + 1)%>-<%=intFrom * IssueServlet.ISSUE_GET_PAGE_NUMBER + issues.size()%> of <%=totalCount%>
 		<%} else {
 			out.println("No issues found");
 		}
@@ -255,26 +271,26 @@
 				</thead>
 				<tbody id="issueTableBody">
 					<%
-						for (int i = 0; i < issues.length; i++) {
+						for (int i = 0; i < issues.size(); i++) {
 					%>
 					<tr>
-						<td class="issuesTableProjectBody"><%=Util.replaceHTML(issues[i].projectDisplay)%></td>
+						<td class="issuesTableProjectBody"><%=Util.replaceHTML(issues.get(i).getProject().getName())%></td>
 						<td class="issuesTableKeyBody"><a
-							href="/Tracker/pages/issue.jsp?<%=IssueServlet.ISSUE_GET_KEY_PARM%>=<%=Util.replaceStr(issues[i].idt)%>
+							href="/Tracker/pages/issue.jsp?<%=IssueServlet.ISSUE_GET_KEY_PARM%>=<%=Util.replaceStr(issues.get(i).getIdt())%>
 							&<%=IssueServlet.RETURN_URL%>=<%=returnToStr%>">
-								<%=Util.replaceHTML(issues[i].idt)%>
+								<%=Util.replaceHTML(issues.get(i).getIdt())%>
 						</a></td>
 						<td class="issuesTableNameBody"><a
-							href="/Tracker/pages/issue.jsp?<%=IssueServlet.ISSUE_GET_KEY_PARM%>=<%=Util.replaceStr(issues[i].idt)%>
+							href="/Tracker/pages/issue.jsp?<%=IssueServlet.ISSUE_GET_KEY_PARM%>=<%=Util.replaceStr(issues.get(i).getIdt())%>
 							&<%=IssueServlet.RETURN_URL%>=<%=returnToStr%>">
-								<%=Util.replaceHTML(issues[i].summary)%>
+								<%=Util.replaceHTML(issues.get(i).getSummary())%>
 						</a></td>
-						<td class="issuesTableTypeBody"><%=Util.replaceHTML(issues[i].kindDisplay)%></td>
-						<td class="issuesTableStatusBody"><%=Util.replaceHTML(issues[i].statusDisplay)%></td>
-						<td class="issuesTableReporterBody"><%=Util.replaceHTML(issues[i].creatorDisplay)%></td>
-						<td class="issuesTableAssigneeBody"><%=Util.replaceHTML(issues[i].assigneeDisplay)%></td>
-						<td class="issuesTableCreatedBody"><%=dateFormat.format(issues[i].dateCreated)%></td>
-						<td class="issuesTableUpdatedBody"><%=dateFormat.format(issues[i].dateUpdated)%></td>
+						<td class="issuesTableTypeBody"><%=Util.replaceHTML(issues.get(i).getKind().getName())%></td>
+						<td class="issuesTableStatusBody"><%=Util.replaceHTML(issues.get(i).getStatus().getName())%></td>
+						<td class="issuesTableReporterBody"><%=Util.replaceHTML(issues.get(i).getCreator().getCredentials())%></td>
+						<td class="issuesTableAssigneeBody"><%=Util.replaceHTML(issues.get(i).getAssignee().getCredentials())%></td>
+						<td class="issuesTableCreatedBody"><%=dateFormat.format(issues.get(i).getDateCreated())%></td>
+						<td class="issuesTableUpdatedBody"><%=dateFormat.format(issues.get(i).getDateUpdated())%></td>
 					</tr>
 					<%
 						}
@@ -283,7 +299,7 @@
 			</table>
 			<%
 			String key = request.getParameter(IssueServlet.ISSUE_GET_BY_KEY);
-			if (issues.length == 0 && key != null && !"".equals(key)) {
+			if (issues.size() == 0 && key != null && !"".equals(key)) {
 			%>
 			<div class="indexNoIssue">
 			Issue having key "<%=Util.replaceHTML(key)%>" not found. Check out
@@ -301,14 +317,14 @@
 			if (intFrom > 0) {
 			%>
 			<div class="indexPrev">
-			<a href="<%=returnToFrom0%><%=Math.max(intFrom - IssueServlet.ISSUE_GET_PAGE_NUMBER, 0)%>">Previous</a>
+			<a href="<%=returnToFrom0%><%=Math.max(intFrom - 1, 0)%>">Previous</a>
 			</div>
 			<%
 			}
-			if (intFrom + issues.length < totalCount) {
+			if (intFrom + issues.size() < totalCount) {
 			%>
 			<div class="indexNext">
-			<a href="<%=returnToFrom0%><%=intFrom + IssueServlet.ISSUE_GET_PAGE_NUMBER%>">Next</a>
+			<a href="<%=returnToFrom0%><%=intFrom + 1%>">Next</a>
 			</div>
 			<%	
 			}

@@ -106,7 +106,7 @@ public class CommentData extends DataClass {
 		return comments.toArray(new CommentData[0]);
 	}
 	
-	public static CommentData[] selectByIssue(Integer id) throws IOException {
+	public static CommentData[] selectByIssue(Long id) throws IOException {
 		if (id == null) {
 			return null;
 		}

@@ -10,7 +10,8 @@ import ru.ifmo.is.db.entity.IssueProject;
 
 public interface IssueProjectRepository extends
 		JpaRepository<IssueProject, Long> {
-	@Query(value = "select pa.* from projects_available pa where available_for_code = :username",
+	@Query(value = "select pa.* from projects_available pa " +
+			"where available_for_code = :username order by pa.name asc",
 			nativeQuery = true)
-	List<IssueProject> findAvailable(@Param("username") String username);
+	public List<IssueProject> findAvailable(@Param("username") String username);
 }

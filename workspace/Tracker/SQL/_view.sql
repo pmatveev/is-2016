@@ -93,39 +93,7 @@ select i.id issue_for,
    and i.status = sf.id
    and i.project = pf.id
    and i.active = true;
-  
-create view active_issues as  
-select i.id,
-       i.idt,
-       i.prev_issue,
-       c.username creator,
-       c.credentials creator_display,
-       a.username assignee,
-       a.credentials assignee_display,
-       k.code kind,
-       k.name kind_display,
-       s.code status,
-       s.name status_display,
-       p.code project,
-       p.name project_display,
-       i.date_created,
-       i.date_updated,
-       i.summary,
-       i.description,
-       i.resolution
-  from issue i,
-       officer c,
-       officer a,
-       issue_kind k,
-       issue_status s,
-       issue_project p
- where i.active = true
-   and c.id = i.creator
-   and a.id = i.assignee
-   and k.id = i.kind
-   and s.id = i.status
-   and p.id = i.project;  
-   
+     
 create view issue_comments as
 select f.id issue_id,
        c.date_created,

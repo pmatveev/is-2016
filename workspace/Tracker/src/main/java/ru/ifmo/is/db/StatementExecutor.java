@@ -9,8 +9,6 @@ import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.naming.NamingException;
-
 import ru.ifmo.is.manager.LogManager;
 import ru.ifmo.is.util.Context;
 import ru.ifmo.is.util.LogLevel;
@@ -43,7 +41,7 @@ public class StatementExecutor {
 					stmt.setString(i + 1, parm);
 					break;
 				case IN_INT:
-					stmt.setInt(i + 1, (Integer) a.second);
+					stmt.setLong(i + 1, (Long) a.second);
 					break;
 				case OUT_STRING:
 				case OUT_BOOL:
@@ -98,6 +96,7 @@ public class StatementExecutor {
 		return res;
 	}
 
+	@Deprecated
 	@SuppressWarnings("unchecked")
 	private <T extends DataClass> T[] selectData(Connection conn, T data, String sql,
 			Pair<SQLParmKind, Object>[] attributes) throws SQLException {
@@ -110,7 +109,7 @@ public class StatementExecutor {
 				stmt.setString(i + 1, (String) a.second);
 				break;
 			case IN_INT:
-				stmt.setInt(i + 1, (Integer) a.second);
+				stmt.setLong(i + 1, (Long) a.second);
 				break;
 			case OUT_STRING:
 			case OUT_BOOL:

@@ -64,7 +64,7 @@ public class IssueProjectTransitionData extends DataClass {
 		return transitions.toArray(new IssueProjectTransitionData[0]);
 	}
 	
-	public static IssueProjectTransitionData[] selectByIssue(Integer id, String username) throws IOException {
+	public static IssueProjectTransitionData[] selectByIssue(Long id, String username) throws IOException {
 		if (id == null || username == null) {
 			return null;
 		}

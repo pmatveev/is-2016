@@ -24,6 +24,15 @@ public class IssueProject {
 	@Column(name = "name", length = 32, nullable = false)
 	private String name;
 
+	@Column(name = "code", length = 32, nullable = false)
+	private String code;
+	
+	@Column(name = "is_active", columnDefinition = "bit", length = 1, nullable = false)
+	private boolean isActive;
+	
+	@Column(name = "counter", columnDefinition = "int", length = 18, nullable = false)
+	private long counter;
+
 	public IssueProject() {
 	}
 	
@@ -41,15 +50,6 @@ public class IssueProject {
 		this.isActive = isActive;
 		this.counter = counter;
 	}
-
-	@Column(name = "code", length = 32, nullable = false)
-	private String code;
-	
-	@Column(name = "is_active", columnDefinition = "bit", length = 1, nullable = false)
-	private boolean isActive;
-	
-	@Column(name = "counter", columnDefinition = "int", length = 18, nullable = false)
-	private long counter;
 
 	public long getId() {
 		return id;
