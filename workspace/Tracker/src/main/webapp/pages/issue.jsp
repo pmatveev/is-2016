@@ -1,3 +1,5 @@
+<%@page import="ru.ifmo.is.db.entity.Comment"%>
+<%@page import="ru.ifmo.is.db.service.CommentService"%>
 <%@page import="ru.ifmo.is.db.entity.IssueProjectTransition"%>
 <%@page import="ru.ifmo.is.db.service.IssueProjectTransitionService"%>
 <%@page import="ru.ifmo.is.db.entity.IssueStatusTransition"%>
@@ -21,7 +23,6 @@
 <%@page import="ru.ifmo.is.manager.LogManager"%>
 <%@page import="java.util.Calendar"%>
 <%@page import="java.util.Date"%>
-<%@page import="ru.ifmo.is.db.data.CommentData"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
 <!DOCTYPE html>
@@ -46,7 +47,9 @@
 			IssueService issueService = ctx.getBean(IssueService.class);
 			Issue issue = issueService.selectById(issueKey); 
 			
-			CommentData[] comments = CommentData.selectByIssue(issue == null ? null : issue.getId());
+			CommentService commentService = ctx.getBean(CommentService.class);
+			List<Comment> comments = commentService.selectByOpenedIssue(
+					issue == null ? null : issue.getId());
 			
 			IssueStatusTransitionService issueStatusTransitionService = 
 					ctx.getBean(IssueStatusTransitionService.class);
@@ -762,19 +765,19 @@
 			<div class="commentScroll">
 				<table class="commentTable">
 					<%
-						for (int i = 0; i < comments.length; i++) {
+						for (int i = 0; i < comments.size(); i++) {
 					%>
 					<tr>
-						<td class="commentTableAuthor"><%=Util.replaceHTML(comments[i].authorDisplay)%></td>
-						<td class="commentTableDate" colspan="2"><%=dateFormat.format(comments[i].dateCreated)%></td>
+						<td class="commentTableAuthor"><%=Util.replaceHTML(comments.get(i).getOfficer().getCredentials())%></td>
+						<td class="commentTableDate" colspan="2"><%=dateFormat.format(comments.get(i).getDateCreated())%></td>
 					</tr>
 					<%
-						if (!"".equals(Util.nvl(comments[i].statusTransitionDisplay))) {
+						if (comments.get(i).getStatusTransition() != null) {
 					%>
 					<tr>
 						<td class="commentTableParm">Action</td>
 						<td class="commentTableParmVal">
-							<%=Util.replaceHTML(comments[i].statusTransitionDisplay)%>
+							<%=Util.replaceHTML(comments.get(i).getStatusTransition().getName())%>
 						</td>						
 						<td class="commentTableParmVal">
 						</td>						
@@ -783,82 +786,87 @@
 						}
 					%>
 					<%
-						if (!Util.stringEquals(comments[i].before.idt, comments[i].after.idt)) {
+						if (!Util.stringEquals(comments.get(i).getBefore().getIdt(), 
+								comments.get(i).getAfter().getIdt())) {
 					%>
 					<tr>
 						<td class="commentTableParm">Identifier</td>
 						<td class="commentTableParmVal">
-							<del><%=Util.replaceHTML(comments[i].before.idt)%></del>
+							<del><%=Util.replaceHTML(comments.get(i).getBefore().getIdt())%></del>
 						</td>						
 						<td class="commentTableParmVal">
-							<%=Util.replaceHTML(comments[i].after.idt)%>
+							<%=Util.replaceHTML(comments.get(i).getAfter().getIdt())%>
 						</td>						
 					</tr>
 					<%
 						}
 					%>
 					<%
-						if (!Util.stringEquals(comments[i].before.projectDisplay, comments[i].after.projectDisplay)) {
+						if (!Util.stringEquals(comments.get(i).getBefore().getProject().getName(), 
+								comments.get(i).getAfter().getProject().getName())) {
 					%>
 					<tr>
 						<td class="commentTableParm">Project</td>
 						<td class="commentTableParmVal">
-							<del><%=Util.replaceHTML(comments[i].before.projectDisplay)%></del>
+							<del><%=Util.replaceHTML(comments.get(i).getBefore().getProject().getName())%></del>
 						</td>						
 						<td class="commentTableParmVal">
-							<%=Util.replaceHTML(comments[i].after.projectDisplay)%>
+							<%=Util.replaceHTML(comments.get(i).getAfter().getProject().getName())%>
 						</td>						
 					</tr>
 					<%
 						}
 					%>
 					<%
-						if (!Util.stringEquals(comments[i].before.kindDisplay, comments[i].after.kindDisplay)) {
+						if (!Util.stringEquals(comments.get(i).getBefore().getKind().getName(), 
+								comments.get(i).getAfter().getKind().getName())) {
 					%>
 					<tr>
 						<td class="commentTableParm">Issue type</td>
 						<td class="commentTableParmVal">
-							<del><%=Util.replaceHTML(comments[i].before.kindDisplay)%></del>
+							<del><%=Util.replaceHTML(comments.get(i).getBefore().getKind().getName())%></del>
 						</td>						
 						<td class="commentTableParmVal">
-							<%=Util.replaceHTML(comments[i].after.kindDisplay)%>
+							<%=Util.replaceHTML(comments.get(i).getAfter().getKind().getName())%>
 						</td>						
 					</tr>
 					<%
 						}
 					%>
 					<%
-						if (!Util.stringEquals(comments[i].before.statusDisplay, comments[i].after.statusDisplay)) {
+						if (!Util.stringEquals(comments.get(i).getBefore().getStatus().getName(), 
+								comments.get(i).getAfter().getStatus().getName())) {
 					%>
 					<tr>
 						<td class="commentTableParm">Issue status</td>
 						<td class="commentTableParmVal">
-							<del><%=Util.replaceHTML(comments[i].before.statusDisplay)%></del>
+							<del><%=Util.replaceHTML(comments.get(i).getBefore().getStatus().getName())%></del>
 						</td>						
 						<td class="commentTableParmVal">
-							<%=Util.replaceHTML(comments[i].after.statusDisplay)%>
+							<%=Util.replaceHTML(comments.get(i).getAfter().getStatus().getName())%>
 						</td>						
 					</tr>
 					<%
 						}
 					%>
 					<%
-						if (!Util.stringEquals(comments[i].before.assigneeDisplay, comments[i].after.assigneeDisplay)) {
+						if (!Util.stringEquals(comments.get(i).getBefore().getAssignee().getCredentials(), 
+								comments.get(i).getAfter().getAssignee().getCredentials())) {
 					%>
 					<tr>
 						<td class="commentTableParm">Assignee</td>
 						<td class="commentTableParmVal">
-							<del><%=Util.replaceHTML(comments[i].before.assigneeDisplay)%></del>
+							<del><%=Util.replaceHTML(comments.get(i).getBefore().getAssignee().getCredentials())%></del>
 						</td>						
 						<td class="commentTableParmVal">
-							<%=Util.replaceHTML(comments[i].after.assigneeDisplay)%>
+							<%=Util.replaceHTML(comments.get(i).getAfter().getAssignee().getCredentials())%>
 						</td>						
 					</tr>
 					<%
 						}
 					%>
 					<tr>
-						<td class="commentTableText" colspan="3"><%=Util.replaceHTML(comments[i].text)%><hr></td>
+						<td class="commentTableText" colspan="3"><%=Util.replaceHTML(comments.get(i).getSummary())%><hr></td>
 					</tr>
 					<%
 						}
@@ -890,7 +898,6 @@
 				}
 			%>
 		</div>
-
 	</div>
 </body>
 </html>

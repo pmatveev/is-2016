@@ -95,13 +95,13 @@ public class IssueServlet extends HttpServlet {
 		
 		try {
 			res = new StatementExecutor().call(
-					"? = call new_issue(?, ?, ?, ?, ?)", 
-					new Pair<SQLParmKind, Object>(SQLParmKind.OUT_STRING, Types.VARCHAR),
+					"call new_issue(?, ?, ?, ?, ?, ?)",
 					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, creator),
 					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, project),
 					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, kind),
 					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, summary),
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, description));
+					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, description), 
+					new Pair<SQLParmKind, Object>(SQLParmKind.OUT_STRING, Types.VARCHAR));
 		} catch (IOException e) {
 			LogManager.log(e);
 			createIssueReturn(request, response, "Service failed: " + e.getMessage());

@@ -48,7 +48,9 @@ select i.id issue_for,
        issue i
  where str.id = tr.status_transition_id
    and o.id = tr.officer_id
-   and i.active = true;
+   and i.active = true
+   and str.issue_project__id = i.project
+   and str.status_from = i.status;
    
 create view issue_project_transitions_available as
 select i.id issue_for,
@@ -62,7 +64,9 @@ select i.id issue_for,
        issue i
  where ptr.id = tr.project_transition_id
    and o.id = tr.officer_id
-   and i.active = true;
+   and i.active = true
+   and ptr.project_from = i.project
+   and ptr.status_from = i.status;
      
 create view issue_comments as
 select i.id issue_id,
