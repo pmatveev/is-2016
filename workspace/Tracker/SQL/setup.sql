@@ -1,3 +1,5 @@
+delimiter $$
+
 create function add_status (
 	p_code varchar(32),
 	p_name varchar(32)

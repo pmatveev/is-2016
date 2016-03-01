@@ -1,3 +1,5 @@
+delimiter $$
+
 create procedure new_issue(
 	p_creator varchar(32),
 	p_project varchar(32),

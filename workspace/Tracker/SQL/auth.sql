@@ -1,3 +1,5 @@
+delimiter $$
+
 create function authenticate (
 	p_user varchar(32),
 	p_pass varchar(32),
