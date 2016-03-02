@@ -9,6 +9,8 @@ if "%3" == "show" (
 echo recreating tables...
 mysql --user=%user% --password=%password% mysql < _tables.sql
 if %errorlevel% gtr 0 goto error
+mysql --user=%user% --password=%password% pathfinder < _fact.sql
+if %errorlevel% gtr 0 goto error
 echo tables OK
 
 echo creating views
