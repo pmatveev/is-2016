@@ -9,8 +9,8 @@ import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 
+import ru.ifmo.is.db.util.Context;
 import ru.ifmo.is.manager.LogManager;
-import ru.ifmo.is.util.Context;
 import ru.ifmo.is.util.LogLevel;
 import ru.ifmo.is.util.Pair;
 import ru.ifmo.is.util.SQLParmKind;

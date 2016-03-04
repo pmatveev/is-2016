@@ -8,7 +8,7 @@
 <%@page import="ru.ifmo.is.db.entity.IssueKind"%>
 <%@page import="java.util.List"%>
 <%@page import="ru.ifmo.is.db.service.IssueKindService"%>
-<%@page import="ru.ifmo.is.util.Context"%>
+<%@page import="ru.ifmo.is.db.util.Context"%>
 <%@page import="org.springframework.context.ApplicationContext"%>
 <%@page import="ru.ifmo.is.util.Util"%>
 <%@page import="java.net.URLEncoder"%>

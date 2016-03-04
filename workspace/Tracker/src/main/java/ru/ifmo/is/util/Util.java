@@ -1,6 +1,26 @@
 package ru.ifmo.is.util;
 
+import java.io.IOException;
+import java.util.Properties;
+
+
 public class Util {
+	private static final String icCube;
+	private static final String icCubeMainReport;
+	
+	static {
+		Properties p = new Properties();
+		try {
+			p.load(Thread.currentThread().getContextClassLoader()
+					.getResourceAsStream("app.ini"));
+			icCube = p.getProperty("iccube.url");
+			icCubeMainReport = p.getProperty("iccube.mainreport");
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+	}
+	
 	public static String nvl(String a) {
 		return a == null ? "" : a;
 	}
@@ -34,5 +54,13 @@ public class Util {
 			return false;
 		}
 		return s1.equals(s2);
+	}
+	
+	public static String getIcCube() {
+		return icCube;
+	}
+	
+	public static String getIcCubeMainReport() {
+		return icCubeMainReport;
 	}
 }

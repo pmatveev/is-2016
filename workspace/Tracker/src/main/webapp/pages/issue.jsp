@@ -11,10 +11,10 @@
 <%@page import="ru.ifmo.is.db.entity.IssueKind"%>
 <%@page import="java.util.List"%>
 <%@page import="ru.ifmo.is.db.service.IssueKindService"%>
-<%@page import="ru.ifmo.is.util.Context"%>
+<%@page import="ru.ifmo.is.db.util.Context"%>
 <%@page import="org.springframework.context.ApplicationContext"%>
 <%@page import="java.net.URLEncoder"%>
-<%@page import="ru.ifmo.is.util.Util"%>
+<%@page import="ru.ifmo.is.util.Util"%> 
 <%@page import="java.util.HashSet"%>
 <%@page import="java.util.Set"%>
 <%@page import="ru.ifmo.is.servlet.IssueServlet"%>
@@ -38,7 +38,6 @@
 		LogManager.log("GET issue.jsp", request);
 		
 			String returnTo = request.getRequestURI() + "?" + Util.nvl(request.getQueryString());
-			String searchReturnURL = IssueServlet.getReturnAddress(request);
 			SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMMM d yyyy, HH:mm:ss", Locale.ENGLISH);
 			String issueKey = (String) request.getParameter(IssueServlet.ISSUE_GET_KEY_PARM);
 		
@@ -81,7 +80,7 @@
 		Issue having key
 		<%=Util.replaceHTML(issueKey)%>
 		not found. You may continue with search on the <a
-			href="<%=Util.replaceStr(searchReturnURL)%>">main page</a>.
+			href="<%=Util.replaceStr(returnURL)%>">main page</a>.
 	</div>
 	<%
 		} else {
@@ -676,7 +675,7 @@
 	</script>
 	<div>
 		<div class="linkToEdit">
-			<a href="<%=searchReturnURL%>">Back to search</a>
+			<a href="<%=returnURL%>">Back to search</a>
 		</div>
 		<div>
 			<p class="issueName">

@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<schemaFactory revisionNumber="163">
+    <schemaDefinition name="Pathfinder" group="Default Group" loadOnStartup="false">
+        <activateIncrementalLoad>false</activateIncrementalLoad>
+        <useUnknownMembersInFacts>true</useUnknownMembersInFacts>
+        <autoCleanUpTableColumns>false</autoCleanUpTableColumns>
+        <useFactPartitioning>false</useFactPartitioning>
+        <jdbcDS driverType="MYSQL" serverName="localhost" portNumber="3306" dbName="pathfinder" user="pathfinder" dontAddQuotes="false" password="☂++uKbnBhqnQLlbfmIDDV1w==" name="Pathfinder">
+            <jdbcDatatable fetchSize="1000" tableName="issue_kind" rowLimit="-1" id="979ee253-2792-4ce9-be50-ae1d3092588e">
+                <column name="ID" tableType="INTEGER" type="INTEGER" selected="true" primaryKey="true"/>
+                <column name="NAME" tableType="VARCHAR(32)" type="STRING" selected="true" primaryKey="false"/>
+                <column name="CODE" tableType="VARCHAR(32)" type="STRING" selected="true" primaryKey="false"/>
+            </jdbcDatatable>
+            <jdbcDatatable fetchSize="1000" tableName="issue_project" rowLimit="-1" id="cf81503d-2d18-425c-87d3-41ac4a37ab36">
+                <column name="ID" tableType="INTEGER" type="INTEGER" selected="true" primaryKey="true"/>
+                <column name="START_STATUS" tableType="INTEGER" type="INTEGER" selected="true" primaryKey="false"/>
+                <column name="OWNER" tableType="INTEGER" type="INTEGER" selected="true" primaryKey="false"/>
+                <column name="CODE" tableType="VARCHAR(32)" type="STRING" selected="true" primaryKey="false"/>
+                <column name="NAME" tableType="VARCHAR(32)" type="STRING" selected="true" primaryKey="false"/>
+                <column name="IS_ACTIVE" tableType="BIT" type="BOOLEAN" selected="true" primaryKey="false"/>
+                <column name="COUNTER" tableType="INTEGER" type="INTEGER" selected="true" primaryKey="false"/>
+            </jdbcDatatable>
+            <jdbcDatatable fetchSize="1000" tableName="issue_status" rowLimit="-1" id="766b6f49-cbf3-46a4-92e7-61f4684fd526">
+                <column name="ID" tableType="INTEGER" type="INTEGER" selected="true" primaryKey="true"/>
+                <column name="NAME" tableType="VARCHAR(32)" type="STRING" selected="true" primaryKey="false"/>
+                <column name="CODE" tableType="VARCHAR(32)" type="STRING" selected="true" primaryKey="false"/>
+            </jdbcDatatable>
+            <jdbcStatement fetchSize="1000" tableName="Officer" rowLimit="-1" id="aa18dfe6-f1a4-4ea5-9645-58cf93383bf0">
+                <column name="id" tableType="INTEGER" type="INTEGER" selected="true" primaryKey="false"/>
+                <column name="group_name" tableType="VARCHAR(32)" type="STRING" selected="true" primaryKey="false"/>
+                <column name="name" tableType="VARCHAR(255)" type="STRING" selected="true" primaryKey="false"/>
+                <sqlStatement>select o.id, g.name group_name, o.credentials name from officer o, officer_group g where o.officer_group__id = g.id </sqlStatement>
+            </jdbcStatement>
+            <jdbcStatement fetchSize="1000" tableName="Issue" rowLimit="-1" id="1a989ce6-ce76-4fab-8c2b-e1417b3534f1">
+                <column name="ID" tableType="INTEGER" type="INTEGER" selected="true" primaryKey="false"/>
+                <column name="IDT" tableType="VARCHAR(32)" type="STRING" selected="true" primaryKey="false"/>
+                <column name="ACTIVE" tableType="BIT" type="BOOLEAN" selected="true" primaryKey="false"/>
+                <column name="CREATOR" tableType="INTEGER" type="INTEGER" selected="true" primaryKey="false"/>
+                <column name="ASSIGNEE" tableType="INTEGER" type="INTEGER" selected="true" primaryKey="false"/>
+                <column name="KIND" tableType="INTEGER" type="INTEGER" selected="true" primaryKey="false"/>
+                <column name="STATUS" tableType="INTEGER" type="INTEGER" selected="true" primaryKey="false"/>
+                <column name="PROJECT" tableType="INTEGER" type="INTEGER" selected="true" primaryKey="false"/>
+                <column name="PREV_ISSUE" tableType="INTEGER" type="INTEGER" selected="true" primaryKey="false"/>
+                <column name="DATE_CREATED" tableType="TIMESTAMP" type="DATETIME" selected="true" primaryKey="false"/>
+                <column name="DATE_UPDATED" tableType="TIMESTAMP" type="DATETIME" selected="true" primaryKey="false"/>
+                <column name="SUMMARY" tableType="VARCHAR(255)" type="STRING" selected="true" primaryKey="false"/>
+                <column name="DESCRIPTION" tableType="VARCHAR(4000)" type="STRING" selected="true" primaryKey="false"/>
+                <column name="RESOLUTION" tableType="VARCHAR(4000)" type="STRING" selected="true" primaryKey="false"/>
+                <sqlStatement>select i.*
+from issue i where i.active = true </sqlStatement>
+            </jdbcStatement>
+        </jdbcDS>
+        <multiLevelDimension dataTableId="766b6f49-cbf3-46a4-92e7-61f4684fd526" isTimeDimension="false" isDefaultTimeDimension="false" isIndexingByRange="false" unknownMemberName="" id="4eadf91e-be39-4a2b-b361-0eb862a74bab" name="Issue status">
+            <multiLevelHierarchy hasAllLevel="true" allLevelName="All" allMemberName="All" name="Issue status" isDefault="true" defaultMemberName="">
+                <factAggregationType>MEMBER_AND_ANCESTORS</factAggregationType>
+                <level name="Issue status" nameUnique="true" nameUniqueInParent="false" keyUnique="true" ignoreNameCollision="false">
+                    <column name="ID"/>
+                    <nameCol name="NAME"/>
+                    <orderType>NONE</orderType>
+                    <orderKind>ASC</orderKind>
+                </level>
+            </multiLevelHierarchy>
+        </multiLevelDimension>
+        <multiLevelDimension dataTableId="aa18dfe6-f1a4-4ea5-9645-58cf93383bf0" isTimeDimension="false" isDefaultTimeDimension="false" isIndexingByRange="false" unknownMemberName="" id="11ad918f-43f9-47de-9792-aaa0221a0dd6" name="Officer">
+            <multiLevelHierarchy hasAllLevel="true" allLevelName="All Groups Level" allMemberName="All Groups" name="Assignee" isDefault="true" defaultMemberName="">
+                <factAggregationType>MEMBER_AND_ANCESTORS</factAggregationType>
+                <level name="Group" nameUnique="true" nameUniqueInParent="false" keyUnique="true" ignoreNameCollision="false">
+                    <column name="group_name"/>
+                    <nameCol name="group_name"/>
+                    <orderType>BY_NAME</orderType>
+                    <orderKind>ASC</orderKind>
+                </level>
+                <level name="Officer" nameUnique="true" nameUniqueInParent="false" keyUnique="true" ignoreNameCollision="false">
+                    <column name="id"/>
+                    <nameCol name="name"/>
+                    <orderType>NONE</orderType>
+                    <orderKind>ASC</orderKind>
+                </level>
+            </multiLevelHierarchy>
+        </multiLevelDimension>
+        <timeWizardDimension isDefaultTimeDimension="false" isIndexingByRange="false" from="2015-01-01T00:00:00.000" to="2020-01-01T00:00:00.000" unknownMemberName="" id="390ce50d-17d7-4c52-b41e-d86e5f58b962" name="Time">
+            <timeHierarchy hasAllLevel="true" allLevelName="All-L" allMemberName="All Periods" name="Time" isDefault="true" defaultMemberName="">
+                <factAggregationType>MEMBER_AND_ANCESTORS</factAggregationType>
+                <level name="Year" type="YEAR">
+                    <useRelativeKey>false</useRelativeKey>
+                </level>
+                <level name="Month" type="MONTH" nameFormat="">
+                    <useRelativeKey>false</useRelativeKey>
+                </level>
+                <level name="Day" type="DAY_MONTH" nameFormat="">
+                    <useRelativeKey>false</useRelativeKey>
+                </level>
+            </timeHierarchy>
+        </timeWizardDimension>
+        <multiLevelDimension dataTableId="979ee253-2792-4ce9-be50-ae1d3092588e" isTimeDimension="false" isDefaultTimeDimension="false" isIndexingByRange="false" unknownMemberName="" id="9b240850-bd05-4743-9415-cea1fdc8c6ff" name="Issue Kind">
+            <multiLevelHierarchy hasAllLevel="true" allLevelName="All" allMemberName="All" name="Issue Kind" isDefault="true" defaultMemberName="">
+                <factAggregationType>MEMBER_AND_ANCESTORS</factAggregationType>
+                <level name="Issue Kind" nameUnique="true" nameUniqueInParent="false" keyUnique="true" ignoreNameCollision="false">
+                    <column name="ID"/>
+                    <nameCol name="NAME"/>
+                    <orderType>NONE</orderType>
+                    <orderKind>ASC</orderKind>
+                </level>
+            </multiLevelHierarchy>
+        </multiLevelDimension>
+        <cube id="186bdf96-e3b5-448a-b714-6861a24e355a" name="Issue" description="">
+            <defaultFacts measureGroupName="Issue Fact" partitioningLevelName="" partitioningType="NONE" newGeneration="true" dataTableId="1a989ce6-ce76-4fab-8c2b-e1417b3534f1" aggregateDataSourceFacts="false" unresolvedRowsBehavior="ERROR">
+                <rowFactAggregationType>ADD_ROW</rowFactAggregationType>
+                <measure name="Count" aggregationType="COUNT">
+                    <rollupHierarchy></rollupHierarchy>
+                    <dataColumn name="ID"/>
+                    <cellProperties></cellProperties>
+                    <emptyIsZero>true</emptyIsZero>
+                </measure>
+                <links dimensionId="9b240850-bd05-4743-9415-cea1fdc8c6ff">
+                    <viewLinks type="LAST_LEVEL">
+                        <toColumns name="KIND"/>
+                    </viewLinks>
+                </links>
+                <links dimensionId="4eadf91e-be39-4a2b-b361-0eb862a74bab">
+                    <viewLinks type="LAST_LEVEL">
+                        <toColumns name="STATUS"/>
+                    </viewLinks>
+                </links>
+                <links dimensionId="11ad918f-43f9-47de-9792-aaa0221a0dd6">
+                    <viewLinks type="OLD_GENERATION">
+                        <fromColumns name="id"/>
+                        <toColumns name="ASSIGNEE"/>
+                    </viewLinks>
+                </links>
+                <links dimensionId="390ce50d-17d7-4c52-b41e-d86e5f58b962">
+                    <viewLinks type="LAST_LEVEL">
+                        <toColumns name="DATE_CREATED"/>
+                    </viewLinks>
+                </links>
+            </defaultFacts>
+        </cube>
+        <localization enabled="false"/>
+        <script>
+            <content>-- 
+-- Automatically migrated from an old XML file definition format (v2.0.4 or before) 
+-- 
+
+-- 
+-- Drop all calc. members, sets and functions declared at schema/cube levels 
+-- 
+
+DROP *
+
+
+-- 
+-- Functions 
+-- 
+
+-- 
+-- Sets 
+-- 
+
+-- 
+-- Calculated Measures/Members 
+-- 
+
+</content>
+        </script>
+    </schemaDefinition>
+</schemaFactory>

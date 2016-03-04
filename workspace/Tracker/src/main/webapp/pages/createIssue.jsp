@@ -2,7 +2,7 @@
 <%@page import="ru.ifmo.is.db.service.IssueProjectService"%>
 <%@page import="java.util.List"%>
 <%@page import="ru.ifmo.is.db.service.IssueKindService"%>
-<%@page import="ru.ifmo.is.util.Context"%>
+<%@page import="ru.ifmo.is.db.util.Context"%>
 <%@page import="org.springframework.context.ApplicationContext"%>
 <%@page import="ru.ifmo.is.db.entity.IssueKind"%>
 <%@page import="ru.ifmo.is.util.Util"%>
@@ -20,8 +20,7 @@
 <body onload="init()">
 	<%@ include file="logout.jsp"%>
 	<%
-		LogManager.log("GET createIssue.jsp", request);
-		String searchReturnURL = IssueServlet.getReturnAddress(request);
+		LogManager.log("GET createIssue.jsp", request); 
 			
 		ApplicationContext ctx = Context.getContext();
 		
@@ -214,7 +213,7 @@
 			<div class="issueCommitButtons" id="issueCommitButtonsDiv">
 				<input type="submit" class="buttonFixed"
 					name="<%=IssueServlet.ISSUE_CREATE_WEBSERVICE%>" value="Create"></input>
-				<button type="button" class="cancelButtonFixed" onclick="parent.location = '<%=IssueServlet.getReturnAddress(request)%>'">Cancel</button>
+				<button type="button" class="cancelButtonFixed" onclick="parent.location = '<%=returnURL%>'">Cancel</button>
 			</div>
 		</form>
 	</div>

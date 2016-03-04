@@ -1,4 +1,4 @@
-package ru.ifmo.is.util;
+package ru.ifmo.is.db.util;
 
 import java.sql.Connection;
 import java.sql.SQLException;
