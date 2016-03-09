@@ -4,8 +4,8 @@
 <%@page import="ru.ifmo.is.util.Pair"%>
 <%@page import="ru.ifmo.is.manager.AuthenticationManager"%>
 <%@page import="ru.ifmo.is.servlet.LoginServlet"%>
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-	pageEncoding="ISO-8859-1"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
 <div class="headerLeft">	
 	<a target="_blank" href="/Tracker/pages/report.jsp">Reporting</a>
 </div>

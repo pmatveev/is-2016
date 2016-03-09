@@ -12,10 +12,11 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import ru.ifmo.is.db.config.DataConfig;
 
 public class Context {
-	private static final ApplicationContext context = new AnnotationConfigApplicationContext(DataConfig.class);
+	private static final ApplicationContext context;
 	
 	static {
 		try {
+			context = new AnnotationConfigApplicationContext(DataConfig.class);
 		} catch (Throwable e) {         
            // Log the exception. 
             System.err.println("Initial ApplicationContext creation failed");
