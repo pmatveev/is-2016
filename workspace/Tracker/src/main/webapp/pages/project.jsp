@@ -86,8 +86,10 @@
 			myAdjustVertices(cellView);
 		}
 		var myPointerUp = _.partial(onPointerUp, graph);
-		
 		paper.on('cell:pointerup', myPointerUp);	
+		
+		var myPointerDbl = _.partial(selfConnect, graph);
+		paper.on('cell:pointerdblclick', myPointerDbl);
 	
 	    graph.fromJSON(JSON.parse('<%=json%>'));
 		
