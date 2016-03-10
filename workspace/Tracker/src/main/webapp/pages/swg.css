@@ -5,3 +5,7 @@
 .Rect text {
 	fill: white;	
 }
+
+.Circle circle {
+	fill: green;
+}

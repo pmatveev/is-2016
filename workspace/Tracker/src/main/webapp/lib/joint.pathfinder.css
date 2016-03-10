@@ -1,0 +1,86 @@
+body {
+	margin: 0px;
+}
+#wfdiv {
+   position: relative;
+   border: 1px solid gray;
+   display: inline-block;
+   background: transparent;
+   overflow: hidden;
+}
+#wfdiv svg {
+   background: transparent;
+}
+.editableElementDiv {
+   position: absolute;
+   background: gray;
+   border-radius: 3px;
+   /* Make sure events are propagated to the JointJS element so, e.g. dragging works.*/
+   pointer-events: none;
+   -webkit-user-select: none;
+}
+
+.editableElementDiv input,
+.editableElementDiv button {
+   /* Enable interacting with inputs only. */
+   pointer-events: auto;   
+}
+.editableElementDiv button.delete {
+   color: white;
+   border: none;
+   background-color: #C0392B;
+   border-radius: 20px;
+   width: 15px;
+   height: 15px;
+   line-height: 15px;
+   text-align: middle;
+   position: absolute;
+   top: -15px;
+   left: -15px;
+   padding: 0;
+   margin: 0;
+   font-weight: bold;
+   cursor: pointer;
+}
+.editableElementDiv button.delete:hover {
+   width: 20px;
+   height: 20px;
+   line-height: 20px;
+}
+.editableElementDiv input.editCaption {
+   position: relative;
+   margin-left: 5%;
+   margin-right: 2.5%;
+   width: 50%;
+   margin-bottom: 5px;
+   border: none;
+   color: #333;
+}
+
+.editableElementDiv button.editEnable {
+   position: relative;
+   margin-left: 25%;
+   margin-right: 25%;
+   width: 50%;
+   margin-bottom: 5px;
+   border: none;
+}
+
+.editableElementDiv button.editDone {
+   position: relative;
+   margin-left: 2.5%;
+   margin-right: 5%;
+   width: 35%;
+   margin-bottom: 5px;
+   border: none;
+}
+.editableElementDiv label {
+   color: white;
+   font-weight: bold;
+}
+.elementLabel {
+	text-align: center;
+}
+.editLabel {
+	margin-top: 10px;
+}
