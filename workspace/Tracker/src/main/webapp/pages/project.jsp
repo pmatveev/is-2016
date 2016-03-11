@@ -39,12 +39,12 @@
 		List<Label> labelsStart = new LinkedList<Label>();
 		labelsStart.add(new Label(0.5f, new Attributes(labelTextStart, null)));
 		
-		Element start = Element.createCell("__START", "pathfinder.StartObj", new Position(125, 50), null);
-		Element cell1 = Element.createCell("OPEN", "pathfinder.EditableStatus", new Position(100, 150), "Open");
-		Element cell2 = Element.createCell("CLOSE", "pathfinder.EditableStatus", new Position(100, 250), "Closed");
-		Element startLink = Element.createLink("__START_OPEN", new LinkCell("__START"), new LinkCell("OPEN"), labelsStart);
-		Element link1 = Element.createLink("OPEN_CLOSE", new LinkCell("OPEN"), new LinkCell("CLOSE"), labels1);
-		Element link2 = Element.createLink("CLOSE_OPEN", new LinkCell("CLOSE"), new LinkCell("OPEN"), labels2);
+		Element start = Element.createCell("__START", "__START", "pathfinder.StartObj", new Position(125, 50), null);
+		Element cell1 = Element.createCell("OPEN", "OPEN", "pathfinder.EditableStatus", new Position(100, 150), "Open");
+		Element cell2 = Element.createCell("CLOSE", "CLOSE", "pathfinder.EditableStatus", new Position(100, 250), "Closed");
+		Element startLink = Element.createLink("__START_OPEN", "__START_OPEN", new LinkCell("__START", "__START"), new LinkCell("OPEN", "OPEN"), labelsStart);
+		Element link1 = Element.createLink("OPEN_CLOSE", "OPEN_CLOSE", new LinkCell("OPEN", "OPEN"), new LinkCell("CLOSE", "CLOSE"), labels1);
+		Element link2 = Element.createLink("CLOSE_OPEN", "CLOSE_OPEN", new LinkCell("CLOSE", "CLOSE"), new LinkCell("OPEN", "OPEN"), labels2);
 		
 		g.getCells().add(start);
 		g.getCells().add(cell1);
@@ -75,24 +75,8 @@
 		        gridSize: 1
 		    });
 		    
-			var myAdjustVertices = _.partial(adjustVertices, graph);
-	
-			// adjust vertices when a cell is removed or its source/target was changed
-			graph.on('add remove change:source change:target', myAdjustVertices);
-	
-			// also when an user stops interacting with an element.
-			paper.on('cell:pointerdown', saveXY);
-			
-			var onPointerUp = function(graph, cellView, evt, x, y) {
-				connectByDrop(graph, cellView, evt, x, y);
-				myAdjustVertices(cellView);
-			}
-			var myPointerUp = _.partial(onPointerUp, graph);
-			paper.on('cell:pointerup', myPointerUp);	
-			
-			var myPointerDbl = _.partial(selfConnect, graph);
-			paper.on('cell:pointerdblclick', myPointerDbl);
-		
+		    addListeners(graph);
+		    
 		    graph.fromJSON(JSON.parse('<%=json%>'));
 			
 			var cells = graph.getElements();

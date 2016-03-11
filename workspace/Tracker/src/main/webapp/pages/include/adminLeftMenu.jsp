@@ -9,6 +9,7 @@
 		} else {
 			div.style.display = 'none';
 		}
+		return false;
 	}
 
 	function resizeDiv() {

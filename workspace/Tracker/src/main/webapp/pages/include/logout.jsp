@@ -19,9 +19,13 @@
 	String returnURL = LoginServlet.getReturnAddress(request);
 %>
 <div class="headerLeft">	
-	<a target="_blank" href="/Tracker/pages/report.jsp">Reporting</a>
+	<div class="headerLeftLink">
+		<a target="_blank" href="/Tracker/pages/report.jsp">Reporting</a>
+	</div>
 	<% if (Boolean.TRUE.equals(request.getAttribute(LoginServlet.LOGIN_AUTH_USER_ADMIN))) { %>
-	<a href="/Tracker/pages/adminHome.jsp?<%=LoginServlet.RETURN_URL%>=<%=returnToStr%>">Admin tools</a>
+	<div class="headerLeftLink">
+		<a href="/Tracker/pages/adminHome.jsp?<%=LoginServlet.RETURN_URL%>=<%=returnToStr%>">Admin tools</a>
+	</div>
 	<% } %>
 </div>
 <div class="headerRight">

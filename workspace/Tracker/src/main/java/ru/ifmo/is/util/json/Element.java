@@ -6,6 +6,7 @@ import java.util.List;
 public class Element {
 	// common
 	private String id;
+	private String idt;
 	private String type;
 
 	// cell
@@ -19,6 +20,10 @@ public class Element {
 
 	public String getId() {
 		return id;
+	}
+
+	public String getIdt() {
+		return idt;
 	}
 
 	public String getType() {
@@ -47,6 +52,10 @@ public class Element {
 
 	public void setId(String id) {
 		this.id = id;
+	}
+
+	public void setIdt(String idt) {
+		this.idt = idt;
 	}
 
 	public void setType(String type) {
@@ -78,11 +87,13 @@ public class Element {
 
 	public static Element createCell(
 			String id, 
+			String idt,
 			String type, 
 			Position position, 
 			String text) {
 		return new Element(
 				id,
+				idt,
 				type,
 				position,
 				text,
@@ -93,11 +104,13 @@ public class Element {
 	
 	public static Element createLink(
 			String id, 
+			String idt,
 			LinkCell source, 
 			LinkCell target,
 			List<Label> labels) {
 		return new Element(
 				id,
+				idt,
 				"pathfinder.Link",
 				null,
 				null,
@@ -108,6 +121,7 @@ public class Element {
 	
 	private Element(
 			String id, 
+			String idt,
 			String type, 
 			Position position, 
 			String text,
@@ -115,6 +129,7 @@ public class Element {
 			LinkCell target,
 			List<Label> labels) {
 		this.id = id;
+		this.idt = idt;
 		this.type = type;
 		this.position = position;
 		this.text = text;

@@ -1,3 +1,20 @@
+function editLink(cell) {
+	if (!cell.isLink) return;
+	if (typeof cell.get('source').id == 'undefined' || typeof cell.get('target').id == 'undefined') return;
+
+	var source = cell.graph.getCell(cell.get('source').id);
+	var target = cell.graph.getCell(cell.get('target').id);
+
+	cell.get('source').idt = source.get('idt');
+	cell.get('target').idt = target.get('idt');
+	
+	cell.set('idt', source.get('idt') + '_' + target.get('idt'));	
+
+	cell.set('vertices', []);
+	callAdjust(cell.graph, source);
+	callAdjust(cell.graph, target);
+}
+
 function callAdjust(graph, cell) {
 	var links = graph.getConnectedLinks(cell);
 	var adjusted = {};
@@ -51,7 +68,6 @@ function adjustVertices(graph, cell) {
 
 	case 1:
 		// There is only one link between the source and target. No vertices needed.
-		cell.unset('vertices');
 		break;
 
 	default:
@@ -130,7 +146,22 @@ joint.shapes.pathfinder.EditableStatusView = joint.dia.ElementView.extend({
 		
 		// store inputed value in model
 		this.$box.find('.editDone').on('click', _.bind(function(evt) {
-			this.model.set('text', this.$box.find('.editCaption').val());
+			var newText = this.$box.find('.editCaption').val();
+			var newIdt = newText.toUpperCase().replace(/\ /g, "_");
+			
+			this.model.set('text', newText);
+			this.model.set('idt', newIdt);
+			
+			var links = this.model.graph.getConnectedLinks(this.model);
+			for (var i in links) {
+				if (links[i].get('source').id === this.model.id) {
+					links[i].get('source').idt = newIdt;
+				}
+				if (links[i].get('target').id === this.model.id) {
+					links[i].get('target').idt = newIdt;
+				}
+				links[i].set('idt', links[i].get('source').idt + "_" + links[i].get('target').idt);
+			}
 			
 			this.$box.find('.editEnable').show();
 			this.$box.find('.editCaption').hide();
@@ -318,15 +349,18 @@ function connectByDrop(graph, cellView, evt, x, y) {
     	var connId = null;
     	while (connName == null) {
     		connName = window.prompt("Enter connection name", "");
-    		if (connName != null) {
-    			connId = cellView.model.id + "_" + elementBelow.id + "_" + name.toUpperCase().replace(/\ /g, "_");
-    		}
     	}
     	
         graph.addCell(new joint.shapes.pathfinder.Link({
-        	id : connId,
-            source: { id: cellView.model.id }, 
-            target: { id: elementBelow.id },
+        	idt: cellView.model.get('idt') + "_" + elementBelow.get('idt'),
+            source: { 
+            	id: cellView.model.id,
+            	idt: cellView.model.get('idt')
+            }, 
+            target: { 
+            	id: elementBelow.id, 
+            	idt: elementBelow.get('idt')
+            },
             labels: [{
             	position: 0.5,
             	attrs: {
@@ -371,6 +405,7 @@ function selfConnect(graph, cellView, evt, x, y) {
     	var box = cellView.model.getBBox();
         graph.addCell(new joint.shapes.pathfinder.SelfLinkObj({
         	id: selfId,
+        	idt: selfId,
         	text: connName,
         	position: {
         		x: box.x + box.width + 50,
@@ -379,15 +414,47 @@ function selfConnect(graph, cellView, evt, x, y) {
         }));
         
         graph.addCell(new joint.shapes.pathfinder.Link({
-        	id : "SELF_" + cellView.model.id + "_" + selfId,
-            source: { id: cellView.model.id }, 
-            target: { id: selfId }
+            source: { 
+            	id: cellView.model.id,
+            	idt: cellView.model.get('idt')
+            }, 
+            target: { 
+            	id: selfId,
+            	idt: selfId
+            }
         }));
         
         graph.addCell(new joint.shapes.pathfinder.Link({
-        	id : "SELF_" + selfId + "_" + cellView.model.id,
-            source: { id: selfId }, 
-            target: { id: cellView.model.id }
+            source: { 
+            	id: selfId,
+            	idt: selfId
+            }, 
+            target: { 
+            	id: cellView.model.id,
+            	idt: cellView.model.get('idt')
+            }
         }));
     }
+}
+
+function addListeners(graph) {
+	var myAdjustVertices = _.partial(adjustVertices, graph);
+	
+	// adjust vertices when a cell is removed 
+	graph.on('add remove', myAdjustVertices);
+
+	graph.on('change:source change:target', editLink);
+	
+	// also when an user stops interacting with an element.
+	paper.on('cell:pointerdown', saveXY);
+	
+	var onPointerUp = function(graph, cellView, evt, x, y) {
+		connectByDrop(graph, cellView, evt, x, y);
+		myAdjustVertices(cellView);
+	}
+	var myPointerUp = _.partial(onPointerUp, graph);
+	paper.on('cell:pointerup', myPointerUp);	
+	
+	var myPointerDbl = _.partial(selfConnect, graph);
+	paper.on('cell:pointerdblclick', myPointerDbl);
 }

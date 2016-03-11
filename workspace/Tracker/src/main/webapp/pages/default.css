@@ -42,14 +42,22 @@ h4 {
 
 .headerLeft {
 	text-align: left;
+	margin-top: 3px;
 	margin-left: 10px;
 	width: 45%;
 	float: left;
 }
 
+.headerLeftLink {
+	margin-left: 2px;
+	margin-right: 2px;
+	display: inline-block;
+}
+
 .headerRight {
 	text-align: right;
 	margin-right: 10px;
+	margin-top: 3px;
 	width: 45%;
 	float: right;
 }
