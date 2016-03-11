@@ -449,3 +449,15 @@ h4 {
 	position: absolute;
 	bottom: 0;
 }
+
+.adminLeftMenu {
+	float: left;
+	display: inline-block;
+	margin-left: 20px;
+	margin-right: 20px;
+	height: 100%;
+}
+
+.adminLeftSubMenu {
+	margin-left: 20px;
+}

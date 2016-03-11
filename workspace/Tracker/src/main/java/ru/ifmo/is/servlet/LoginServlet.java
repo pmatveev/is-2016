@@ -32,16 +32,26 @@ public class LoginServlet extends HttpServlet {
 	// in GET parameters
 	public static final String ACTION = "action";
 	public static final String ACTION_LOGOUT = "logout";
+	public static final String RETURN_URL = "returnURL";
 
 	// out parameters
 	public static final String LOGIN_ERR_ATTR = "loginErr";
 	public static final String LOGIN_AUTH_USERNAME = "authUsername";
 	public static final String LOGIN_AUTH_DISPLAYNAME = "authUserDisplay";
 	public static final String LOGIN_AUTH_USER_ADMIN = "authUserAdmin";
+	public static final String LOGIN_AUTH_ADMIN_REQUIRED = "adminRequired";
 
 	// cookies
 	public static final String LOGIN_TOKEN_COOKIE = "PATHFINDER_USER_TOKEN";
 	public static final int LOGIN_COOKIE_EXPIRE = 86400;
+
+	public static String getReturnAddress(HttpServletRequest request) {
+		String searchReturnURL = request.getParameter(RETURN_URL);
+		if (searchReturnURL == null) {
+			searchReturnURL = "/Tracker" + LoginServlet.INDEX_PAGE;
+		}
+		return searchReturnURL;
+	}
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {

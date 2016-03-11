@@ -155,13 +155,24 @@ public class AuthenticationManager {
 		}
 
 		boolean auth = false;
+		Object isAdmin = null;
 		if (resTmp.length == 3) {
 			auth = resTmp[0] != null;
 			request.setAttribute(LoginServlet.LOGIN_AUTH_USERNAME, resTmp[0]);
 			request.setAttribute(LoginServlet.LOGIN_AUTH_DISPLAYNAME, resTmp[1]);
-			request.setAttribute(LoginServlet.LOGIN_AUTH_USER_ADMIN, resTmp[2]);	
+			isAdmin = resTmp[2];
+			request.setAttribute(LoginServlet.LOGIN_AUTH_USER_ADMIN, isAdmin);	
 		}
 
+		if (auth) {
+			// bool assumed
+			Object adminRequired = request.getAttribute(LoginServlet.LOGIN_AUTH_ADMIN_REQUIRED);
+			if (Boolean.TRUE.equals(adminRequired) && Boolean.FALSE.equals(isAdmin)) {
+				response.sendRedirect(LoginServlet.getReturnAddress(request));
+				return auth;
+			}
+		}
+		
 		if (!auth) {
 			// not authenticated
 			Cookie c = new Cookie(LoginServlet.LOGIN_TOKEN_COOKIE, null);
@@ -169,7 +180,7 @@ public class AuthenticationManager {
 			response.addCookie(c);
 			removeAuth(request, response, forceRedirect);
 		}
-		
+			
 		return auth;
 	}
 

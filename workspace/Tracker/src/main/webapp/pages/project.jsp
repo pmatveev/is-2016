@@ -20,10 +20,12 @@
 <script src="/Tracker/lib/joint.pathfinder.js"></script>
 </head>
 <body>
-	<%@ include file="logout.jsp"%>
 	<%
+		request.setAttribute(LoginServlet.LOGIN_AUTH_ADMIN_REQUIRED, true);
 		LogManager.log("GET project.jsp", request);
 	%>
+	<%@ include file="include/logout.jsp"%>
+	<%@ include file="include/adminLeftMenu.jsp"%>
 	<%
 		Graph g = new Graph();
 		
@@ -54,53 +56,55 @@
 		
 		String json = new ProjectManager().toJSON(g);
 	%>
-	<div id="wfdiv"></div>
-	<button onclick="printJSON()">JSON</button>
-	<table>
-		<tr>
-			<td><%=json%></td>
-			<td id="outJSON"></td>
-		</tr>
-	</table>
-	<script>
-		var graph = new joint.dia.Graph;
+	<div>
+		<div id="wfdiv"></div>
+		<button onclick="printJSON()">JSON</button>
+		<table>
+			<tr>
+				<td><%=json%></td>
+				<td id="outJSON"></td>
+			</tr>
+		</table>
+		<script>
+			var graph = new joint.dia.Graph;
+		
+		    var paper = new joint.dia.Paper({
+		        el: $('#wfdiv'),
+		        width: 600,
+		        height: 600,
+		        model: graph,
+		        gridSize: 1
+		    });
+		    
+			var myAdjustVertices = _.partial(adjustVertices, graph);
 	
-	    var paper = new joint.dia.Paper({
-	        el: $('#wfdiv'),
-	        width: 600,
-	        height: 600,
-	        model: graph,
-	        gridSize: 1
-	    });
-	    
-		var myAdjustVertices = _.partial(adjustVertices, graph);
-
-		// adjust vertices when a cell is removed or its source/target was changed
-		graph.on('add remove change:source change:target', myAdjustVertices);
-
-		// also when an user stops interacting with an element.
-		paper.on('cell:pointerdown', saveXY);
-		
-		var onPointerUp = function(graph, cellView, evt, x, y) {
-			connectByDrop(graph, cellView, evt, x, y);
-			myAdjustVertices(cellView);
-		}
-		var myPointerUp = _.partial(onPointerUp, graph);
-		paper.on('cell:pointerup', myPointerUp);	
-		
-		var myPointerDbl = _.partial(selfConnect, graph);
-		paper.on('cell:pointerdblclick', myPointerDbl);
+			// adjust vertices when a cell is removed or its source/target was changed
+			graph.on('add remove change:source change:target', myAdjustVertices);
 	
-	    graph.fromJSON(JSON.parse('<%=json%>'));
+			// also when an user stops interacting with an element.
+			paper.on('cell:pointerdown', saveXY);
+			
+			var onPointerUp = function(graph, cellView, evt, x, y) {
+				connectByDrop(graph, cellView, evt, x, y);
+				myAdjustVertices(cellView);
+			}
+			var myPointerUp = _.partial(onPointerUp, graph);
+			paper.on('cell:pointerup', myPointerUp);	
+			
+			var myPointerDbl = _.partial(selfConnect, graph);
+			paper.on('cell:pointerdblclick', myPointerDbl);
 		
-		var cells = graph.getElements();
-		for (var cell in cells) {
-			callAdjust(graph, cells[cell]);
-		}
-		
-		function printJSON() {
-			document.getElementById("outJSON").innerHTML = JSON.stringify(graph.toJSON());
-		}
-	</script>
+		    graph.fromJSON(JSON.parse('<%=json%>'));
+			
+			var cells = graph.getElements();
+			for (var cell in cells) {
+				callAdjust(graph, cells[cell]);
+			}
+			
+			function printJSON() {
+				document.getElementById("outJSON").innerHTML = JSON.stringify(graph.toJSON());
+			}
+		</script>
+	</div>
 </body>
 </html>

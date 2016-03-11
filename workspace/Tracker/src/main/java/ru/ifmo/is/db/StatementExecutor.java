@@ -20,7 +20,7 @@ public class StatementExecutor {
 	public final Object[] call(String sql,
 			Pair<SQLParmKind, Object>... attributes) throws IOException {
 		LogManager.log(sql, attributes);
-
+		
 		Object[] res = null;
 		Connection conn = null;
 		try {

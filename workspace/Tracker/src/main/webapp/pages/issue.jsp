@@ -33,45 +33,44 @@
 <link rel='stylesheet' href='/Tracker/pages/default.css'></link>
 </head>
 <body onload="init()">
-	<%@ include file="logout.jsp"%>
+	<%@ include file="include/logout.jsp"%>
 	<%
 		LogManager.log("GET issue.jsp", request);
 		
-			String returnTo = request.getRequestURI() + "?" + Util.nvl(request.getQueryString());
-			SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMMM d yyyy, HH:mm:ss", Locale.ENGLISH);
-			String issueKey = (String) request.getParameter(IssueServlet.ISSUE_GET_KEY_PARM);
+		SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMMM d yyyy, HH:mm:ss", Locale.ENGLISH);
+		String issueKey = (String) request.getParameter(IssueServlet.ISSUE_GET_KEY_PARM);
+	
+		ApplicationContext ctx = Context.getContext();
 		
-			ApplicationContext ctx = Context.getContext();
-			
-			IssueService issueService = ctx.getBean(IssueService.class);
-			Issue issue = issueService.selectById(issueKey); 
-			
-			CommentService commentService = ctx.getBean(CommentService.class);
-			List<Comment> comments = commentService.selectByOpenedIssue(
-					issue == null ? null : issue.getId());
-			
-			IssueStatusTransitionService issueStatusTransitionService = 
-					ctx.getBean(IssueStatusTransitionService.class);
-			List<IssueStatusTransition> statusTransitions = 
-					issueStatusTransitionService.selectAvailable(
-							issue == null ? null : issue.getId(), 
-							(String) request.getAttribute(
-									LoginServlet.LOGIN_AUTH_USERNAME));
-			
-			IssueProjectTransitionService issueProjectTransitionService =
-					ctx.getBean(IssueProjectTransitionService.class);
-			List<IssueProjectTransition> projectTransitions = 
-					issueProjectTransitionService.selectAvailable(
-							issue == null ? null : issue.getId(), 
-							(String) request.getAttribute(
-									LoginServlet.LOGIN_AUTH_USERNAME));
+		IssueService issueService = ctx.getBean(IssueService.class);
+		Issue issue = issueService.selectById(issueKey); 
+		
+		CommentService commentService = ctx.getBean(CommentService.class);
+		List<Comment> comments = commentService.selectByOpenedIssue(
+				issue == null ? null : issue.getId());
+		
+		IssueStatusTransitionService issueStatusTransitionService = 
+				ctx.getBean(IssueStatusTransitionService.class);
+		List<IssueStatusTransition> statusTransitions = 
+				issueStatusTransitionService.selectAvailable(
+						issue == null ? null : issue.getId(), 
+						(String) request.getAttribute(
+								LoginServlet.LOGIN_AUTH_USERNAME));
+		
+		IssueProjectTransitionService issueProjectTransitionService =
+				ctx.getBean(IssueProjectTransitionService.class);
+		List<IssueProjectTransition> projectTransitions = 
+				issueProjectTransitionService.selectAvailable(
+						issue == null ? null : issue.getId(), 
+						(String) request.getAttribute(
+								LoginServlet.LOGIN_AUTH_USERNAME));
 
-			IssueKindService kindService = ctx.getBean(IssueKindService.class);
-			List<IssueKind> kinds = kindService.selectAll();
-			
-			// TODO currently we can assign to everyone. See task #24
-			OfficerService officerService = ctx.getBean(OfficerService.class);
-			List<Officer> assignees = officerService.selectAll();
+		IssueKindService kindService = ctx.getBean(IssueKindService.class);
+		List<IssueKind> kinds = kindService.selectAll();
+		
+		// TODO currently we can assign to everyone. See task #24
+		OfficerService officerService = ctx.getBean(OfficerService.class);
+		List<Officer> assignees = officerService.selectAll();
 	%>
 	<%
 		if (issue == null) {
@@ -384,7 +383,7 @@
 		
 		var returnUrl = document.createElement("input");
 		returnUrl.type = "hidden";
-		returnUrl.name = "<%=IssueServlet.RETURN_URL%>";
+		returnUrl.name = "<%=LoginServlet.RETURN_URL%>";
 		returnUrl.value = "<%=returnTo%>";
 		buttonDiv.appendChild(returnUrl);
 		
@@ -874,7 +873,7 @@
 				<form id="commentForm" name="commentForm"
 					action="<%=IssueServlet.SERVLET_IDT%>" method="post"
 					onsubmit="return validateComment()">
-					<input type="hidden" name="<%=IssueServlet.RETURN_URL%>" value="<%=returnTo%>"/>
+					<input type="hidden" name="<%=LoginServlet.RETURN_URL%>" value="<%=returnTo%>"/>
 					<input type="hidden" name="<%=IssueServlet.ISSUE_GET_KEY_PARM%>" value="<%=Util.replaceStr(issue.getIdt())%>"></input>
 					<div>
 						<p>

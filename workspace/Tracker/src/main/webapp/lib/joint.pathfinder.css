@@ -103,6 +103,10 @@ body {
 	text-align: center;
 }
 
+.selfLinkLabel {
+	margin-top: 10px;
+}
+
 .editLabel {
 	margin-top: 10px;
 }

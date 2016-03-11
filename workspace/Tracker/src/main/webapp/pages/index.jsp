@@ -30,7 +30,7 @@
 <link rel='stylesheet' href='/Tracker/pages/default.css'></link>
 </head>
 <body>
-	<%@ include file="logout.jsp"%>
+	<%@ include file="include/logout.jsp"%>
 	<%
 		LogManager.log("GET index.jsp", request);
 
@@ -88,7 +88,6 @@
 		SimpleDateFormat dateFormat = new SimpleDateFormat(
 		"HH:mm:ss dd.MM.yyyy", Locale.ENGLISH);
 
-		String returnTo = request.getRequestURI() + "?" + Util.nvl(request.getQueryString());
 		StringBuilder returnToFrom0 = new StringBuilder(request.getRequestURI() + "?");
 		Enumeration<String> parms = request.getParameterNames();
 
@@ -111,12 +110,11 @@
 		}
 		returnToFrom0.append(IssueServlet.ISSUE_GET_START_FROM).append("=");
 
-		String returnToStr = URLEncoder.encode(returnTo.toString(), "UTF-8");
 	%>
 	<div class="indexHeader">
 		<div class="createIssueButtonDiv">
 			<button class="createIssueButton"
-				onclick="parent.location = '/Tracker<%=IssueServlet.ISSUE_CREATE%>?<%=IssueServlet.RETURN_URL%>=<%=returnToStr%>'">Create
+				onclick="parent.location = '/Tracker<%=IssueServlet.ISSUE_CREATE%>?<%=LoginServlet.RETURN_URL%>=<%=returnToStr%>'">Create
 				issue</button>
 		</div>
 		<div class="searchInfo">
@@ -276,20 +274,20 @@
 					%>
 					<tr>
 						<td class="issuesTableProjectBody">
-							<a href="/Tracker/pages/project.jsp?<%=ProjectServlet.PROJECT_KEY%>=<%=Util.replaceStr(issues.get(i).getProject().getCode())%>
-								&<%=IssueServlet.RETURN_URL%>=<%=returnToStr%>">
+							<a href="/Tracker/pages/viewproject.jsp?<%=ProjectServlet.PROJECT_KEY%>=<%=Util.replaceStr(issues.get(i).getProject().getCode())%>
+								&<%=LoginServlet.RETURN_URL%>=<%=returnToStr%>">
 								<%=Util.replaceHTML(issues.get(i).getProject().getName())%>
 							</a>
 						</td>
 						<td class="issuesTableKeyBody">
 							<a href="/Tracker/pages/issue.jsp?<%=IssueServlet.ISSUE_GET_KEY_PARM%>=<%=Util.replaceStr(issues.get(i).getIdt())%>
-								&<%=IssueServlet.RETURN_URL%>=<%=returnToStr%>">
+								&<%=LoginServlet.RETURN_URL%>=<%=returnToStr%>">
 								<%=Util.replaceHTML(issues.get(i).getIdt())%>
 							</a>
 						</td>
 						<td class="issuesTableNameBody"><a
 							href="/Tracker/pages/issue.jsp?<%=IssueServlet.ISSUE_GET_KEY_PARM%>=<%=Util.replaceStr(issues.get(i).getIdt())%>
-							&<%=IssueServlet.RETURN_URL%>=<%=returnToStr%>">
+							&<%=LoginServlet.RETURN_URL%>=<%=returnToStr%>">
 								<%=Util.replaceHTML(issues.get(i).getSummary())%>
 						</a></td>
 						<td class="issuesTableTypeBody"><%=Util.replaceHTML(issues.get(i).getKind().getName())%></td>
@@ -312,7 +310,7 @@
 			Issue having key "<%=Util.replaceHTML(key)%>" not found. Check out
 			<a
 				href="/Tracker/pages/issue.jsp?<%=IssueServlet.ISSUE_GET_KEY_PARM%>=<%=Util.replaceStr(key)%>
-				&<%=IssueServlet.RETURN_URL%>=<%=returnToStr%>">this page</a>
+				&<%=LoginServlet.RETURN_URL%>=<%=returnToStr%>">this page</a>
 			to find out if it ever existed.
 			</div>
 			<%
