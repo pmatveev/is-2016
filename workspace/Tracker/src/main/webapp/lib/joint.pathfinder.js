@@ -95,6 +95,10 @@ joint.shapes.pathfinder = {};
 joint.shapes.pathfinder.EditableStatus = joint.shapes.basic.Rect.extend({
 	defaults: joint.util.deepSupplement({
 		type: 'pathfinder.EditableStatus',
+		size: {
+			width: 100,
+			height: 50
+		},
 		attrs: {
 			rect: { stroke: 'none', 'fill-opacity': 0 }
 		}
@@ -175,6 +179,10 @@ joint.shapes.pathfinder.EditableStatusView = joint.dia.ElementView.extend({
 joint.shapes.pathfinder.SelfLinkObj = joint.shapes.basic.Circle.extend({
 	defaults: joint.util.deepSupplement({
 		type: 'pathfinder.SelfLinkObj',
+		size: {
+			width: 40,
+			height: 40
+		},
 		attrs: {
 			rect: { stroke: 'none', 'fill-opacity': 0 }
 		}
@@ -194,7 +202,6 @@ joint.shapes.pathfinder.SelfLinkObjView = joint.dia.ElementView.extend({
 		joint.dia.ElementView.prototype.initialize.apply(this, arguments);
 		this.$box = $(_.template(this.template)());
 		// Prevent paper from handling pointerdown: in find we specify the list of tags for input
-		this.$box.find('input').on('mousedown click', function(evt) { evt.stopPropagation(); });
 		this.$box.find('.delete').on('click', _.bind(this.model.remove, this.model));
 		
 		// Update the box position whenever the underlying model changes.
@@ -225,6 +232,58 @@ joint.shapes.pathfinder.SelfLinkObjView = joint.dia.ElementView.extend({
 	}
 });
 
+joint.shapes.pathfinder.StartObj = joint.shapes.basic.Circle.extend({
+	defaults: joint.util.deepSupplement({
+		type: 'pathfinder.StartObj',
+		size: {
+			width: 50,
+			height: 50
+		},
+		attrs: {
+			rect: { stroke: 'none', 'fill-opacity': 0 }
+		}
+	}, joint.shapes.basic.Circle.prototype.defaults)
+});
+
+joint.shapes.pathfinder.StartObjView = joint.dia.ElementView.extend({
+	template: [
+	    '<div class="startObjDiv">',
+		'</div>'
+	].join(''),
+	
+	initialize: function() {
+		_.bindAll(this, 'updateBox');
+		joint.dia.ElementView.prototype.initialize.apply(this, arguments);
+		this.$box = $(_.template(this.template)());
+		// Prevent paper from handling pointerdown: in find we specify the list of tags for input
+		
+		// Update the box position whenever the underlying model changes.
+		this.model.on('change', this.updateBox, this);
+		// Remove the box when the model gets removed from the graph.
+		this.model.on('remove', this.removeBox, this);
+
+		this.updateBox();
+	},
+	
+	render: function() {
+		joint.dia.ElementView.prototype.render.apply(this, arguments);
+		this.paper.$el.prepend(this.$box);
+		this.updateBox();
+		return this;
+	},
+	
+	updateBox: function() {
+		// Set the position and dimension of the box so that it covers the JointJS element.
+		var bbox = this.model.getBBox();
+		
+		// Example of updating the HTML with a data stored in the cell model.
+		this.$box.css({ width: bbox.width, height: bbox.height, left: bbox.x, top: bbox.y, transform: 'rotate(' + (this.model.get('angle') || 0) + 'deg)' });
+	},
+	removeBox: function(evt) {
+		this.$box.remove();
+	}
+});
+
 joint.shapes.pathfinder.Link =  joint.dia.Link.extend({
     defaults: {
         type: 'pathfinder.Link',
@@ -239,8 +298,6 @@ function saveXY(cellView, evt, x, y) {
 }
 
 function connectByDrop(graph, cellView, evt, x, y) {
-	if (cellView.model instanceof joint.dia.Link) return;
-	
     var elementBelow = graph.get('cells').find(function(cell) {
         if (cell instanceof joint.dia.Link) return false; // Not interested in links.
         if (cell.id === cellView.model.id) return false; // The same element as the dropped one.
@@ -252,7 +309,11 @@ function connectByDrop(graph, cellView, evt, x, y) {
     
     var opt = {};
     opt.inbound = true;
-    if (elementBelow && !graph.isNeighbor(elementBelow, cellView.model, opt)) {
+    if (elementBelow 
+    		&& (elementBelow instanceof joint.shapes.pathfinder.EditableStatus)
+    		&& ((cellView.model instanceof joint.shapes.pathfinder.EditableStatus)
+    				|| (cellView.model instanceof joint.shapes.pathfinder.StartObj))
+    		&& !graph.isNeighbor(elementBelow, cellView.model, opt)) {
     	var connName = null;
     	var connId = null;
     	while (connName == null) {
@@ -292,7 +353,7 @@ function connectByDrop(graph, cellView, evt, x, y) {
 }
 
 function selfConnect(graph, cellView, evt, x, y) {
-	if (cellView.model instanceof joint.dia.Link) return;
+	if (!(cellView.model instanceof joint.shapes.pathfinder.EditableStatus)) return;
 	
 	var selfId = '__SELF_' + cellView.model.id;
     var selfConn = graph.get('cells').find(function(cell) {
@@ -311,10 +372,6 @@ function selfConnect(graph, cellView, evt, x, y) {
         graph.addCell(new joint.shapes.pathfinder.SelfLinkObj({
         	id: selfId,
         	text: connName,
-        	size: {
-        		width: 40,
-        		height: 40
-        	},
         	position: {
         		x: box.x + box.width + 50,
         		y: box.y + box.height / 2 - 20

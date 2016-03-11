@@ -10,7 +10,6 @@ public class Element {
 
 	// cell
 	private Position position;
-	private Size size;
 	private String text;
 
 	// link
@@ -28,10 +27,6 @@ public class Element {
 
 	public Position getPosition() {
 		return position;
-	}
-
-	public Size getSize() {
-		return size;
 	}
 
 	public String getText() {
@@ -62,10 +57,6 @@ public class Element {
 		this.position = position;
 	}
 
-	public void setSize(Size size) {
-		this.size = size;
-	}
-
 	public void setText(String text) {
 		this.text = text;
 	}
@@ -89,13 +80,11 @@ public class Element {
 			String id, 
 			String type, 
 			Position position, 
-			Size size,
 			String text) {
 		return new Element(
 				id,
 				type,
 				position,
-				size,
 				text,
 				null,
 				null,
@@ -112,7 +101,6 @@ public class Element {
 				"pathfinder.Link",
 				null,
 				null,
-				null,
 				source,
 				target,
 				labels);		
@@ -122,7 +110,6 @@ public class Element {
 			String id, 
 			String type, 
 			Position position, 
-			Size size, 
 			String text,
 			LinkCell source, 
 			LinkCell target,
@@ -130,7 +117,6 @@ public class Element {
 		this.id = id;
 		this.type = type;
 		this.position = position;
-		this.size = size;
 		this.text = text;
 		this.source = source;
 		this.target = target;

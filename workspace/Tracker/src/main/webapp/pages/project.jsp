@@ -10,7 +10,6 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Tracker</title>
 <link rel='stylesheet' href='/Tracker/pages/default.css'></link>
-<link rel='stylesheet' href='/Tracker/pages/swg.css'></link>
 <link rel="stylesheet" type="text/css" href="/Tracker/lib/joint.min.css" />
 <link rel="stylesheet" type="text/css" href="/Tracker/lib/joint.pathfinder.css" />
 <script src="/Tracker/lib/jquery.min.js"></script>
@@ -40,9 +39,9 @@
 		List<Label> labelsStart = new LinkedList<Label>();
 		labelsStart.add(new Label(0.5f, new Attributes(labelTextStart, null)));
 		
-		Element start = Element.createCell("__START", "basic.Circle", new Position(125, 50), new Size(50, 50), null);
-		Element cell1 = Element.createCell("OPEN", "pathfinder.EditableStatus", new Position(100, 150), new Size(100, 50), "Open");
-		Element cell2 = Element.createCell("CLOSE", "pathfinder.EditableStatus", new Position(100, 250), new Size(100, 50), "Closed");
+		Element start = Element.createCell("__START", "pathfinder.StartObj", new Position(125, 50), null);
+		Element cell1 = Element.createCell("OPEN", "pathfinder.EditableStatus", new Position(100, 150), "Open");
+		Element cell2 = Element.createCell("CLOSE", "pathfinder.EditableStatus", new Position(100, 250), "Closed");
 		Element startLink = Element.createLink("__START_OPEN", new LinkCell("__START"), new LinkCell("OPEN"), labelsStart);
 		Element link1 = Element.createLink("OPEN_CLOSE", new LinkCell("OPEN"), new LinkCell("CLOSE"), labels1);
 		Element link2 = Element.createLink("CLOSE_OPEN", new LinkCell("CLOSE"), new LinkCell("OPEN"), labels2);
