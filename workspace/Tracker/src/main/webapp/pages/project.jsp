@@ -43,6 +43,9 @@
 		OfficerService officerService = ctx.getBean(OfficerService.class);
 		List<Officer> officers = officerService.selectAll();
 		
+		IssueProjectService issueProjectService = ctx.getBean(IssueProjectService.class);
+		List<IssueProject> projects = issueProjectService.selectAll();
+		
 		IssueStatusService issueStatusService = ctx.getBean(IssueStatusService.class);
 		List<IssueStatus> statuses = issueStatusService.selectAll();
 		
@@ -83,6 +86,15 @@
 	<script>
 		var paper;
 		var graph; 
+
+		var projects = '<%
+			for (IssueProject p : projects) {
+				if (currProject == null || !p.getCode().equals(currProject.getCode())) {
+					out.print("<option class=\"PRJ_" + Util.replaceStr(p.getCode()) + "\"" + "value=\"" + Util.replaceStr(p.getCode()) + "\">" + Util.replaceHTML(p.getName()) + "</option>");
+				}
+			}
+		%>';
+		
 		var statuses = '<%
 			for (IssueStatus s : statuses) {
 				out.print("<option class=\"VAL_" + Util.replaceStr(s.getCode()) + "\"" + "value=\"" + Util.replaceStr(s.getCode()) + "\">" + Util.replaceHTML(s.getName()) + "</option>");
@@ -163,7 +175,7 @@
 			<%
 				if (currProject != null) {
 			%>
-			var tmp = createGraph('<%=json%>', statuses, displayGrants);
+			var tmp = createGraph('<%=json%>', projects, statuses, displayGrants);
 			paper = tmp[0];
 			graph = tmp[1];
 			<%
@@ -182,7 +194,7 @@
 				return;
 			}
 			
-			var tmp = createGraph(null, statuses, displayGrants);
+			var tmp = createGraph(null, projects, statuses, displayGrants);
 			paper = tmp[0];
 			graph = tmp[1];
 			
@@ -207,7 +219,8 @@
 	        buttonRow.parentNode.removeChild(buttonRow);
 	        
 	        // allow adding new elements
-	        document.getElementById("createProjectButton").style.display = "block";
+	        document.getElementById("createStatusButton").style.display = "block";
+	        document.getElementById("createLinkedProjectButton").style.display = "block";
 		}
 		
 		function addNewStatus() {
@@ -217,6 +230,19 @@
 					y: 20
 				}
 			}))
+		}
+		
+		function addLinkedProject() {
+			graph.addCell(new joint.shapes.pathfinder.EditableOtherProject({
+				position: {
+					x: 20,
+					y: 20
+				}
+			}))			
+		}
+		
+		function enlarge() {
+			paper.setDimensions(paper.options.width, paper.options.height + 100);
 		}
 	</script>
 	<div class="adminMainScreen">
@@ -281,11 +307,16 @@
 			<div id="divProjectModel">
 				<h1 class="briefInformation">Workflow</h1>
 				<hr>
-				<button id="createProjectButton" 
+				<button id="createStatusButton" 
 					onclick="addNewStatus()"
 					class="buttonFixed" 
 					<%=currProject == null ? "style=\"display: none;\"" : ""%>>Add status</button>
-				<div id="wfdiv"></div>		
+				<button id="createLinkedProjectButton" 
+					onclick="addLinkedProject()"
+					class="buttonFixed" 
+					<%=currProject == null ? "style=\"display: none;\"" : ""%>>Add linked project</button>
+				<div id="wfdiv"></div>
+				<a id="enlargeLink" onclick="enlarge()" href="#enlargeLink">Need more space?</a>		
 			</div>	
 		</div>
 		<div class="divProjectModelRight">

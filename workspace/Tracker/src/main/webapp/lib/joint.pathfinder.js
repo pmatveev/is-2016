@@ -195,7 +195,7 @@ joint.shapes.pathfinder.EditableStatusView = joint.dia.ElementView.extend({
 				if (links[i].get('target').id === this.model.id) {
 					links[i].get('target').idt = newIdt;
 				}
-				links[i].set('idt', links[i].get('source').idt + "_" + links[i].get('target').idt);
+				links[i].set('idt', this.model.graph.get('idt') + '_' + links[i].get('source').idt + "_" + links[i].get('target').idt);
 			}
 			
 			this.$box.find('.editEnable').show();
@@ -262,6 +262,125 @@ joint.shapes.pathfinder.EditableStatusView = joint.dia.ElementView.extend({
 		
 		// Example of updating the HTML with a data stored in the cell model.
 		this.$box.find('.labelCaption').text(this.model.get('text'));
+		this.$box.css({ width: bbox.width, height: bbox.height, left: bbox.x, top: bbox.y, transform: 'rotate(' + (this.model.get('angle') || 0) + 'deg)' });
+	},
+	removeBox: function(evt) {
+		this.$box.remove();
+	}
+});
+
+joint.shapes.pathfinder.EditableOtherProject = joint.shapes.basic.Rect.extend({
+	defaults: joint.util.deepSupplement({
+		type: 'pathfinder.EditableOtherProject',
+		size: {
+			width: 150,
+			height: 70
+		},
+		attrs: {
+			rect: { stroke: 'none', 'fill-opacity': 0 }
+		}
+	}, joint.shapes.basic.Rect.prototype.defaults)
+});
+
+joint.shapes.pathfinder.EditableOtherProjectView = joint.dia.ElementView.extend({
+	template: [
+		'<div class="editableProjectDiv">',
+		'<button class="delete">x</button>',
+		'<div class="elementLabel"><label class="labelCaption"/></div>',
+		'<div class="editLabel">',
+		'<button class="editEnable" type="button">Edit</button>',
+		'<select class="selectProject"></select>',
+		'<select class="selectStatus"></select>',
+		'<button class="editDone" type="button">OK</button>',
+		'</div>',
+		'</div>'
+	].join(''),
+	
+	initialize: function() {
+		_.bindAll(this, 'updateBox');
+		joint.dia.ElementView.prototype.initialize.apply(this, arguments);
+		this.$box = $(_.template(this.template)());
+		// Prevent paper from handling pointerdown: in find we specify the list of tags for input
+		this.$box.find('input').on('mousedown click', function(evt) { evt.stopPropagation(); });
+
+		this.$box.find('.selectProject').hide();
+		this.$box.find('.selectStatus').hide();
+		this.$box.find('.editDone').hide();
+
+		this.$box.find('.selectProject').html(this.model.graph.get('projectList'));
+		this.$box.find('.selectStatus').html(this.model.graph.get('statusList'));
+		
+		// store inputed value in model
+		this.$box.find('.editDone').on('click', _.bind(function(evt) {
+			var newPrjIdt = this.$box.find('.selectProject').val();
+			if (newPrjIdt == "") {
+				alert("Please specify project");
+			}
+			var newPrjText = this.$box.find('.PRJ_' + newPrjIdt).text();
+
+			var newStIdt = this.$box.find('.selectStatus').val();
+			if (newStIdt == "") {
+				alert("Please specify status");
+			}
+			var newStText = this.$box.find('.VAL_' + newStIdt).text();
+			
+			var newIdt = newPrjIdt + "." + newStIdt;
+			this.model.set('text', '<b>' + newPrjText + '</b><br/>' + newStText);
+			this.model.set('idt', newIdt);
+			
+			var links = this.model.graph.getConnectedLinks(this.model);
+			for (var i in links) {
+				if (links[i].get('source').id === this.model.id) {
+					links[i].get('source').idt = newIdt;
+				}
+				if (links[i].get('target').id === this.model.id) {
+					links[i].get('target').idt = newIdt;
+				}
+				links[i].set('idt', this.model.graph.get('idt') + '_' + links[i].get('source').idt + "_" + links[i].get('target').idt);
+			}
+			
+			this.$box.find('.editEnable').show();
+			this.$box.find('.selectProject').hide();
+			this.$box.find('.selectStatus').hide();
+			this.$box.find('.editDone').hide();
+		}, this));
+		
+		this.$box.find('.editEnable').on('click', _.bind(function(evt) {
+			this.$box.find('.editEnable').hide();
+
+			this.$box.find('.selectProject').show();
+			this.$box.find('.selectStatus').show();
+			this.$box.find('.editDone').show();
+		}, this));
+			
+		this.$box.find('.delete').on('click', _.bind(this.model.remove, this.model));
+		
+		// Update the box position whenever the underlying model changes.
+		this.model.on('change', this.updateBox, this);
+		// Remove the box when the model gets removed from the graph.
+		this.model.on('remove', this.removeBox, this);
+		
+		if (typeof this.model.get('idt') == 'undefined') {
+			// no idt provided, so it's the new one
+			this.$box.find('.editEnable').click();
+		}
+
+		this.updateBox();
+	},
+	
+	render: function() {
+		joint.dia.ElementView.prototype.render.apply(this, arguments);
+		this.paper.$el.prepend(this.$box);
+		this.updateBox();
+		return this;
+	},
+	
+	updateBox: function() {
+		// Set the position and dimension of the box so that it covers the JointJS element.
+		var bbox = this.model.getBBox();
+		
+		// Example of updating the HTML with a data stored in the cell model.
+		this.$box.find('.labelCaption').html(this.model.get('text'));
 		this.$box.css({ width: bbox.width, height: bbox.height, left: bbox.x, top: bbox.y, transform: 'rotate(' + (this.model.get('angle') || 0) + 'deg)' });
 	},
 	removeBox: function(evt) {
@@ -421,14 +540,20 @@ function connectByDrop(graph, cellView, evt, x, y) {
     var opt = {};
     opt.inbound = true;
     if (elementBelow 
-    		&& (elementBelow instanceof joint.shapes.pathfinder.EditableStatus)
+    		&& (elementBelow instanceof joint.shapes.pathfinder.EditableStatus
+    				|| elementBelow instanceof joint.shapes.pathfinder.EditableOtherProject)
     		&& ((cellView.model instanceof joint.shapes.pathfinder.EditableStatus)
     				|| (cellView.model instanceof joint.shapes.pathfinder.StartObj))
     		&& !graph.isNeighbor(elementBelow, cellView.model, opt)) {
     	var connName = null;
     	var connId = null;
-    	while (connName == null) {
-    		connName = window.prompt("Enter connection name", "");
+    	if (elementBelow instanceof joint.shapes.pathfinder.EditableStatus) {
+    		// project transitions are not named
+	    	while (connName == null) {
+	    		connName = window.prompt("Enter connection name", "");
+	    	}
+    	} else {
+    		connName = "Change workflow";
     	}
     	
     	var newCell = new joint.shapes.pathfinder.Link({
@@ -546,8 +671,9 @@ function addListeners(paper, graph, grantsFunc) {
 	paper.on('cell:pointerdblclick', myPointerDbl);
 }
 
-function createGraph(json, statuses, grantsFunc) {
+function createGraph(json, projects, statuses, grantsFunc) {
 	var graph = new joint.dia.Graph({
+		projectList: projects,
 		statusList: statuses
 	});
 	

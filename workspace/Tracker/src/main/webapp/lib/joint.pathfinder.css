@@ -31,6 +31,18 @@
 	-webkit-user-select: none;
 }
 
+.editableProjectDiv {
+	position: absolute;
+	background: white;
+	border-radius: 3px;
+	border-style: solid;
+	border-color: black;
+	border-width: 1px;
+	/* Make sure events are propagated to the JointJS element so, e.g. dragging works.*/
+	pointer-events: none;
+	-webkit-user-select: none;
+}
+
 .editableElementDiv {
 	position: absolute;
 	background: gray;
@@ -40,13 +52,13 @@
 	-webkit-user-select: none;
 }
 
-.selfLinkDiv button,.editableElementDiv input,.editableElementDiv button,.editableElementDiv select
+.selfLinkDiv button,.editableElementDiv input,.editableElementDiv button,.editableElementDiv select,.editableProjectDiv button,.editableProjectDiv select
 	{
 	/* Enable interacting with inputs only. */
 	pointer-events: auto;
 }
 
-.selfLinkDiv button.delete,.editableElementDiv button.delete {
+.selfLinkDiv button.delete,.editableElementDiv button.delete,.editableProjectDiv button.delete {
 	color: white;
 	border: none;
 	background-color: #C0392B;
@@ -71,7 +83,8 @@
 	line-height: 20px;
 }
 
-.editableElementDiv input.editCaption, .editableElementDiv select.selectCaption {
+.editableElementDiv input.editCaption,.editableElementDiv select.selectCaption
+	{
 	position: relative;
 	margin-left: 5%;
 	margin-right: 2.5%;
@@ -89,7 +102,7 @@
 	color: #333;
 }
 
-.editableElementDiv button.editEnable {
+.editableElementDiv button.editEnable,.editableProjectDiv button.editEnable {
 	position: relative;
 	margin-top: 10px;
 	margin-left: 25%;
@@ -108,6 +121,10 @@
 	border: none;
 }
 
+.editableProjectDiv label {
+	color: black;
+}
+
 .selfLinkDiv label,.editableElementDiv label,.editSwitch {
 	color: white;
 }
@@ -122,4 +139,18 @@
 
 .selfLinkLabel {
 	margin-top: 10px;
+}
+
+.editableProjectDiv select {
+	margin-left: 1%;
+	margin-right: 1%;
+	width: 48%;
+}
+
+.editableProjectDiv button.editDone {
+	position: relative;
+	margin-left: 40%;
+	margin-right: 40%;
+	width: 20%;
+	border: none;
 }
