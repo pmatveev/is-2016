@@ -385,9 +385,27 @@ joint.shapes.pathfinder.Link =  joint.dia.Link.extend({
     }
 });
 
+joint.shapes.pathfinder.SelfLink =  joint.dia.Link.extend({
+    defaults: {
+        type: 'pathfinder.SelfLink',
+        attrs: { '.marker-target' : { 'd' :  'M 10 0 L 0 5 L 10 10 z' }},
+		smooth: true
+    }
+});
+
 function saveXY(cellView, evt, x, y) {
-	cellView.model.prevX = x;
-	cellView.model.prevY = y;
+	if (!cellView.isLink) {
+		cellView.model.prevX = x;
+		cellView.model.prevY = y;
+	}
+}
+
+function showGrants(cellView) {
+	var cell = cellView.model || cellView;
+	if ((cell instanceof joint.shapes.pathfinder.Link)
+			|| (cell instanceof joint.shapes.pathfinder.SelfLinkObj)) {
+		cell.graph.get('showGrants')(cell.get('id'));
+	}
 }
 
 function connectByDrop(graph, cellView, evt, x, y) {
@@ -413,7 +431,7 @@ function connectByDrop(graph, cellView, evt, x, y) {
     		connName = window.prompt("Enter connection name", "");
     	}
     	
-        graph.addCell(new joint.shapes.pathfinder.Link({
+    	var newCell = new joint.shapes.pathfinder.Link({
         	idt: graph.get('idt') + '_' + cellView.model.get('idt') + "_" + elementBelow.get('idt'),
             source: { 
             	id: cellView.model.id,
@@ -429,7 +447,9 @@ function connectByDrop(graph, cellView, evt, x, y) {
             		text: { text: connName }
             	}
             }]
-        }));
+        });
+        graph.addCell(newCell);
+        showGrants(newCell);
 
         var xBefore = cellView.model.prevX;
         var yBefore = cellView.model.prevY;
@@ -465,7 +485,7 @@ function selfConnect(graph, cellView, evt, x, y) {
     	}
     	
     	var box = cellView.model.getBBox();
-        graph.addCell(new joint.shapes.pathfinder.SelfLinkObj({
+    	var selfCell = new joint.shapes.pathfinder.SelfLinkObj({
         	id: selfId,
         	idt: graph.get('idt') + '_' + cellView.model.get('idt') + '_' + cellView.model.get('idt'),
         	text: connName,
@@ -473,9 +493,11 @@ function selfConnect(graph, cellView, evt, x, y) {
         		x: box.x + box.width + 50,
         		y: box.y + box.height / 2 - 20
         	}
-        }));
+        });
+        graph.addCell(selfCell);
+        showGrants(selfCell);
         
-        graph.addCell(new joint.shapes.pathfinder.Link({
+        graph.addCell(new joint.shapes.pathfinder.SelfLink({
             source: { 
             	id: cellView.model.id,
             	idt: cellView.model.get('idt')
@@ -486,7 +508,7 @@ function selfConnect(graph, cellView, evt, x, y) {
             }
         }));
         
-        graph.addCell(new joint.shapes.pathfinder.Link({
+        graph.addCell(new joint.shapes.pathfinder.SelfLink({
             source: { 
             	id: selfId,
             	idt: selfId
@@ -499,7 +521,7 @@ function selfConnect(graph, cellView, evt, x, y) {
     }
 }
 
-function addListeners(paper, graph) {
+function addListeners(paper, graph, grantsFunc) {
 	var myAdjustVertices = _.partial(adjustVertices, graph);
 	
 	// adjust vertices when a cell is removed 
@@ -507,21 +529,24 @@ function addListeners(paper, graph) {
 
 	graph.on('change:source change:target', editLink);
 	
+	graph.set('showGrants', grantsFunc);
 	// also when an user stops interacting with an element.
-	paper.on('cell:pointerdown', saveXY);
+	paper.on('cell:pointerdown', function(cellView, evt, x, y) {
+		saveXY(cellView, evt, x, y);
+		showGrants(cellView);
+	});
 	
-	var onPointerUp = function(graph, cellView, evt, x, y) {
+	var myPointerUp = _.partial(function(graph, cellView, evt, x, y) {
 		connectByDrop(graph, cellView, evt, x, y);
 		myAdjustVertices(cellView);
-	}
-	var myPointerUp = _.partial(onPointerUp, graph);
+	}, graph);
 	paper.on('cell:pointerup', myPointerUp);	
 	
 	var myPointerDbl = _.partial(selfConnect, graph);
 	paper.on('cell:pointerdblclick', myPointerDbl);
 }
 
-function createGraph(json, statuses) {
+function createGraph(json, statuses, grantsFunc) {
 	var graph = new joint.dia.Graph({
 		statusList: statuses
 	});
@@ -546,7 +571,7 @@ function createGraph(json, statuses) {
 		resizeDiv();
 	}	
     
-    addListeners(paper, graph);
+    addListeners(paper, graph, grantsFunc);
     
 	if (json != null) {
 		graph.fromJSON(JSON.parse(json));

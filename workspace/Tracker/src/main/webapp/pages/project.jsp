@@ -1,3 +1,5 @@
+<%@page import="ru.ifmo.is.db.entity.OfficerGrant"%>
+<%@page import="ru.ifmo.is.db.service.OfficerGrantService"%>
 <%@page import="ru.ifmo.is.db.entity.IssueStatus"%>
 <%@page import="ru.ifmo.is.db.service.IssueStatusService"%>
 <%@page import="ru.ifmo.is.db.entity.Officer"%>
@@ -43,6 +45,9 @@
 		
 		IssueStatusService issueStatusService = ctx.getBean(IssueStatusService.class);
 		List<IssueStatus> statuses = issueStatusService.selectAll();
+		
+		OfficerGrantService officerGrantService = ctx.getBean(OfficerGrantService.class);
+		List<OfficerGrant> grants = officerGrantService.selectAll();
 	%>
 	<%
 		// TODO remove
@@ -84,12 +89,81 @@
 			}
 		%>';
 		
+		function displayGrants(linkId) {
+			if (document.getElementById("transitionGrantsTransitionId") == null) {
+				var div = document.getElementById("divTransitionGrants");
+				div.innerHTML = [
+				    '<input id="transitionGrantsTransitionId" type="hidden"/>',
+				    '<table id="tblTransitionGrants" class="briefInfoTable">',
+				    '<tr class="widthTr">',
+				    '<td class="widthTd">Identifier</td>',
+				    '<td><input id="transitionGrantsTransitionIdt" type="text" class="editProject" disabled/></td>',
+				    '</tr>',
+				    '<tr>',
+				    '<td class="widthTd">Name</td>',
+				    '<td><input id="transitionGrantsTransitionName" type="text" class="editProject" disabled/></td>',
+				    '</tr>',
+				    '<tr>',
+				    '<td class="widthTd">Grants</td>',
+				    '<td>',
+				    '<select id="transitionGrantsTransitionGrants" class="editProject" multiple size=10>',
+				    <% for (OfficerGrant gr : grants) { %>
+				    '<option id="GrOpt<%=Util.replaceStr(gr.getCode())%>" value="<%=Util.replaceStr(gr.getCode())%>"><%=Util.replaceHTML(gr.getName())%></option>',
+				    <% } %>
+				    '</select>',
+				    '</td>',
+				    '</tr>',
+				    '<tr>',
+				    '<td colspan=2 style="text-align: center;">',
+				    '<button class="buttonFixed" onclick="applyGrants()">Apply</button>',
+				    '</td>',
+				    '</tr>',
+				    '</table>'
+					].join('');
+			}
+			var cell = graph.getCell(linkId);
+			var cellText = "";
+			if (cell instanceof joint.shapes.pathfinder.Link) {
+				cellText = cell.get('labels')[0].attrs.text.text;
+			} else {
+				// self connection
+				cellText = cell.get('text');
+			}
+			
+			document.getElementById("transitionGrantsTransitionId").value = linkId;
+			document.getElementById("transitionGrantsTransitionIdt").value = cell.get('idt');
+			document.getElementById("transitionGrantsTransitionName").value = cellText;
+			
+			var select = document.getElementById("transitionGrantsTransitionGrants");
+			for (var i in select.options) {
+				select.options[i].selected = "";
+			}
+			
+			var granted = cell.get('grants');
+			for (var i in granted) {
+				document.getElementById("GrOpt" + granted[i]).selected = "selected";
+			}
+		}
+		
+		function applyGrants() {
+			var sel = document.getElementById("transitionGrantsTransitionGrants");
+			var grants = [];
+			for (var i in sel.options) {
+				if (sel.options[i].selected) {
+					grants.push(sel.options[i].value);
+				}
+			}
+			
+			var cellId = document.getElementById("transitionGrantsTransitionId").value;
+			graph.getCell(cellId).set('grants', grants);
+		}
+		
 		function init() {
 			document.title = "<%=currProject == null ? "New project" : Util.replaceStr(currProject.getName())%>";			
 			<%
 				if (currProject != null) {
 			%>
-			var tmp = createGraph('<%=json%>', statuses);
+			var tmp = createGraph('<%=json%>', statuses, displayGrants);
 			paper = tmp[0];
 			graph = tmp[1];
 			<%
@@ -108,7 +182,7 @@
 				return;
 			}
 			
-			var tmp = createGraph(null, statuses);
+			var tmp = createGraph(null, statuses, displayGrants);
 			paper = tmp[0];
 			graph = tmp[1];
 			
@@ -154,7 +228,7 @@
 				<table class="briefInfoTable">
 					<tr class="widthTr">
 						<td class="widthTd">Name</td>
-						<td id="issueKindTd">
+						<td>
 							<input type="text" 
 								id="<%=ProjectServlet.SET_PROJECT_NAME%>" 
 								name="<%=ProjectServlet.SET_PROJECT_NAME%>" 
@@ -164,7 +238,7 @@
 					</tr>
 					<tr>
 						<td class="widthTd">Identifier</td>
-						<td id="issueKindTd">
+						<td>
 							<input type="text" 
 								id="<%=ProjectServlet.SET_PROJECT_KEY%>"
 								name="<%=ProjectServlet.SET_PROJECT_KEY%>" 
@@ -175,7 +249,7 @@
 					</tr>
 					<tr>
 						<td class="widthTd">Owner</td>
-						<td id="issueKindTd">
+						<td>
 							<select id="<%=ProjectServlet.SET_PROJECT_OWNER%>"
 								name="<%=ProjectServlet.SET_PROJECT_OWNER%>" 
 								class="editProject" >
@@ -215,8 +289,11 @@
 			</div>	
 		</div>
 		<div class="divProjectModelRight">
-			
+			<h1 class="briefInformation">Grant list</h1>
+			<hr>
+			<div id="divTransitionGrants">Click on transition to define its grants</div>
 		</div>
+		<!-- 
 		<button onclick="printJSON()">JSON</button>
 		<table>
 			<tr>
@@ -229,6 +306,7 @@
 				document.getElementById("outJSON").innerHTML = JSON.stringify(graph.toJSON());
 			}
 		</script>
+		 -->
 	</div>
 </body>
 </html>
