@@ -1,3 +1,4 @@
+<%@page import="ru.ifmo.is.manager.LogManager"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <!DOCTYPE html>
@@ -8,11 +9,7 @@
 <link rel='stylesheet' href='/Tracker/pages/default.css'></link>
 </head>
 <body>
-	<%
-		request.setAttribute(LoginServlet.LOGIN_AUTH_ADMIN_REQUIRED, true);
-		LogManager.log("GET adminHome.jsp", request);
-	%>
-	<%@ include file="include/logout.jsp"%>
+	<% LogManager.log("GET adminHome.jsp", request); %>
 	<%@ include file="include/adminLeftMenu.jsp"%>
 </body>
 </html>

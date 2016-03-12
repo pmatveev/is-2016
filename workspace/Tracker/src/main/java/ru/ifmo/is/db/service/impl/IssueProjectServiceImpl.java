@@ -15,10 +15,18 @@ import ru.ifmo.is.db.repository.IssueProjectRepository;
 import ru.ifmo.is.db.service.IssueProjectService;
 
 @Service
-@Transactional(readOnly = true)
 public class IssueProjectServiceImpl implements IssueProjectService {
 	@Autowired
-	IssueProjectRepository issueProjectRepository;
+	private IssueProjectRepository issueProjectRepository;
+
+	@Override
+	@Transactional(readOnly = true)
+	public IssueProject selectByCode(String code) {
+		IssueProject p = issueProjectRepository.findByCode(code);
+		Hibernate.initialize(p.getOwner());
+		Hibernate.initialize(p.getStartStatus());
+		return p;
+	}
 
 	@Override
 	public List<IssueProject> selectAll() {
@@ -27,6 +35,7 @@ public class IssueProjectServiceImpl implements IssueProjectService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public List<IssueProject> selectAvailable(String username) {
 		List<IssueProject> projects = issueProjectRepository
 				.findAvailable(username);

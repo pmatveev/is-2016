@@ -1,10 +1,5 @@
-body {
-	margin: 0px;
-}
-
 #wfdiv {
 	position: relative;
-	border: 1px solid gray;
 	display: inline-block;
 	background: transparent;
 	overflow: hidden;
@@ -12,6 +7,10 @@ body {
 
 #wfdiv svg {
 	background: transparent;
+}
+
+.joint-theme-default {
+	border: 1px solid gray;
 }
 
 .startObjDiv {
@@ -41,7 +40,7 @@ body {
 	-webkit-user-select: none;
 }
 
-.selfLinkDiv button,.editableElementDiv input,.editableElementDiv button
+.selfLinkDiv button,.editableElementDiv input,.editableElementDiv button,.editableElementDiv select
 	{
 	/* Enable interacting with inputs only. */
 	pointer-events: auto;
@@ -72,7 +71,7 @@ body {
 	line-height: 20px;
 }
 
-.editableElementDiv input.editCaption {
+.editableElementDiv input.editCaption, .editableElementDiv select.selectCaption {
 	position: relative;
 	margin-left: 5%;
 	margin-right: 2.5%;
@@ -82,8 +81,17 @@ body {
 	color: #333;
 }
 
+.editableElementDiv input.editSwitch {
+	position: relative;
+	width: 100%;
+	margin-bottom: 5px;
+	border: none;
+	color: #333;
+}
+
 .editableElementDiv button.editEnable {
 	position: relative;
+	margin-top: 10px;
 	margin-left: 25%;
 	margin-right: 25%;
 	width: 50%;
@@ -100,7 +108,7 @@ body {
 	border: none;
 }
 
-.selfLinkDiv label,.editableElementDiv label {
+.selfLinkDiv label,.editableElementDiv label,.editSwitch {
 	color: white;
 }
 
@@ -113,9 +121,5 @@ body {
 }
 
 .selfLinkLabel {
-	margin-top: 10px;
-}
-
-.editLabel {
 	margin-top: 10px;
 }

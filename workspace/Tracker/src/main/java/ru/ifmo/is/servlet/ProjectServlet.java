@@ -13,7 +13,12 @@ public class ProjectServlet extends HttpServlet {
 	public static final String SERVLET_IDT = "/Tracker/project";
 	
 	// in GET parameters
-	public static final String PROJECT_KEY = "project";
+	public static final String PROJECT_KEY = "projectKey";
+	
+	// in POST parameters
+	public static final String SET_PROJECT_NAME = "setProjectName";
+	public static final String SET_PROJECT_KEY = "setProjectKey";
+	public static final String SET_PROJECT_OWNER = "setProjectOwner";
 	
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {

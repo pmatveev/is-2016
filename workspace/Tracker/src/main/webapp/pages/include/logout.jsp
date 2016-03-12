@@ -15,16 +15,20 @@
 	}
 
 	String returnTo = request.getRequestURI() + "?" + Util.nvl(request.getQueryString());
-	String returnToStr = URLEncoder.encode(returnTo.toString(), "UTF-8");	
+	String returnToStr = URLEncoder.encode(returnTo, "UTF-8");	
 	String returnURL = LoginServlet.getReturnAddress(request);
+	String returnUrlStr = URLEncoder.encode(returnURL, "UTF-8");
 %>
 <div class="headerLeft">	
 	<div class="headerLeftLink">
 		<a target="_blank" href="/Tracker/pages/report.jsp">Reporting</a>
 	</div>
-	<% if (Boolean.TRUE.equals(request.getAttribute(LoginServlet.LOGIN_AUTH_USER_ADMIN))) { %>
+	<% 
+	if (Boolean.TRUE.equals(request.getAttribute(LoginServlet.LOGIN_AUTH_USER_ADMIN))) { 
+		String returnToStrAdm = Boolean.TRUE.equals(request.getAttribute(LoginServlet.LOGIN_AUTH_ADMIN_REQUIRED)) ? returnUrlStr : returnToStr;
+	%>
 	<div class="headerLeftLink">
-		<a href="/Tracker/pages/adminHome.jsp?<%=LoginServlet.RETURN_URL%>=<%=returnToStr%>">Admin tools</a>
+		<a href="/Tracker/pages/adminHome.jsp?<%=LoginServlet.RETURN_URL%>=<%=returnToStrAdm%>">Admin tools</a>
 	</div>
 	<% } %>
 </div>

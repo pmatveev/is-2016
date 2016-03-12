@@ -1,3 +1,14 @@
+function printProps(obj) {
+	console.log("Properties:");
+	for (var id in obj) {
+		if (typeof(obj[id]) == "function") {
+			console.log(id + ": function"); //obj[id].toString()
+		} else {
+			console.log(id + ": property");
+		}
+	}
+}
+
 function editLink(cell) {
 	if (!cell.isLink) return;
 	if (typeof cell.get('source').id == 'undefined' || typeof cell.get('target').id == 'undefined') return;
@@ -8,7 +19,7 @@ function editLink(cell) {
 	cell.get('source').idt = source.get('idt');
 	cell.get('target').idt = target.get('idt');
 	
-	cell.set('idt', source.get('idt') + '_' + target.get('idt'));	
+	cell.set('idt', cell.graph.get('idt') + '_' + source.get('idt') + '_' + target.get('idt'));	
 
 	cell.set('vertices', []);
 	callAdjust(cell.graph, source);
@@ -113,7 +124,7 @@ joint.shapes.pathfinder.EditableStatus = joint.shapes.basic.Rect.extend({
 		type: 'pathfinder.EditableStatus',
 		size: {
 			width: 100,
-			height: 50
+			height: 60
 		},
 		attrs: {
 			rect: { stroke: 'none', 'fill-opacity': 0 }
@@ -128,6 +139,10 @@ joint.shapes.pathfinder.EditableStatusView = joint.dia.ElementView.extend({
 		'<div class="elementLabel"><label class="labelCaption"/></div>',
 		'<div class="editLabel">',
 		'<button class="editEnable" type="button">Edit</button>',
+		'<div class="editSwitch">',
+		'<input class="editSwitchInput" type="checkbox">New status</input>',
+		'</div>',
+		'<select class="selectCaption"></select>',
 		'<input class="editCaption" type="text"/>',
 		'<button class="editDone" type="button">OK</button>',
 		'</div>',
@@ -140,13 +155,22 @@ joint.shapes.pathfinder.EditableStatusView = joint.dia.ElementView.extend({
 		this.$box = $(_.template(this.template)());
 		// Prevent paper from handling pointerdown: in find we specify the list of tags for input
 		this.$box.find('input').on('mousedown click', function(evt) { evt.stopPropagation(); });
-		
+
+		this.$box.find('.editSwitch').hide();
 		this.$box.find('.editCaption').hide();
+		this.$box.find('.selectCaption').hide();
 		this.$box.find('.editDone').hide();
+
+		this.$box.find('.selectCaption').html(this.model.graph.get('statusList'));
 		
 		// store inputed value in model
 		this.$box.find('.editDone').on('click', _.bind(function(evt) {
 			var newText = this.$box.find('.editCaption').val();
+			if (newText == "") {
+				alert("Please srecify status");
+				return;
+			}
+			
 			var newIdt = newText.toUpperCase().replace(/\ /g, "_");
 			
 			this.model.set('text', newText);
@@ -164,17 +188,39 @@ joint.shapes.pathfinder.EditableStatusView = joint.dia.ElementView.extend({
 			}
 			
 			this.$box.find('.editEnable').show();
+			this.$box.find('.editSwitch').hide();
 			this.$box.find('.editCaption').hide();
+			this.$box.find('.selectCaption').hide();
 			this.$box.find('.editDone').hide();
 		}, this));
 		
 		this.$box.find('.editEnable').on('click', _.bind(function(evt) {
 			this.$box.find('.editEnable').hide();
-			
+
 			var ed = this.$box.find('.editCaption');
 			ed.val(this.model.get('text'));
-			ed.show();
+			
+			var sel = this.$box.find('.selectCaption');
+			sel.val(this.model.get('text'));
+			
+			if (this.$box.find('.editSwitchInput').prop("checked")) {			
+				ed.show();
+			} else {
+				sel.show();
+			}
+			
+			this.$box.find('.editSwitch').show();
 			this.$box.find('.editDone').show();
+		}, this));
+		
+		this.$box.find('.editSwitchInput').on('change', _.bind(function(evt) {
+			if (this.$box.find('.editSwitchInput').prop("checked")) {			
+				this.$box.find('.editCaption').show();
+				this.$box.find('.selectCaption').hide();
+			} else {
+				this.$box.find('.editCaption').hide();
+				this.$box.find('.selectCaption').show();
+			}	
 		}, this));
 		
 		this.$box.find('.delete').on('click', _.bind(this.model.remove, this.model));
@@ -183,6 +229,11 @@ joint.shapes.pathfinder.EditableStatusView = joint.dia.ElementView.extend({
 		this.model.on('change', this.updateBox, this);
 		// Remove the box when the model gets removed from the graph.
 		this.model.on('remove', this.removeBox, this);
+		
+		if (typeof this.model.get('idt') == 'undefined') {
+			// no idt provided, so it's the new one
+			this.$box.find('.editEnable').click();
+		}
 
 		this.updateBox();
 	},
@@ -352,7 +403,7 @@ function connectByDrop(graph, cellView, evt, x, y) {
     	}
     	
         graph.addCell(new joint.shapes.pathfinder.Link({
-        	idt: cellView.model.get('idt') + "_" + elementBelow.get('idt'),
+        	idt: graph.get('idt') + '_' + cellView.model.get('idt') + "_" + elementBelow.get('idt'),
             source: { 
             	id: cellView.model.id,
             	idt: cellView.model.get('idt')
@@ -405,7 +456,7 @@ function selfConnect(graph, cellView, evt, x, y) {
     	var box = cellView.model.getBBox();
         graph.addCell(new joint.shapes.pathfinder.SelfLinkObj({
         	id: selfId,
-        	idt: selfId,
+        	idt: graph.get('idt') + '_' + cellView.model.get('idt') + '_' + cellView.model.get('idt'),
         	text: connName,
         	position: {
         		x: box.x + box.width + 50,
@@ -437,7 +488,7 @@ function selfConnect(graph, cellView, evt, x, y) {
     }
 }
 
-function addListeners(graph) {
+function addListeners(paper, graph) {
 	var myAdjustVertices = _.partial(adjustVertices, graph);
 	
 	// adjust vertices when a cell is removed 
@@ -457,4 +508,43 @@ function addListeners(graph) {
 	
 	var myPointerDbl = _.partial(selfConnect, graph);
 	paper.on('cell:pointerdblclick', myPointerDbl);
+}
+
+function createGraph(json, statuses) {
+	var graph = new joint.dia.Graph({
+		statusList: statuses
+	});
+	
+    var paper = new joint.dia.Paper({
+        el: $('#wfdiv'),
+        width: 0,
+        height: 600,
+        model: graph,
+        gridSize: 1
+    });
+	
+	function resizeDiv() {
+		paper.setDimensions($('#divProjectModel').width(), paper.options.height);
+	}	
+
+	$(document).ready(function(){
+		resizeDiv();
+	});
+
+	window.onresize = function(event) {
+		resizeDiv();
+	}	
+    
+    addListeners(paper, graph);
+    
+	if (json != null) {
+		graph.fromJSON(JSON.parse(json));
+		
+		var cells = graph.getElements();
+		for (var cell in cells) {
+			callAdjust(graph, cells[cell]);
+		}
+	}
+	
+    return [paper, graph];
 }
