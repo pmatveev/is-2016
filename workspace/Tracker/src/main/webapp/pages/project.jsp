@@ -80,7 +80,7 @@
 		var graph; 
 		var statuses = '<%
 			for (IssueStatus s : statuses) {
-				out.print("<option value=\"" + Util.replaceStr(s.getCode()) + "\">" + Util.replaceHTML(s.getName()) + "</option>");
+				out.print("<option class=\"VAL_" + Util.replaceStr(s.getCode()) + "\"" + "value=\"" + Util.replaceStr(s.getCode()) + "\">" + Util.replaceHTML(s.getName()) + "</option>");
 			}
 		%>';
 		

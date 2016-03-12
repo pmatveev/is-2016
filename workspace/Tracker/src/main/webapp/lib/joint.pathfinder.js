@@ -165,13 +165,24 @@ joint.shapes.pathfinder.EditableStatusView = joint.dia.ElementView.extend({
 		
 		// store inputed value in model
 		this.$box.find('.editDone').on('click', _.bind(function(evt) {
-			var newText = this.$box.find('.editCaption').val();
-			if (newText == "") {
-				alert("Please srecify status");
-				return;
-			}
+			var newText;
+			var newIdt;
 			
-			var newIdt = newText.toUpperCase().replace(/\ /g, "_");
+			if (this.$box.find('.editSwitchInput').prop("checked")) {	
+				newText = this.$box.find('.editCaption').val();
+				if (newText == "") {
+					alert("Please srecify status");
+					return;
+				}
+				newIdt = newText.toUpperCase().replace(/\ /g, "_");
+			} else {
+				newIdt = this.$box.find('.selectCaption').val();
+				if (newIdt == "") {
+					alert("Please srecify status");
+					return;					
+				}
+				newText = this.$box.find('.VAL_' + newIdt).text();
+			}
 			
 			this.model.set('text', newText);
 			this.model.set('idt', newIdt);
@@ -201,7 +212,7 @@ joint.shapes.pathfinder.EditableStatusView = joint.dia.ElementView.extend({
 			ed.val(this.model.get('text'));
 			
 			var sel = this.$box.find('.selectCaption');
-			sel.val(this.model.get('text'));
+			sel.val(this.model.get('idt'));
 			
 			if (this.$box.find('.editSwitchInput').prop("checked")) {			
 				ed.show();
