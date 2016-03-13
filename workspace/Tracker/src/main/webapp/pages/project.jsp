@@ -161,7 +161,7 @@
 		function applyGrants() {
 			var sel = document.getElementById("transitionGrantsTransitionGrants");
 			var grants = [];
-			for (var i in sel.options) {
+			for (var i = 0; i < sel.length; i++) {
 				if (sel.options[i].selected) {
 					grants.push(sel.options[i].value);
 				}
@@ -199,7 +199,7 @@
 				return; // will not recreate
 			}
 			
-			var wfIdt = document.getElementById("<%=ProjectServlet.SET_PROJECT_KEY%>").value;
+			var wfIdt = document.getElementById("<%=ProjectServlet.SET_PROJECT_KEY%>").value.toUpperCase();
 			if (wfIdt == "") {
 				document.getElementById("createErr").innerHTML = "Project identifier required";
 				return;
@@ -243,7 +243,6 @@
 					y: 20
 				}
 			}));
-			graph.set('changed', true);
 		}
 		
 		function addLinkedProject() {
@@ -253,7 +252,6 @@
 					y: 20
 				}
 			}));
-			graph.set('changed', true);			
 		}
 		
 		function enlarge() {

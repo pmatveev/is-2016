@@ -27,6 +27,11 @@ function editLink(cell) {
 	callAdjust(cell.graph, target);
 }
 
+function addRemove(graph, cell) {
+	graph.set('changed', true);
+	adjustVertices(graph, cell);
+}
+
 function callAdjust(graph, cell) {
 	var links = graph.getConnectedLinks(cell);
 	var adjusted = {};
@@ -586,7 +591,6 @@ function connectByDrop(graph, cellView, evt, x, y) {
             }]
         });
         graph.addCell(newCell);
-		graph.set('changed', true);
         showGrants(newCell);
 
         var xBefore = cellView.model.prevX;
@@ -633,7 +637,6 @@ function selfConnect(graph, cellView, evt, x, y) {
         	}
         });
         graph.addCell(selfCell);
-		graph.set('changed', true);
         showGrants(selfCell);
         
         graph.addCell(new joint.shapes.pathfinder.SelfLink({
@@ -661,10 +664,9 @@ function selfConnect(graph, cellView, evt, x, y) {
 }
 
 function addListeners(paper, graph, grantsFunc) {
-	var myAdjustVertices = _.partial(adjustVertices, graph);
-	
 	// adjust vertices when a cell is removed 
-	graph.on('add remove', myAdjustVertices);
+	var myAddRemove = _.partial(addRemove, graph);
+	graph.on('add remove', myAddRemove);
 
 	graph.on('change:source change:target', editLink);
 	
@@ -677,7 +679,7 @@ function addListeners(paper, graph, grantsFunc) {
 	
 	var myPointerUp = _.partial(function(graph, cellView, evt, x, y) {
 		connectByDrop(graph, cellView, evt, x, y);
-		myAdjustVertices(cellView);
+		adjustVertices(graph, cellView);
 	}, graph);
 	paper.on('cell:pointerup', myPointerUp);	
 	
