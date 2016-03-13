@@ -128,7 +128,7 @@
 				    '</tr>',
 				    '<tr>',
 				    '<td colspan=2 style="text-align: center;">',
-				    '<button class="buttonFixed" onclick="applyGrants()">Apply</button>',
+				    '<button type="button" class="buttonFixed" onclick="applyGrants()">Apply</button>',
 				    '</td>',
 				    '</tr>',
 				    '</table>'
@@ -183,6 +183,7 @@
 				return 'Your changes are going to be lost';
 			});
 			document.title = "<%=currProject == null ? "New project" : Util.replaceStr(currProject.getName())%>";			
+			<% // TODO act on WS error %>			
 			<%
 				if (currProject != null) {
 			%>
@@ -199,7 +200,7 @@
 				return; // will not recreate
 			}
 			
-			var wfIdt = document.getElementById("<%=ProjectServlet.SET_PROJECT_KEY%>").value.toUpperCase();
+			var wfIdt = document.getElementById("DIS_<%=ProjectServlet.SET_PROJECT_KEY%>").value.toUpperCase();
 			if (wfIdt == "") {
 				document.getElementById("createErr").innerHTML = "Project identifier required";
 				return;
@@ -223,7 +224,7 @@
 	        document.getElementById("createErr").innerHTML = "";
 	        
 	        // make idt uneditable
-	        document.getElementById("<%=ProjectServlet.SET_PROJECT_KEY%>").disabled = "disabled";
+	        document.getElementById("DIS_<%=ProjectServlet.SET_PROJECT_KEY%>").disabled = "disabled";
 			
 	        // remove button
 	        var buttonRow = document.getElementById("createProjectRow");
@@ -259,122 +260,154 @@
 		}
 		
 		function submitChanges() {
+			if (document.getElementById("<%=ProjectServlet.SET_PROJECT_NAME%>").value == "") {
+				document.getElementById("createErr").innerHTML = "Project name required";
+				return false;				
+			}		
+
+			if (document.getElementById("<%=ProjectServlet.SET_PROJECT_OWNER%>").value == "") {
+				document.getElementById("createErr").innerHTML = "Project owner required";
+				return false;				
+			}		
+
+			var projIdt = document.getElementById("DIS_<%=ProjectServlet.SET_PROJECT_KEY%>").value.toUpperCase();
+			if (projIdt == "") {
+				document.getElementById("createErr").innerHTML = "Project key required";
+				return false;				
+			}		
+			
+			document.getElementById("<%=ProjectServlet.SET_PROJECT_KEY%>").value = projIdt;
+			
+			var returnTo = "<%=returnTo%>";
+			if (returnTo.indexOf("<%=ProjectServlet.PROJECT_KEY%>=") == -1) {
+				returnTo = returnTo + "&<%=ProjectServlet.PROJECT_KEY%>=" + projIdt;
+			}
+			document.getElementById("<%=LoginServlet.RETURN_URL%>").value = returnTo;
+			
+			document.getElementById("createErr").innerHTML = "";
 			submit = true;
+			graph.set('projectList', undefined);
+			graph.set('statusList', undefined);
+			graph.set('changed', undefined);
+			document.getElementById("<%=ProjectServlet.SET_PROJECT_JSON%>").value = JSON.stringify(graph.toJSON());
 			console.log(JSON.stringify(graph.toJSON()));
-			alert("JSON printed to the console");
+			return true;
 		}
 		
 		function alphaOnly(event) {
 			var key = event.keyCode;
-			return ((key >= 65 && key <= 90) || key == 8);
+			return ((key >= 65 && key <= 90) || key == 8 || key == 9);
 		}
 	</script>
 	<div class="adminMainScreen">
-		<div class="divProjectModelLeft">
-			<div id="divProjectMain">
-				<h1 class="briefInformation">Summary</h1>
-				<hr>
-				<div id="createErr" class="dialogErr"></div>
-				<table class="briefInfoTable">
-					<tr class="widthTr">
-						<td class="widthTd">Name</td>
-						<td>
-							<input type="text" 
-								id="<%=ProjectServlet.SET_PROJECT_NAME%>" 
-								name="<%=ProjectServlet.SET_PROJECT_NAME%>" 
-								value="<%=currProject == null ? "" : Util.replaceStr(currProject.getName())%>" 
-								class="editProject"/>
-						</td>
-					</tr>
-					<tr>
-						<td class="widthTd">Identifier</td>
-						<td>
-							<input type="text" 
-								id="<%=ProjectServlet.SET_PROJECT_KEY%>"
-								name="<%=ProjectServlet.SET_PROJECT_KEY%>" 
-								value="<%=currProject == null ? "" : Util.replaceStr(currProject.getCode())%>" 
-								onkeydown="return alphaOnly(event);"
-								class="editProject" 
-								style="text-transform: uppercase;"
-								<%=currProject == null ? "" : "disabled"%>/>
-						</td>
-					</tr>
-					<tr>
-						<td class="widthTd">Owner</td>
-						<td>
-							<select id="<%=ProjectServlet.SET_PROJECT_OWNER%>"
-								name="<%=ProjectServlet.SET_PROJECT_OWNER%>" 
-								class="editProject" >
-								<option value="" disabled <%=currProject == null ? "selected" : ""%>></option>
-								<% for (Officer o : officers) { %>
-								<option value="<%=Util.replaceStr(o.getUsername())%>"
-									<%=(currProject != null && o.getUsername().equals(currProject.getOwner().getUsername())) ? "selected" : ""%>>
-									<%=Util.replaceHTML(o.getCredentials())%>
-								</option>
-								<% } %>							
-							</select>
-						</td>
-					</tr>
-					<%
-						if (currProject == null) {
-					%>
-					<tr id="createProjectRow">
-						<td colspan=2 style="text-align: center;">
-							<button id="createProjectButton" 
-								onclick="createNewWorkflow()"
-								class="buttonFixed">Create</button>
-						</td>
-					</tr>
-					<%
-						}
-					%>
-				</table>
+		<form name="projectFrom" action="<%=ProjectServlet.SERVLET_IDT%>"
+			method="post" onsubmit="return submitChanges()">
+			<div class="divProjectModelLeft">
+				<div id="divProjectMain">
+					<h1 class="briefInformation">Summary</h1>
+					<hr>
+					<div id="createErr" class="dialogErr"></div>
+					<table class="briefInfoTable">
+						<tr class="widthTr">
+							<td class="widthTd">Name</td>
+							<td>
+								<input type="text" 
+									id="<%=ProjectServlet.SET_PROJECT_NAME%>" 
+									name="<%=ProjectServlet.SET_PROJECT_NAME%>" 
+									value="<%=currProject == null ? "" : Util.replaceStr(currProject.getName())%>" 
+									class="editProject"/>
+							</td>
+						</tr>
+						<tr>
+							<td class="widthTd">Identifier</td>
+							<td>
+								<input type="text" 
+									id="DIS_<%=ProjectServlet.SET_PROJECT_KEY%>"
+									name="DIS_<%=ProjectServlet.SET_PROJECT_KEY%>" 
+									value="<%=currProject == null ? "" : Util.replaceStr(currProject.getCode())%>" 
+									onkeydown="return alphaOnly(event);"
+									class="editProject" 
+									style="text-transform: uppercase;"
+									<%=currProject == null ? "" : "disabled"%>/>
+							</td>
+						</tr>
+						<tr>
+							<td class="widthTd">Owner</td>
+							<td>
+								<select id="<%=ProjectServlet.SET_PROJECT_OWNER%>"
+									name="<%=ProjectServlet.SET_PROJECT_OWNER%>" 
+									class="editProject" >
+									<option value="" disabled <%=currProject == null ? "selected" : ""%>></option>
+									<% for (Officer o : officers) { %>
+									<option value="<%=Util.replaceStr(o.getUsername())%>"
+										<%=(currProject != null && o.getUsername().equals(currProject.getOwner().getUsername())) ? "selected" : ""%>>
+										<%=Util.replaceHTML(o.getCredentials())%>
+									</option>
+									<% } %>							
+								</select>
+							</td>
+						</tr>
+						<%
+							if (currProject == null) {
+						%>
+						<tr id="createProjectRow">
+							<td colspan=2 style="text-align: center;">
+								<button id="createProjectButton" 
+									type="button"
+									onclick="createNewWorkflow()"
+									class="buttonFixed">Create</button>
+							</td>
+						</tr>
+						<%
+							}
+						%>
+					</table>
+					<input type="hidden"
+						id="<%=ProjectServlet.SET_PROJECT_JSON%>"
+						name="<%=ProjectServlet.SET_PROJECT_JSON%>"/>
+					<input type="hidden"
+						id="<%=ProjectServlet.SET_PROJECT_KEY%>"
+						name="<%=ProjectServlet.SET_PROJECT_KEY%>"/>
+					<input type="hidden"
+						id="<%=LoginServlet.RETURN_URL%>"
+						name="<%=LoginServlet.RETURN_URL%>"/>
+				</div>
+				<div id="divProjectModel">
+					<h1 class="briefInformation">Workflow</h1>
+					<hr>
+					<div class="floatLeft">
+						<button id="createStatusButton"  
+							type="button"
+							onclick="addNewStatus()"
+							class="buttonFixed" 
+							<%=currProject == null ? "style=\"display: none;\"" : ""%>>Add status</button>
+						<button id="createLinkedProjectButton"  
+							type="button"
+							onclick="addLinkedProject()"
+							class="buttonFixed" 
+							<%=currProject == null ? "style=\"display: none;\"" : ""%>>Add linked project</button>
+					</div>
+					<div class="floatRight">
+						<input id="submitProjectChangesButton" 
+							type="submit"
+							name="<%=ProjectServlet.PROJECT_SUBMIT_WEBSERVICE%>"
+							value="Submit"
+							class="buttonFixed" 
+							<%=currProject == null ? "style=\"display: none;\"" : ""%>/>
+					</div>
+					<div id="wfdiv"></div>
+					<a id="enlargeLink" 
+						onclick="enlarge()" 
+						href="#enlargeLink"
+						<%=currProject == null ? "style=\"display: none;\"" : ""%>>Need more space?</a>		
+				</div>	
 			</div>
-			<div id="divProjectModel">
-				<h1 class="briefInformation">Workflow</h1>
-				<hr>
-				<div class="floatLeft">
-					<button id="createStatusButton" 
-						onclick="addNewStatus()"
-						class="buttonFixed" 
-						<%=currProject == null ? "style=\"display: none;\"" : ""%>>Add status</button>
-					<button id="createLinkedProjectButton" 
-						onclick="addLinkedProject()"
-						class="buttonFixed" 
-						<%=currProject == null ? "style=\"display: none;\"" : ""%>>Add linked project</button>
-				</div>
-				<div class="floatRight">
-					<button id="submitProjectChangesButton" 
-						onclick="submitChanges()"
-						class="buttonFixed" 
-						<%=currProject == null ? "style=\"display: none;\"" : ""%>>Submit</button>
-				</div>
-				<div id="wfdiv"></div>
-				<a id="enlargeLink" 
-					onclick="enlarge()" 
-					href="#enlargeLink"
-					<%=currProject == null ? "style=\"display: none;\"" : ""%>>Need more space?</a>		
-			</div>	
-		</div>
+		</form>
 		<div class="divProjectModelRight">
 			<h1 class="briefInformation">Grant list</h1>
 			<hr>
 			<div id="divTransitionGrants">Click on transition to define its grants</div>
 		</div>
-		<!-- 
-		<button onclick="printJSON()">JSON</button>
-		<table>
-			<tr>
-				<td><%=json%></td>
-				<td id="outJSON"></td>
-			</tr>
-		</table>
-		<script>		
-			function printJSON() {
-				document.getElementById("outJSON").innerHTML = JSON.stringify(graph.toJSON());
-			}
-		</script>
-		 -->
 	</div>
 </body>
 </html>

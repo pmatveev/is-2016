@@ -135,7 +135,7 @@ function adjustVertices(graph, cell) {
 joint.shapes.pathfinder = {};
 joint.shapes.pathfinder.EditableStatus = joint.shapes.basic.Rect.extend({
 	defaults: joint.util.deepSupplement({
-		type: 'pathfinder.EditableStatus',
+		type: 'pathfinder.2EditableStatus',
 		size: {
 			width: 100,
 			height: 60
@@ -286,10 +286,10 @@ joint.shapes.pathfinder.EditableStatusView = joint.dia.ElementView.extend({
 
 joint.shapes.pathfinder.EditableOtherProject = joint.shapes.basic.Rect.extend({
 	defaults: joint.util.deepSupplement({
-		type: 'pathfinder.EditableOtherProject',
+		type: 'pathfinder.3EditableOtherProject',
 		size: {
 			width: 150,
-			height: 70
+			height: 80
 		},
 		attrs: {
 			rect: { stroke: 'none', 'fill-opacity': 0 }
@@ -407,7 +407,7 @@ joint.shapes.pathfinder.EditableOtherProjectView = joint.dia.ElementView.extend(
 
 joint.shapes.pathfinder.SelfLinkObj = joint.shapes.basic.Circle.extend({
 	defaults: joint.util.deepSupplement({
-		type: 'pathfinder.SelfLinkObj',
+		type: 'pathfinder.5SelfLinkObj',
 		size: {
 			width: 40,
 			height: 40
@@ -463,7 +463,7 @@ joint.shapes.pathfinder.SelfLinkObjView = joint.dia.ElementView.extend({
 
 joint.shapes.pathfinder.StartObj = joint.shapes.basic.Circle.extend({
 	defaults: joint.util.deepSupplement({
-		type: 'pathfinder.StartObj',
+		type: 'pathfinder.1StartObj', // make it first in the list
 		size: {
 			width: 50,
 			height: 50
@@ -515,7 +515,7 @@ joint.shapes.pathfinder.StartObjView = joint.dia.ElementView.extend({
 
 joint.shapes.pathfinder.Link =  joint.dia.Link.extend({
     defaults: {
-        type: 'pathfinder.Link',
+        type: 'pathfinder.4Link',
         attrs: { '.marker-target' : { 'd' :  'M 10 0 L 0 5 L 10 10 z' }},
 		smooth: true
     }
@@ -523,7 +523,7 @@ joint.shapes.pathfinder.Link =  joint.dia.Link.extend({
 
 joint.shapes.pathfinder.SelfLink =  joint.dia.Link.extend({
     defaults: {
-        type: 'pathfinder.SelfLink',
+        type: 'pathfinder.6SelfLink',
         attrs: { '.marker-target' : { 'd' :  'M 10 0 L 0 5 L 10 10 z' }},
 		smooth: true
     }
@@ -564,13 +564,16 @@ function connectByDrop(graph, cellView, evt, x, y) {
     		&& !graph.isNeighbor(elementBelow, cellView.model, opt)) {
     	var connName = null;
     	var connId = null;
-    	if (elementBelow instanceof joint.shapes.pathfinder.EditableStatus) {
-    		// project transitions are not named
-	    	while (connName == null) {
-	    		connName = window.prompt("Enter connection name", "");
-	    	}
-    	} else {
-    		connName = "Change workflow";
+    	
+    	if (cellView.model instanceof joint.shapes.pathfinder.StartObj) {
+    		connName = "Create";
+    	}
+    	if (elementBelow instanceof joint.shapes.pathfinder.EditableOtherProject) {
+    		connName = "Move";
+    	}
+    	
+    	while (connName == null) {
+    		connName = window.prompt("Enter connection name", "");
     	}
     	
     	var newCell = new joint.shapes.pathfinder.Link({
@@ -621,10 +624,7 @@ function selfConnect(graph, cellView, evt, x, y) {
     });
     
     if (!selfConn) {
-    	var connName = null;
-    	while (connName == null) {
-    		connName = window.prompt("Enter self connection name", "");
-    	}
+    	var connName = "Edit";
     	
     	var box = cellView.model.getBBox();
     	var selfCell = new joint.shapes.pathfinder.SelfLinkObj({

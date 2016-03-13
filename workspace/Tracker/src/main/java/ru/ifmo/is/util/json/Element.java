@@ -3,7 +3,7 @@ package ru.ifmo.is.util.json;
 import java.util.List;
 
 // cannot use derivation because of Gson
-public class Element {
+public class Element implements Comparable<Element> {
 	// common
 	private String id;
 	private String idt;
@@ -17,6 +17,11 @@ public class Element {
 	private LinkCell source;
 	private LinkCell target;
 	private List<Label> labels;
+	private List<String> grants;
+	
+	// link not used in JS
+	private Element sourceElem;
+	private Element targetElem;
 
 	public String getId() {
 		return id;
@@ -50,6 +55,18 @@ public class Element {
 		return labels;
 	}
 
+	public List<String> getGrants() {
+		return grants;
+	}
+
+	public Element getSourceElem() {
+		return sourceElem;
+	}
+
+	public Element getTargetElem() {
+		return targetElem;
+	}
+
 	public void setId(String id) {
 		this.id = id;
 	}
@@ -80,6 +97,18 @@ public class Element {
 
 	public void setLabels(List<Label> labels) {
 		this.labels = labels;
+	}
+
+	public void setGrants(List<String> grants) {
+		this.grants = grants;
+	}
+	
+	public void setSourceElem(Element sourceElem) {
+		this.sourceElem = sourceElem;
+	}
+
+	public void setTargetElem(Element targetElem) {
+		this.targetElem = targetElem;
 	}
 
 	public Element() {
@@ -138,4 +167,22 @@ public class Element {
 		this.labels = labels;
 	}
 
+	@Override
+	public int compareTo(Element o) {
+		return (getType() + "/" + getIdt()).compareTo(o.getType() + "/" + o.getText());
+	}
+	
+	@Override
+	public int hashCode() {
+		return getIdt().hashCode();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof Element) {
+			Element e = (Element) o;
+			return getIdt().equals(e.getIdt());			
+		}
+		return false;
+	}
 }

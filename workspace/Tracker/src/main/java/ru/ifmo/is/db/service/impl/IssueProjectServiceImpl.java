@@ -23,8 +23,10 @@ public class IssueProjectServiceImpl implements IssueProjectService {
 	@Transactional(readOnly = true)
 	public IssueProject selectByCode(String code) {
 		IssueProject p = issueProjectRepository.findByCode(code);
-		Hibernate.initialize(p.getOwner());
-		Hibernate.initialize(p.getStartStatus());
+		if (p != null) {
+			Hibernate.initialize(p.getOwner());
+			Hibernate.initialize(p.getStartStatus());
+		}
 		return p;
 	}
 

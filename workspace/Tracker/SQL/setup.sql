@@ -66,34 +66,32 @@ begin
 	declare offActive int(32);
 	declare st int(32);
 	
+	select min(id), min(is_active)
+	  into off, offActive
+	  from officer
+	 where username = p_owner;
+	 
+	if off is null then
+		return concat('Officer ',  p_owner,  ' does not exist: ',  p_code);
+	elseif offActive = false then
+		return concat('Officer ',  p_owner,  ' is not active: ',  p_code);		
+	end if;
+	
+	select min(id)
+	  into st
+	  from issue_status
+	 where code = p_status;
+	 
+	if st is null then
+		return concat('Status ',  p_status,  ' does not exist: ',  p_code);		
+	end if;
+	
 	select min(id)
 	  into pr
 	  from issue_project
 	 where code = p_code;
 	 
 	if pr is null then 
-		-- do not insert with existing codes, 
-		-- prevent from exception on constraint violation
-		select min(id), min(is_active)
-		  into off, offActive
-		  from officer
-		 where username = p_owner;
-		 
-		if off is null then
-			return concat('Officer ',  p_owner,  ' does not exist: ',  p_code);
-		elseif offActive = false then
-			return concat('Officer ',  p_owner,  ' is not active: ',  p_code);		
-		end if;
-		
-		select min(id)
-		  into st
-		  from issue_status
-		 where code = p_status;
-		 
-		if st is null then
-			return concat('Status ',  p_status,  ' does not exist: ',  p_code);		
-		end if;
-	
 		insert into issue_project
 			(start_status, owner, code, name, is_active, counter)
 			values
@@ -101,7 +99,12 @@ begin
 		
 		return null;
 	else
-		return concat('Duplicated issue project code: ',  p_code);
+		-- just update existing
+		update issue_project
+		   set start_status = st,
+		       owner = off,
+		       name = p_name
+		 where id = pr;
 	end if;	
 end
 $$ 

@@ -16,16 +16,67 @@ import ru.ifmo.is.util.Pair;
 import ru.ifmo.is.util.SQLParmKind;
 
 public class StatementExecutor {
+	private Connection transConnection = null;
+	
+	public void startTransaction() throws IOException {
+		try {
+			transConnection = Context.getConnection();
+			transConnection.setAutoCommit(false);
+		} catch (SQLException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	public void commitTransaction() throws IOException {
+		if (transConnection == null) {
+			return;
+		}
+		
+		try {
+			transConnection.commit();
+		} catch (SQLException e) {
+			throw new IOException(e);
+		} finally {
+			try {
+				transConnection.close();
+			} catch (SQLException e) {
+			} finally {
+				transConnection = null;
+			}
+		}
+	}
+	
+	public void rollbackTransaction() throws IOException {
+		if (transConnection == null) {
+			return;
+		}
+		
+		try {
+			transConnection.rollback();
+		} catch (SQLException e) {
+			throw new IOException(e);
+		} finally {
+			try {
+				transConnection.close();
+			} catch (SQLException e) {
+			} finally {
+				transConnection = null;
+			}
+		}
+	}
+	
 	@SafeVarargs
 	public final Object[] call(String sql,
 			Pair<SQLParmKind, Object>... attributes) throws IOException {
 		LogManager.log(sql, attributes);
 		
 		Object[] res = null;
-		Connection conn = null;
+		Connection conn = transConnection;
 		try {
-			conn = Context.getConnection();
-			conn.setAutoCommit(false);
+			if (conn == null) {
+				conn = Context.getConnection();
+				conn.setAutoCommit(false);
+			}
 			
 			CallableStatement stmt = conn.prepareCall("{" + sql + "}");
 
@@ -70,18 +121,25 @@ public class StatementExecutor {
 				case IN_INT: // should not be like this
 					break;
 				}
-
+			}
+			if (transConnection == null) {
+				// single execution
 				conn.commit();
 			}
 		} catch (SQLException e) {
 			try {
 				conn.rollback();
 			} catch (SQLException e1) {
+			} finally {
+				try {
+					conn.close();
+				} catch (SQLException e1) {
+				}
 			}
 			LogManager.log(e);
 			throw new IOException(e);
 		} finally {
-			if (conn != null) {
+			if (conn != null && transConnection == null) {
 				try {
 					conn.close();
 				} catch (SQLException e) {
