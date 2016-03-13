@@ -501,3 +501,11 @@ a:active {
 	width: 38%;
 	min-width: 300px;
 }
+
+.floatLeft {
+	float: left;
+}
+
+.floatRight {
+	float: right;
+}

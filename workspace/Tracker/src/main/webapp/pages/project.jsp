@@ -84,8 +84,9 @@
 		String json = new ProjectManager().toJSON(g);
 	%>
 	<script>
-		var paper;
-		var graph; 
+		var paper = null;
+		var graph = null; 
+		var submit = false;
 
 		var projects = '<%
 			for (IssueProject p : projects) {
@@ -118,7 +119,7 @@
 				    '<tr>',
 				    '<td class="widthTd">Grants</td>',
 				    '<td>',
-				    '<select id="transitionGrantsTransitionGrants" class="editProject" multiple size=10>',
+				    '<select id="transitionGrantsTransitionGrants" class="editProject" multiple size=<%=grants.size()%> style="overflow: hidden;">',
 				    <% for (OfficerGrant gr : grants) { %>
 				    '<option id="GrOpt<%=Util.replaceStr(gr.getCode())%>" value="<%=Util.replaceStr(gr.getCode())%>"><%=Util.replaceHTML(gr.getName())%></option>',
 				    <% } %>
@@ -168,9 +169,19 @@
 			
 			var cellId = document.getElementById("transitionGrantsTransitionId").value;
 			graph.getCell(cellId).set('grants', grants);
+			graph.set('changed', true);
 		}
 		
 		function init() {
+			$(window).bind('beforeunload', function() {
+				if (submit) {
+					return undefined;
+				}
+				if (graph == null || graph.get('changed') == false) {
+					return undefined;
+				}
+				return 'Your changes are going to be lost';
+			});
 			document.title = "<%=currProject == null ? "New project" : Util.replaceStr(currProject.getName())%>";			
 			<%
 				if (currProject != null) {
@@ -219,8 +230,10 @@
 	        buttonRow.parentNode.removeChild(buttonRow);
 	        
 	        // allow adding new elements
-	        document.getElementById("createStatusButton").style.display = "block";
-	        document.getElementById("createLinkedProjectButton").style.display = "block";
+	        document.getElementById("createStatusButton").style.display = "inline-block";
+	        document.getElementById("createLinkedProjectButton").style.display = "inline-block";
+	        document.getElementById("submitProjectChangesButton").style.display = "inline-block";
+	        document.getElementById("enlargeLink").style.display = "block";
 		}
 		
 		function addNewStatus() {
@@ -229,7 +242,8 @@
 					x: 20,
 					y: 20
 				}
-			}))
+			}));
+			graph.set('changed', true);
 		}
 		
 		function addLinkedProject() {
@@ -238,11 +252,23 @@
 					x: 20,
 					y: 20
 				}
-			}))			
+			}));
+			graph.set('changed', true);			
 		}
 		
 		function enlarge() {
 			paper.setDimensions(paper.options.width, paper.options.height + 100);
+		}
+		
+		function submitChanges() {
+			submit = true;
+			console.log(JSON.stringify(graph.toJSON()));
+			alert("JSON printed to the console");
+		}
+		
+		function alphaOnly(event) {
+			var key = event.keyCode;
+			return ((key >= 65 && key <= 90) || key == 8);
 		}
 	</script>
 	<div class="adminMainScreen">
@@ -269,7 +295,9 @@
 								id="<%=ProjectServlet.SET_PROJECT_KEY%>"
 								name="<%=ProjectServlet.SET_PROJECT_KEY%>" 
 								value="<%=currProject == null ? "" : Util.replaceStr(currProject.getCode())%>" 
+								onkeydown="return alphaOnly(event);"
 								class="editProject" 
+								style="text-transform: uppercase;"
 								<%=currProject == null ? "" : "disabled"%>/>
 						</td>
 					</tr>
@@ -307,16 +335,27 @@
 			<div id="divProjectModel">
 				<h1 class="briefInformation">Workflow</h1>
 				<hr>
-				<button id="createStatusButton" 
-					onclick="addNewStatus()"
-					class="buttonFixed" 
-					<%=currProject == null ? "style=\"display: none;\"" : ""%>>Add status</button>
-				<button id="createLinkedProjectButton" 
-					onclick="addLinkedProject()"
-					class="buttonFixed" 
-					<%=currProject == null ? "style=\"display: none;\"" : ""%>>Add linked project</button>
+				<div class="floatLeft">
+					<button id="createStatusButton" 
+						onclick="addNewStatus()"
+						class="buttonFixed" 
+						<%=currProject == null ? "style=\"display: none;\"" : ""%>>Add status</button>
+					<button id="createLinkedProjectButton" 
+						onclick="addLinkedProject()"
+						class="buttonFixed" 
+						<%=currProject == null ? "style=\"display: none;\"" : ""%>>Add linked project</button>
+				</div>
+				<div class="floatRight">
+					<button id="submitProjectChangesButton" 
+						onclick="submitChanges()"
+						class="buttonFixed" 
+						<%=currProject == null ? "style=\"display: none;\"" : ""%>>Submit</button>
+				</div>
 				<div id="wfdiv"></div>
-				<a id="enlargeLink" onclick="enlarge()" href="#enlargeLink">Need more space?</a>		
+				<a id="enlargeLink" 
+					onclick="enlarge()" 
+					href="#enlargeLink"
+					<%=currProject == null ? "style=\"display: none;\"" : ""%>>Need more space?</a>		
 			</div>	
 		</div>
 		<div class="divProjectModelRight">

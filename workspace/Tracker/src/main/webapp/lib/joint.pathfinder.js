@@ -22,6 +22,7 @@ function editLink(cell) {
 	cell.set('idt', cell.graph.get('idt') + '_' + source.get('idt') + '_' + target.get('idt'));	
 
 	cell.set('vertices', []);
+	cell.graph.set('changed', true);
 	callAdjust(cell.graph, source);
 	callAdjust(cell.graph, target);
 }
@@ -85,10 +86,18 @@ function adjustVertices(graph, cell) {
 		// There is more than one siblings. We need to create vertices.
 		var memSign = srcId < trgId ? 1 : -1;
 		// First of all we'll find the middle point of the link.
-		var srcCenter = graph.getCell(srcId).getBBox().center();
-		var trgCenter = graph.getCell(trgId).getBBox().center();
-		var midPoint = g.line(srcCenter, trgCenter).midpoint();
+		
+		var srcBox = graph.getCell(srcId).getBBox();
+		var trgBox = graph.getCell(trgId).getBBox();
+	
+		var srcCenter = srcBox.center();
+		var trgCenter = trgBox.center();
+//		var midPoint = g.line(srcCenter, trgCenter).midpoint();
 
+		var srcMul = srcBox.width + srcBox.height;
+		var trgMul = trgBox.width + trgBox.height;
+		var midPoint = g.point((trgMul * srcCenter.x + srcMul * trgCenter.x) / (srcMul + trgMul), (trgMul * srcCenter.y + srcMul * trgCenter.y) /  (srcMul + trgMul));
+		
 		// Then find the angle it forms.
 		var theta = srcCenter.theta(trgCenter);
 
@@ -183,7 +192,8 @@ joint.shapes.pathfinder.EditableStatusView = joint.dia.ElementView.extend({
 				}
 				newText = this.$box.find('.VAL_' + newIdt).text();
 			}
-			
+
+			this.model.graph.set('changed', true);
 			this.model.set('text', newText);
 			this.model.set('idt', newIdt);
 			
@@ -325,6 +335,8 @@ joint.shapes.pathfinder.EditableOtherProjectView = joint.dia.ElementView.extend(
 			var newStText = this.$box.find('.VAL_' + newStIdt).text();
 			
 			var newIdt = newPrjIdt + "." + newStIdt;
+			
+			this.model.graph.set('changed', true);
 			this.model.set('text', '<b>' + newPrjText + '</b><br/>' + newStText);
 			this.model.set('idt', newIdt);
 			
@@ -574,6 +586,7 @@ function connectByDrop(graph, cellView, evt, x, y) {
             }]
         });
         graph.addCell(newCell);
+		graph.set('changed', true);
         showGrants(newCell);
 
         var xBefore = cellView.model.prevX;
@@ -620,6 +633,7 @@ function selfConnect(graph, cellView, evt, x, y) {
         	}
         });
         graph.addCell(selfCell);
+		graph.set('changed', true);
         showGrants(selfCell);
         
         graph.addCell(new joint.shapes.pathfinder.SelfLink({
@@ -706,6 +720,10 @@ function createGraph(json, projects, statuses, grantsFunc) {
 		for (var cell in cells) {
 			callAdjust(graph, cells[cell]);
 		}
+		
+		graph.set('changed', false);
+	} else {
+		graph.set('changed', true);
 	}
 	
     return [paper, graph];
