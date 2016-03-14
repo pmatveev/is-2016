@@ -3,7 +3,7 @@ package ru.ifmo.is.util.json;
 import java.util.List;
 
 // cannot use derivation because of Gson
-public class Element implements Comparable<Element> {
+public class Element {
 	// common
 	private String id;
 	private String idt;
@@ -167,11 +167,6 @@ public class Element implements Comparable<Element> {
 		this.labels = labels;
 	}
 
-	@Override
-	public int compareTo(Element o) {
-		return (getType() + "/" + getIdt()).compareTo(o.getType() + "/" + o.getText());
-	}
-	
 	@Override
 	public int hashCode() {
 		return getIdt().hashCode();

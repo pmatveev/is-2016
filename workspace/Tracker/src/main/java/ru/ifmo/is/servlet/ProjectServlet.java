@@ -61,6 +61,7 @@ public class ProjectServlet extends HttpServlet {
 				json);
 		if (result.startsWith("E:")) {
 			alterProjectReturn(request, response, result.substring(2));
+			return;
 		}
 		response.sendRedirect(LoginServlet.getReturnAddress(request));
 	}

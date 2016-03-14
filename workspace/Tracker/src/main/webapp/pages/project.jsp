@@ -81,11 +81,9 @@
 		g.getCells().add(link1);
 		g.getCells().add(link2);
 		
-		String json = new ProjectManager().toJSON(g);
+		String jsonTest = new ProjectManager().toJSON(g);
 	%>
 	<script>
-		var paper = null;
-		var graph = null; 
 		var submit = false;
 
 		var projects = '<%
@@ -102,7 +100,11 @@
 			}
 		%>';
 		
-		function displayGrants(linkId) {
+		function displayGrants(linkId, action) {
+			if (linkId == null) {
+				document.getElementById("divTransitionGrants").innerHTML = "Click on transition to define its grants";
+				return;
+			}
 			if (document.getElementById("transitionGrantsTransitionId") == null) {
 				var div = document.getElementById("divTransitionGrants");
 				div.innerHTML = [
@@ -183,16 +185,61 @@
 				return 'Your changes are going to be lost';
 			});
 			document.title = "<%=currProject == null ? "New project" : Util.replaceStr(currProject.getName())%>";			
-			<% // TODO act on WS error %>			
-			<%
-				if (currProject != null) {
+			<% 
+				if ("error".equals(request.getSession().getAttribute(ProjectServlet.PROJECT_SUBMIT_WEBSERVICE))) {
+					request.getSession().removeAttribute(ProjectServlet.PROJECT_SUBMIT_WEBSERVICE);
+					
+					String error = (String) request.getSession().getAttribute(ProjectServlet.PROJECT_ERROR);
+					if (error != null) {
+						request.getSession().removeAttribute(ProjectServlet.PROJECT_ERROR);
+						out.println(
+								"document.getElementById(\"createErr\").innerHTML = \"" + Util.replaceStr(error) + "\";");
+					}
+					
+					String name = (String) request.getSession().getAttribute(ProjectServlet.SET_PROJECT_NAME);
+					if (name != null) {
+						request.getSession().removeAttribute(ProjectServlet.SET_PROJECT_NAME);
+						out.println("document.getElementById(\"" + ProjectServlet.SET_PROJECT_NAME + "\").value = \"" + Util.replaceStr(name) + "\";");
+					}
+					
+					String code = (String) request.getSession().getAttribute(ProjectServlet.SET_PROJECT_KEY);
+					if (code != null) {
+						request.getSession().removeAttribute(ProjectServlet.SET_PROJECT_KEY);
+						out.println("document.getElementById(\"DIS_" + ProjectServlet.SET_PROJECT_KEY + "\").value = \"" + Util.replaceStr(code) + "\";");
+					}
+					
+					String owner = (String) request.getSession().getAttribute(ProjectServlet.SET_PROJECT_OWNER);
+					if (owner != null) {
+						request.getSession().removeAttribute(ProjectServlet.SET_PROJECT_OWNER);
+						out.println("document.getElementById(\"" + ProjectServlet.SET_PROJECT_OWNER + "_" + Util.replaceStr(owner) + "\").selected = \"selected\";");
+					}
+					
+					String json = (String) request.getSession().getAttribute(ProjectServlet.SET_PROJECT_JSON);
+					if (json != null) {
+						request.getSession().removeAttribute(ProjectServlet.SET_PROJECT_JSON);
+						out.println("createGraph('" + json + "', projects, statuses, displayGrants);");
+						out.println("graph.set('changed', true);");
+					}
+				} else if (currProject != null) {
 			%>
-			var tmp = createGraph('<%=json%>', projects, statuses, displayGrants);
-			paper = tmp[0];
-			graph = tmp[1];
+			document.getElementById("<%=ProjectServlet.SET_PROJECT_NAME%>").value = "<%=Util.replaceStr(currProject.getName())%>";
+			document.getElementById("DIS_<%=ProjectServlet.SET_PROJECT_KEY%>").value = "<%=Util.replaceStr(currProject.getCode())%>";
+			document.getElementById("<%=ProjectServlet.SET_PROJECT_OWNER%>_<%=Util.replaceStr(currProject.getOwner().getUsername())%>").selected = "selected";
+			
+			createGraph('<%=jsonTest%>', projects, statuses, displayGrants);
 			<%
 				}
 			%>
+			if (graph != null) {
+				displayWorkflowElements();	
+			}
+		}
+		
+		function displayWorkflowElements() {
+	        document.getElementById("createStatusButton").style.display = "inline-block";
+	        document.getElementById("createLinkedProjectButton").style.display = "inline-block";
+	        document.getElementById("submitProjectChangesButton").style.display = "inline-block";
+	        document.getElementById("enlargeLink").style.display = "block";
 		}
 		
 		function createNewWorkflow() {
@@ -206,10 +253,7 @@
 				return;
 			}
 			
-			var tmp = createGraph(null, projects, statuses, displayGrants);
-			paper = tmp[0];
-			graph = tmp[1];
-			
+			createGraph(null, projects, statuses, displayGrants);
 			graph.set('idt', wfIdt);
 			
 	        graph.addCell(new joint.shapes.pathfinder.StartObj({
@@ -231,10 +275,7 @@
 	        buttonRow.parentNode.removeChild(buttonRow);
 	        
 	        // allow adding new elements
-	        document.getElementById("createStatusButton").style.display = "inline-block";
-	        document.getElementById("createLinkedProjectButton").style.display = "inline-block";
-	        document.getElementById("submitProjectChangesButton").style.display = "inline-block";
-	        document.getElementById("enlargeLink").style.display = "block";
+	        displayWorkflowElements();
 		}
 		
 		function addNewStatus() {
@@ -314,7 +355,6 @@
 								<input type="text" 
 									id="<%=ProjectServlet.SET_PROJECT_NAME%>" 
 									name="<%=ProjectServlet.SET_PROJECT_NAME%>" 
-									value="<%=currProject == null ? "" : Util.replaceStr(currProject.getName())%>" 
 									class="editProject"/>
 							</td>
 						</tr>
@@ -324,7 +364,6 @@
 								<input type="text" 
 									id="DIS_<%=ProjectServlet.SET_PROJECT_KEY%>"
 									name="DIS_<%=ProjectServlet.SET_PROJECT_KEY%>" 
-									value="<%=currProject == null ? "" : Util.replaceStr(currProject.getCode())%>" 
 									onkeydown="return alphaOnly(event);"
 									class="editProject" 
 									style="text-transform: uppercase;"
@@ -336,11 +375,11 @@
 							<td>
 								<select id="<%=ProjectServlet.SET_PROJECT_OWNER%>"
 									name="<%=ProjectServlet.SET_PROJECT_OWNER%>" 
-									class="editProject" >
+									class="editProject">
 									<option value="" disabled <%=currProject == null ? "selected" : ""%>></option>
 									<% for (Officer o : officers) { %>
 									<option value="<%=Util.replaceStr(o.getUsername())%>"
-										<%=(currProject != null && o.getUsername().equals(currProject.getOwner().getUsername())) ? "selected" : ""%>>
+										id="<%=ProjectServlet.SET_PROJECT_OWNER%>_<%=Util.replaceStr(o.getUsername())%>">
 										<%=Util.replaceHTML(o.getCredentials())%>
 									</option>
 									<% } %>							
@@ -406,7 +445,7 @@
 		<div class="divProjectModelRight">
 			<h1 class="briefInformation">Grant list</h1>
 			<hr>
-			<div id="divTransitionGrants">Click on transition to define its grants</div>
+			<div id="divTransitionGrants"></div>
 		</div>
 	</div>
 </body>

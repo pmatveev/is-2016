@@ -2,6 +2,7 @@ package ru.ifmo.is.manager;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.springframework.context.ApplicationContext;
@@ -16,12 +17,12 @@ import ru.ifmo.is.util.json.Graph;
 import com.google.gson.Gson;
 
 public class ProjectManager {
-	private static final String START_TYP = "pathfinder.1StartObj";
-	private static final String STATUS_TYP = "pathfinder.2EditableStatus";
-	private static final String OTHER_PRJ_TYP = "pathfinder.3EditableOtherProject";
-	private static final String LINK_TYP = "pathfinder.4Link";
-	private static final String SELF_LINK_OBJ_TYP = "pathfinder.5SelfLinkObj";
-	private static final String SELF_LINK_TYP = "pathfinder.6SelfLink";
+	private static final String START_TYP = "pathfinder.StartObj";
+	private static final String STATUS_TYP = "pathfinder.EditableStatus";
+	private static final String OTHER_PRJ_TYP = "pathfinder.EditableOtherProject";
+	private static final String LINK_TYP = "pathfinder.Link";
+	private static final String SELF_LINK_OBJ_TYP = "pathfinder.SelfLinkObj";
+	private static final String SELF_LINK_TYP = "pathfinder.SelfLink";
 
 	public String toJSON(Graph g) {
 		return new Gson().toJson(g);
@@ -63,9 +64,10 @@ public class ProjectManager {
 		}
 
 		List<Element> cells = graph.getCells();
-		Collections.sort(cells);
 
 		Element startWith = null;
+		List<Element> statuses = new LinkedList<Element>();
+		List<Element> links = new LinkedList<Element>();
 		// set all the links and find start status
 		for (int i = 0; i < cells.size(); i++) {
 			Element curr = cells.get(i);
@@ -96,6 +98,8 @@ public class ProjectManager {
 					}
 					startWith = target;
 				}
+				
+				links.add(curr);
 			} else if (SELF_LINK_TYP.equals(curr.getType())) {
 				Element source = graph.findByIdt(curr.getSource().getIdt());
 				Element target = graph.findByIdt(curr.getTarget().getIdt());
@@ -124,6 +128,10 @@ public class ProjectManager {
 					return "E:Self link having idt '" + curr.getIdt()
 							+ "' is not linked to 'Edit' element";
 				}
+				
+				links.add(curr);
+			} else if (STATUS_TYP.equals(curr.getType())) {
+				statuses.add(curr);
 			}
 		}
 

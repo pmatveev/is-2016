@@ -1,3 +1,6 @@
+var paper;
+var graph;
+
 function printProps(obj) {
 	console.log("Properties:");
 	for (var id in obj) {
@@ -13,26 +16,27 @@ function editLink(cell) {
 	if (!cell.isLink) return;
 	if (typeof cell.get('source').id == 'undefined' || typeof cell.get('target').id == 'undefined') return;
 
-	var source = cell.graph.getCell(cell.get('source').id);
-	var target = cell.graph.getCell(cell.get('target').id);
+	var source = graph.getCell(cell.get('source').id);
+	var target = graph.getCell(cell.get('target').id);
 
 	cell.get('source').idt = source.get('idt');
 	cell.get('target').idt = target.get('idt');
 	
-	cell.set('idt', cell.graph.get('idt') + '_' + source.get('idt') + '_' + target.get('idt'));	
+	cell.set('idt', graph.get('idt') + '_' + source.get('idt') + '_' + target.get('idt'));	
 
 	cell.set('vertices', []);
-	cell.graph.set('changed', true);
-	callAdjust(cell.graph, source);
-	callAdjust(cell.graph, target);
-}
-
-function addRemove(graph, cell) {
 	graph.set('changed', true);
-	adjustVertices(graph, cell);
+	callAdjust(source);
+	callAdjust(target);
 }
 
-function callAdjust(graph, cell) {
+function addRemove(action, cell) {
+	graph.set('changed', true);
+	adjustVertices(cell);
+	showGrants(cell, action);
+}
+
+function callAdjust(cell) {
 	var links = graph.getConnectedLinks(cell);
 	var adjusted = {};
 	
@@ -49,16 +53,16 @@ function callAdjust(graph, cell) {
 		}
 		adjusted[other] = 1;
 		
-		adjustVertices(graph, links[link]);
+		adjustVertices(links[link]);
 	}
 }
 
-function adjustVertices(graph, cell) {
+function adjustVertices(cell) {
 	// If the cell is a view, find its model.
 	cell = cell.model || cell;
 
 	if (cell instanceof joint.dia.Element) {
-		callAdjust(graph, cell);
+		callAdjust(cell);
 		return;
 	}
 
@@ -135,7 +139,7 @@ function adjustVertices(graph, cell) {
 joint.shapes.pathfinder = {};
 joint.shapes.pathfinder.EditableStatus = joint.shapes.basic.Rect.extend({
 	defaults: joint.util.deepSupplement({
-		type: 'pathfinder.2EditableStatus',
+		type: 'pathfinder.EditableStatus',
 		size: {
 			width: 100,
 			height: 60
@@ -286,7 +290,7 @@ joint.shapes.pathfinder.EditableStatusView = joint.dia.ElementView.extend({
 
 joint.shapes.pathfinder.EditableOtherProject = joint.shapes.basic.Rect.extend({
 	defaults: joint.util.deepSupplement({
-		type: 'pathfinder.3EditableOtherProject',
+		type: 'pathfinder.EditableOtherProject',
 		size: {
 			width: 150,
 			height: 80
@@ -407,7 +411,7 @@ joint.shapes.pathfinder.EditableOtherProjectView = joint.dia.ElementView.extend(
 
 joint.shapes.pathfinder.SelfLinkObj = joint.shapes.basic.Circle.extend({
 	defaults: joint.util.deepSupplement({
-		type: 'pathfinder.5SelfLinkObj',
+		type: 'pathfinder.SelfLinkObj',
 		size: {
 			width: 40,
 			height: 40
@@ -463,7 +467,7 @@ joint.shapes.pathfinder.SelfLinkObjView = joint.dia.ElementView.extend({
 
 joint.shapes.pathfinder.StartObj = joint.shapes.basic.Circle.extend({
 	defaults: joint.util.deepSupplement({
-		type: 'pathfinder.1StartObj', // make it first in the list
+		type: 'pathfinder.StartObj', // make it first in the list
 		size: {
 			width: 50,
 			height: 50
@@ -515,7 +519,7 @@ joint.shapes.pathfinder.StartObjView = joint.dia.ElementView.extend({
 
 joint.shapes.pathfinder.Link =  joint.dia.Link.extend({
     defaults: {
-        type: 'pathfinder.4Link',
+        type: 'pathfinder.Link',
         attrs: { '.marker-target' : { 'd' :  'M 10 0 L 0 5 L 10 10 z' }},
 		smooth: true
     }
@@ -523,7 +527,7 @@ joint.shapes.pathfinder.Link =  joint.dia.Link.extend({
 
 joint.shapes.pathfinder.SelfLink =  joint.dia.Link.extend({
     defaults: {
-        type: 'pathfinder.6SelfLink',
+        type: 'pathfinder.SelfLink',
         attrs: { '.marker-target' : { 'd' :  'M 10 0 L 0 5 L 10 10 z' }},
 		smooth: true
     }
@@ -536,15 +540,19 @@ function saveXY(cellView, evt, x, y) {
 	}
 }
 
-function showGrants(cellView) {
+function showGrants(cellView, action) {
 	var cell = cellView.model || cellView;
 	if ((cell instanceof joint.shapes.pathfinder.Link)
 			|| (cell instanceof joint.shapes.pathfinder.SelfLinkObj)) {
-		cell.graph.get('showGrants')(cell.get('id'));
+		if (action === "remove") {
+			graph.get('showGrants')(null);
+		} else {
+			graph.get('showGrants')(cell.get('id'));
+		}
 	}
 }
 
-function connectByDrop(graph, cellView, evt, x, y) {
+function connectByDrop(cellView, evt, x, y) {
     var elementBelow = graph.get('cells').find(function(cell) {
         if (cell instanceof joint.dia.Link) return false; // Not interested in links.
         if (cell.id === cellView.model.id) return false; // The same element as the dropped one.
@@ -594,7 +602,7 @@ function connectByDrop(graph, cellView, evt, x, y) {
             }]
         });
         graph.addCell(newCell);
-        showGrants(newCell);
+//        showGrants(newCell);
 
         var xBefore = cellView.model.prevX;
         var yBefore = cellView.model.prevY;
@@ -613,7 +621,7 @@ function connectByDrop(graph, cellView, evt, x, y) {
     }
 }
 
-function selfConnect(graph, cellView, evt, x, y) {
+function selfConnect(cellView, evt, x, y) {
 	if (!(cellView.model instanceof joint.shapes.pathfinder.EditableStatus)) return;
 	
 	var selfId = '__SELF_' + cellView.model.id;
@@ -637,7 +645,7 @@ function selfConnect(graph, cellView, evt, x, y) {
         	}
         });
         graph.addCell(selfCell);
-        showGrants(selfCell);
+//        showGrants(selfCell);
         
         graph.addCell(new joint.shapes.pathfinder.SelfLink({
             source: { 
@@ -663,10 +671,10 @@ function selfConnect(graph, cellView, evt, x, y) {
     }
 }
 
-function addListeners(paper, graph, grantsFunc) {
+function addListeners(grantsFunc) {
 	// adjust vertices when a cell is removed 
-	var myAddRemove = _.partial(addRemove, graph);
-	graph.on('add remove', myAddRemove);
+	graph.on('add', _.partial(addRemove, "add"));
+	graph.on('remove', _.partial(addRemove, "remove"));
 
 	graph.on('change:source change:target', editLink);
 	
@@ -674,26 +682,24 @@ function addListeners(paper, graph, grantsFunc) {
 	// also when an user stops interacting with an element.
 	paper.on('cell:pointerdown', function(cellView, evt, x, y) {
 		saveXY(cellView, evt, x, y);
-		showGrants(cellView);
+		showGrants(cellView, "select");
 	});
 	
-	var myPointerUp = _.partial(function(graph, cellView, evt, x, y) {
-		connectByDrop(graph, cellView, evt, x, y);
-		adjustVertices(graph, cellView);
-	}, graph);
+	var myPointerUp = function(cellView, evt, x, y) {
+		connectByDrop(cellView, evt, x, y);
+		adjustVertices(cellView);
+	};
 	paper.on('cell:pointerup', myPointerUp);	
-	
-	var myPointerDbl = _.partial(selfConnect, graph);
-	paper.on('cell:pointerdblclick', myPointerDbl);
+	paper.on('cell:pointerdblclick', selfConnect);
 }
 
 function createGraph(json, projects, statuses, grantsFunc) {
-	var graph = new joint.dia.Graph({
+	graph = new joint.dia.Graph({
 		projectList: projects,
 		statusList: statuses
 	});
 	
-    var paper = new joint.dia.Paper({
+    paper = new joint.dia.Paper({
         el: $('#wfdiv'),
         width: 0,
         height: 600,
@@ -713,14 +719,14 @@ function createGraph(json, projects, statuses, grantsFunc) {
 		resizeDiv();
 	}	
     
-    addListeners(paper, graph, grantsFunc);
+    addListeners(grantsFunc);
     
 	if (json != null) {
 		graph.fromJSON(JSON.parse(json));
 		
 		var cells = graph.getElements();
 		for (var cell in cells) {
-			callAdjust(graph, cells[cell]);
+			callAdjust(cells[cell]);
 		}
 		
 		graph.set('changed', false);
@@ -728,5 +734,5 @@ function createGraph(json, projects, statuses, grantsFunc) {
 		graph.set('changed', true);
 	}
 	
-    return [paper, graph];
+	grantsFunc(null);
 }

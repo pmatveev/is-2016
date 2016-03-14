@@ -1,6 +1,6 @@
 package ru.ifmo.is.util.json;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class Graph {
@@ -24,12 +24,12 @@ public class Graph {
 	}
 
 	public Graph() {
-		this.cells = new ArrayList<Element>();
+		this.cells = new LinkedList<Element>();
 	}
 
 	public Graph(String idt) {
 		this.idt = idt;
-		this.cells = new ArrayList<Element>();
+		this.cells = new LinkedList<Element>();
 	}
 
 	public Graph(String idt, List<Element> cells) {
