@@ -59,7 +59,7 @@ public class ProjectServlet extends HttpServlet {
 
 		String result = new ProjectManager().alterProcess(code, name, owner,
 				json);
-		if (result.startsWith("E:")) {
+		if (result != null && result.startsWith("E:")) {
 			alterProjectReturn(request, response, result.substring(2));
 			return;
 		}

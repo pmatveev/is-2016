@@ -176,8 +176,13 @@ public class Element {
 	public boolean equals(Object o) {
 		if (o instanceof Element) {
 			Element e = (Element) o;
-			return getIdt().equals(e.getIdt());			
+			return getIdt() == null ? e.getIdt() == null : getIdt().equals(e.getIdt());			
 		}
 		return false;
+	}
+	
+	@Override
+	public String toString() {
+		return getIdt();
 	}
 }

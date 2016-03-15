@@ -635,9 +635,10 @@ function selfConnect(cellView, evt, x, y) {
     	var connName = "Edit";
     	
     	var box = cellView.model.getBBox();
+		var selfIdt = graph.get('idt') + '_' + cellView.model.get('idt') + '_' + cellView.model.get('idt');
     	var selfCell = new joint.shapes.pathfinder.SelfLinkObj({
         	id: selfId,
-        	idt: graph.get('idt') + '_' + cellView.model.get('idt') + '_' + cellView.model.get('idt'),
+        	idt: selfIdt,
         	text: connName,
         	position: {
         		x: box.x + box.width + 50,
@@ -654,14 +655,14 @@ function selfConnect(cellView, evt, x, y) {
             }, 
             target: { 
             	id: selfId,
-            	idt: selfId
+            	idt: selfIdt
             }
         }));
         
         graph.addCell(new joint.shapes.pathfinder.SelfLink({
             source: { 
             	id: selfId,
-            	idt: selfId
+            	idt: selfIdt
             }, 
             target: { 
             	id: cellView.model.id,

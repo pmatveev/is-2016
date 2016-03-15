@@ -25,6 +25,7 @@ public class StatementExecutor {
 		} catch (SQLException e) {
 			throw new IOException(e);
 		}
+		LogManager.log(LogLevel.SQL, "Start transaction");
 	}
 	
 	public void commitTransaction() throws IOException {
@@ -42,6 +43,7 @@ public class StatementExecutor {
 			} catch (SQLException e) {
 			} finally {
 				transConnection = null;
+				LogManager.log(LogLevel.SQL, "Commit transaction");
 			}
 		}
 	}
@@ -61,6 +63,7 @@ public class StatementExecutor {
 			} catch (SQLException e) {
 			} finally {
 				transConnection = null;
+				LogManager.log(LogLevel.SQL, "Rollback transaction");
 			}
 		}
 	}

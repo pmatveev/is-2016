@@ -54,7 +54,7 @@
 	%>
 	<%
 		// TODO remove
-		Graph g = new Graph("TEST");
+		Graph g = new Graph(currProject == null ? "TEST" : currProject.getCode());
 		
 		Attribute labelText1 = new Attribute("Close", null);
 		Attribute labelText2 = new Attribute("Reopen", null);
@@ -331,7 +331,7 @@
 			graph.set('statusList', undefined);
 			graph.set('changed', undefined);
 			document.getElementById("<%=ProjectServlet.SET_PROJECT_JSON%>").value = JSON.stringify(graph.toJSON());
-			console.log(JSON.stringify(graph.toJSON()));
+			//console.log(JSON.stringify(graph.toJSON()));
 			return true;
 		}
 		

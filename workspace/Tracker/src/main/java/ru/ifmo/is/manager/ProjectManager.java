@@ -1,15 +1,14 @@
 package ru.ifmo.is.manager;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.springframework.context.ApplicationContext;
 
 import ru.ifmo.is.db.StatementExecutor;
-import ru.ifmo.is.db.entity.IssueProject;
-import ru.ifmo.is.db.service.IssueProjectService;
+import ru.ifmo.is.db.entity.IssueStatus;
+import ru.ifmo.is.db.service.IssueStatusService;
 import ru.ifmo.is.db.util.Context;
 import ru.ifmo.is.util.json.Element;
 import ru.ifmo.is.util.json.Graph;
@@ -34,11 +33,7 @@ public class ProjectManager {
 
 	public String alterProcess(String code, String name, String owner,
 			String json) throws IOException {
-		/*
-		 * ApplicationContext ctx = Context.getContext(); IssueProjectService
-		 * projectService = ctx.getBean(IssueProjectService.class); IssueProject
-		 * project = projectService.selectByCode(code);
-		 */
+		// parms verification
 		if (json == null) {
 			return "E:Workflow JSON representation not found";
 		}
@@ -51,7 +46,7 @@ public class ProjectManager {
 		if (owner == null) {
 			return "E:Project owner must be specified";
 		}
-		
+
 		Graph graph = fromJSON(json);
 
 		if (!code.equals(graph.getIdt())) {
@@ -65,12 +60,14 @@ public class ProjectManager {
 
 		List<Element> cells = graph.getCells();
 
+		// basic verification and cell separation
 		Element startWith = null;
 		List<Element> statuses = new LinkedList<Element>();
 		List<Element> links = new LinkedList<Element>();
 		// set all the links and find start status
 		for (int i = 0; i < cells.size(); i++) {
 			Element curr = cells.get(i);
+
 			if (LINK_TYP.equals(curr.getType())) {
 				// normal links, let's find its source and target
 				Element source = graph.findByIdt(curr.getSource().getIdt());
@@ -98,7 +95,7 @@ public class ProjectManager {
 					}
 					startWith = target;
 				}
-				
+
 				links.add(curr);
 			} else if (SELF_LINK_TYP.equals(curr.getType())) {
 				Element source = graph.findByIdt(curr.getSource().getIdt());
@@ -128,7 +125,7 @@ public class ProjectManager {
 					return "E:Self link having idt '" + curr.getIdt()
 							+ "' is not linked to 'Edit' element";
 				}
-				
+
 				links.add(curr);
 			} else if (STATUS_TYP.equals(curr.getType())) {
 				statuses.add(curr);
@@ -139,9 +136,27 @@ public class ProjectManager {
 			return "E:Please add connection from start element";
 		}
 
+		// basic DB verification
+		ApplicationContext ctx = Context.getContext();
+		IssueStatusService statusService = ctx
+				.getBean(IssueStatusService.class);
+		List<IssueStatus> statusesUsed = statusService
+				.selectUsedByProject(code);
+		for (IssueStatus s : statusesUsed) {
+			Element templ = new Element();
+			templ.setIdt(s.getCode());
+			if (!statuses.contains(templ)) {
+				return "E:Status '"
+						+ s.getName()
+						+ "' is missing but there are active issues with this status";
+			}
+		}
+
 		StatementExecutor db = new StatementExecutor();
 		try {
 			db.startTransaction();
+			
+			// create new statuses
 		} catch (IOException e) {
 			db.rollbackTransaction();
 			throw e;
