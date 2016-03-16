@@ -72,6 +72,20 @@
 			}
 		%>';
 		
+		<%
+			if (currProject == null) {
+				// create new, have to validate code
+				out.print("var projectCodes = [");
+				for (int i = 0; i < projects.size(); i++) {
+					out.print("'" + Util.replaceStr1(projects.get(i).getCode()) + "'" + (i == projects.size() - 1 ? "" : ", "));
+				}
+				out.println("];");
+			} else {
+				// just to prevent errors
+				out.println("var projectCodes = [];");
+			}
+		%>
+		
 		function displayGrants(linkId, action) {
 			if (linkId == null) {
 				document.getElementById("divTransitionGrants").innerHTML = "Click on transition to define its grants";
@@ -247,6 +261,10 @@
 			var wfIdt = document.getElementById("DIS_<%=ProjectServlet.SET_PROJECT_KEY%>").value.toUpperCase();
 			if (wfIdt == "") {
 				document.getElementById("createErr").innerHTML = "Project identifier required";
+				return;
+			}
+			if (projectCodes.indexOf(wfIdt) > -1) {
+				document.getElementById("createErr").innerHTML = "Project with this identifier already exists";
 				return;
 			}
 			
