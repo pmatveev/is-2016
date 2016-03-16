@@ -204,16 +204,19 @@
 						if (projScanner != null) {
 							projScanner.close();
 						}
-					}%>
+					}
+			%>
 			document.getElementById("<%=ProjectServlet.SET_PROJECT_NAME%>").value = "<%=Util.replaceStr(currProject.getName())%>";
 			document.getElementById("DIS_<%=ProjectServlet.SET_PROJECT_KEY%>").value = "<%=Util.replaceStr(currProject.getCode())%>";
 			document.getElementById("<%=ProjectServlet.SET_PROJECT_OWNER%>_<%=Util.replaceStr(currProject.getOwner().getUsername())%>").selected = "selected";
-			createGraph(<%= json == null ? "null" : "'" + json + "'"%>, projects, statuses, displayGrants);
+			<% 		if (json != null) { %>
+			createGraph('<%=json%>', projects, statuses, displayGrants);
+			<%		} else { %>			
+			createNewWorkflow();
+			document.getElementById("createErr").innerHTML = "Cannot load project data" + "<%=readError == null ? "" : ": " + Util.replaceStr(readError).replace("\\", "\\\\")%>";
 			<%
-					if (json == null) {
-						out.println("document.getElementById(\"createErr\").innerHTML = \"Cannot load project data" + (readError == null ? "" : ": " + Util.replaceStr(readError).replace("\\", "\\\\")) + "\";");
 					}
-				}
+				}	
 			%>
 			if (graph != null) {
 				displayWorkflowElements();	
@@ -226,7 +229,9 @@
 			
 	        // remove button
 	        var buttonRow = document.getElementById("createProjectRow");
-	        buttonRow.parentNode.removeChild(buttonRow);
+	        if (buttonRow != null) {
+	        	buttonRow.parentNode.removeChild(buttonRow);
+	        }
 	        
 	        document.getElementById("createStatusButton").style.display = "inline-block";
 	        document.getElementById("createLinkedProjectButton").style.display = "inline-block";
