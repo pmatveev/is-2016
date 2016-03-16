@@ -132,6 +132,8 @@ public class StatementExecutor {
 		} catch (SQLException e) {
 			try {
 				conn.rollback();
+				transConnection = null;
+				LogManager.log(LogLevel.SQL, "Rollback transaction");
 			} catch (SQLException e1) {
 			} finally {
 				try {

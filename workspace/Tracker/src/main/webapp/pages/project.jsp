@@ -1,3 +1,6 @@
+<%@page import="java.io.File"%>
+<%@page import="java.io.IOException"%>
+<%@page import="java.util.Scanner"%>
 <%@page import="ru.ifmo.is.db.entity.OfficerGrant"%>
 <%@page import="ru.ifmo.is.db.service.OfficerGrantService"%>
 <%@page import="ru.ifmo.is.db.entity.IssueStatus"%>
@@ -51,37 +54,6 @@
 		
 		OfficerGrantService officerGrantService = ctx.getBean(OfficerGrantService.class);
 		List<OfficerGrant> grants = officerGrantService.selectAll();
-	%>
-	<%
-		// TODO remove
-		Graph g = new Graph(currProject == null ? "TEST" : currProject.getCode());
-		
-		Attribute labelText1 = new Attribute("Close", null);
-		Attribute labelText2 = new Attribute("Reopen", null);
-		List<Label> labels1 = new LinkedList<Label>();
-		labels1.add(new Label(0.5f, new Attributes(labelText1, null)));
-		List<Label> labels2 = new LinkedList<Label>();
-		labels2.add(new Label(0.5f, new Attributes(labelText2, null)));
-
-		Attribute labelTextStart = new Attribute("Create", null);
-		List<Label> labelsStart = new LinkedList<Label>();
-		labelsStart.add(new Label(0.5f, new Attributes(labelTextStart, null)));
-		
-		Element start = Element.createCell("__START", "__START", "pathfinder.StartObj", new Position(125, 50), null);
-		Element cell1 = Element.createCell("OPEN", "OPEN", "pathfinder.EditableStatus", new Position(100, 150), "Open");
-		Element cell2 = Element.createCell("CLOSE", "CLOSE", "pathfinder.EditableStatus", new Position(100, 250), "Closed");
-		Element startLink = Element.createLink("__START_OPEN", "__START_OPEN", new LinkCell("__START", "__START"), new LinkCell("OPEN", "OPEN"), labelsStart);
-		Element link1 = Element.createLink("OPEN_CLOSE", "OPEN_CLOSE", new LinkCell("OPEN", "OPEN"), new LinkCell("CLOSE", "CLOSE"), labels1);
-		Element link2 = Element.createLink("CLOSE_OPEN", "CLOSE_OPEN", new LinkCell("CLOSE", "CLOSE"), new LinkCell("OPEN", "OPEN"), labels2);
-		
-		g.getCells().add(start);
-		g.getCells().add(cell1);
-		g.getCells().add(cell2);
-		g.getCells().add(startLink);
-		g.getCells().add(link1);
-		g.getCells().add(link2);
-		
-		String jsonTest = new ProjectManager().toJSON(g);
 	%>
 	<script>
 		var submit = false;
@@ -185,8 +157,7 @@
 				return 'Your changes are going to be lost';
 			});
 			document.title = "<%=currProject == null ? "New project" : Util.replaceStr(currProject.getName())%>";			
-			<% 
-				if ("error".equals(request.getSession().getAttribute(ProjectServlet.PROJECT_SUBMIT_WEBSERVICE))) {
+			<%if ("error".equals(request.getSession().getAttribute(ProjectServlet.PROJECT_SUBMIT_WEBSERVICE))) {
 					request.getSession().removeAttribute(ProjectServlet.PROJECT_SUBMIT_WEBSERVICE);
 					
 					String error = (String) request.getSession().getAttribute(ProjectServlet.PROJECT_ERROR);
@@ -221,13 +192,27 @@
 						out.println("graph.set('changed', true);");
 					}
 				} else if (currProject != null) {
-			%>
+					String json = null;
+					Scanner projScanner = null;
+					String readError = null;
+					try {
+						projScanner = new Scanner(new File(ProjectManager.getProjectFile(currProject.getCode()))).useDelimiter("\\Z");
+						json = projScanner.next();
+					} catch (IOException e) {
+						readError = e.getMessage();
+					} finally {
+						if (projScanner != null) {
+							projScanner.close();
+						}
+					}%>
 			document.getElementById("<%=ProjectServlet.SET_PROJECT_NAME%>").value = "<%=Util.replaceStr(currProject.getName())%>";
 			document.getElementById("DIS_<%=ProjectServlet.SET_PROJECT_KEY%>").value = "<%=Util.replaceStr(currProject.getCode())%>";
 			document.getElementById("<%=ProjectServlet.SET_PROJECT_OWNER%>_<%=Util.replaceStr(currProject.getOwner().getUsername())%>").selected = "selected";
-			
-			createGraph('<%=jsonTest%>', projects, statuses, displayGrants);
+			createGraph(<%= json == null ? "null" : "'" + json + "'"%>, projects, statuses, displayGrants);
 			<%
+					if (json == null) {
+						out.println("document.getElementById(\"createErr\").innerHTML = \"Cannot load project data" + (readError == null ? "" : ": " + Util.replaceStr(readError).replace("\\", "\\\\")) + "\";");
+					}
 				}
 			%>
 			if (graph != null) {
@@ -236,6 +221,13 @@
 		}
 		
 		function displayWorkflowElements() {
+	        // make idt uneditable
+	        document.getElementById("DIS_<%=ProjectServlet.SET_PROJECT_KEY%>").disabled = "disabled";
+			
+	        // remove button
+	        var buttonRow = document.getElementById("createProjectRow");
+	        buttonRow.parentNode.removeChild(buttonRow);
+	        
 	        document.getElementById("createStatusButton").style.display = "inline-block";
 	        document.getElementById("createLinkedProjectButton").style.display = "inline-block";
 	        document.getElementById("submitProjectChangesButton").style.display = "inline-block";
@@ -266,13 +258,6 @@
 	        }));
 	        
 	        document.getElementById("createErr").innerHTML = "";
-	        
-	        // make idt uneditable
-	        document.getElementById("DIS_<%=ProjectServlet.SET_PROJECT_KEY%>").disabled = "disabled";
-			
-	        // remove button
-	        var buttonRow = document.getElementById("createProjectRow");
-	        buttonRow.parentNode.removeChild(buttonRow);
 	        
 	        // allow adding new elements
 	        displayWorkflowElements();

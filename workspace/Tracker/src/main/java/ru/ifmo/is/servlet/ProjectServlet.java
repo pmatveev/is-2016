@@ -1,6 +1,8 @@
 package ru.ifmo.is.servlet;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -56,9 +58,17 @@ public class ProjectServlet extends HttpServlet {
 		String name = request.getParameter(SET_PROJECT_NAME);
 		String owner = request.getParameter(SET_PROJECT_OWNER);
 		String json = request.getParameter(SET_PROJECT_JSON);
-
-		String result = new ProjectManager().alterProcess(code, name, owner,
-				json);
+		
+		String result = null;
+		try {
+			result = new ProjectManager().alterProcess(code, name, owner,
+					json);
+		} catch (Exception e) {
+			StringWriter errors = new StringWriter();
+			e.printStackTrace(new PrintWriter(errors));
+			alterProjectReturn(request, response, errors.toString());
+			return;
+		}
 		if (result != null && result.startsWith("E:")) {
 			alterProjectReturn(request, response, result.substring(2));
 			return;

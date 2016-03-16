@@ -63,7 +63,7 @@ create function add_project(
 begin
 	declare pr int(32);
 	declare off int(32);
-	declare offActive int(32);
+	declare offActive bool;
 	declare st int(32);
 	
 	select min(id), min(is_active)
@@ -72,9 +72,9 @@ begin
 	 where username = p_owner;
 	 
 	if off is null then
-		return concat('Officer ',  p_owner,  ' does not exist: ',  p_code);
+		return concat('Officer ',  p_owner,  ' doesn''t exist: ',  p_code);
 	elseif offActive = false then
-		return concat('Officer ',  p_owner,  ' is not active: ',  p_code);		
+		return concat('Officer ',  p_owner,  ' isn''t active: ',  p_code);		
 	end if;
 	
 	select min(id)
@@ -83,7 +83,7 @@ begin
 	 where code = p_status;
 	 
 	if st is null then
-		return concat('Status ',  p_status,  ' does not exist: ',  p_code);		
+		return concat('Status ',  p_status,  ' doesn''t exist: ',  p_code);		
 	end if;
 	
 	select min(id)
@@ -96,8 +96,6 @@ begin
 			(start_status, owner, code, name, is_active, counter)
 			values
 			(st, off, p_code, p_name, true, 1);
-		
-		return null;
 	else
 		-- just update existing
 		update issue_project
@@ -105,12 +103,38 @@ begin
 		       owner = off,
 		       name = p_name
 		 where id = pr;
+		 
+		-- remove grants
+		delete from grant_transition_map
+		 where project_transition__id in (select id
+		                                     from project_transition pt
+		                                    where pt.is_active = true
+		                                      and pt.project_from = pr)
+		    or status_transition__id in (select id
+		                                    from status_transition st
+		                                   where st.is_active = true
+		                                     and st.issue_project__id = pr);
+		
+		-- and make its transitions deprecated
+		 update status_transition
+		    set code = concat('OLD_', id, '_', code),
+		        is_active = false
+		  where issue_project__id = pr
+		    and is_active = true;
+		    
+		 update project_transition
+		    set code = concat('OLD_', id, '_', code),
+		        is_active = false
+		  where project_from = pr
+		    and is_active = true;
 	end if;	
+
+	return null;
 end
 $$ 
 
 create function add_status_transition(
-	p_code varchar(32),
+	p_code varchar(255),
 	p_name varchar(32),
 	p_project varchar(32),
 	p_status_from varchar(32),
@@ -125,7 +149,7 @@ begin
 	if (p_status_from is null and p_status_to is not null)
 		or (p_status_from is not null and p_status_to is null)
 		then
-		return 'Statuses should be both null or both not null';
+		return 'Statuses should be both null or both filled';
 	end if;
 		
 	select min(id) 
@@ -142,7 +166,7 @@ begin
 		 where code = p_project;
 		
 		if pr is null then
-			return concat('Project ',  p_project,  ' does not exist: ',  p_code);				
+			return concat('Project ',  p_project,  ' doesn''t exist: ',  p_code);				
 		end if;
 	
 		if p_status_from is not null and p_status_to is not null then
@@ -152,7 +176,7 @@ begin
 			 where code = p_status_from;
 			 
 			if st1 is null then
-				return concat('Status ',  p_status_from,  ' does not exist: ',  p_code);		
+				return concat('Status ',  p_status_from,  ' doesn''t exist: ',  p_code);		
 			end if;
 			
 			select min(id)
@@ -161,7 +185,7 @@ begin
 			 where code = p_status_to;
 			 
 			if st2 is null then
-				return concat('Status ',  p_status_to,  ' does not exist: ',  p_code);		
+				return concat('Status ',  p_status_to,  ' doesn''t exist: ',  p_code);		
 			end if;
 		end if;
 	
@@ -178,7 +202,7 @@ end
 $$
 
 create function add_project_transition(
-	p_code varchar(32),
+	p_code varchar(255),
 	p_project_from varchar(32),
 	p_project_to varchar(32),
 	p_status_from varchar(32),
@@ -205,7 +229,7 @@ begin
 		 where code = p_project_from;
 		
 		if pr1 is null then
-			return concat('Project ',  p_project_from,  ' does not exist: ',  p_code);				
+			return concat('Project ',  p_project_from,  ' doesn''t exist: ',  p_code);				
 		end if;
 		
 		select min(id)
@@ -214,7 +238,7 @@ begin
 		 where code = p_project_to;
 		
 		if pr2 is null then
-			return concat('Project ',  p_project_to,  ' does not exist: ',  p_code);				
+			return concat('Project ',  p_project_to,  ' doesn''t exist: ',  p_code);				
 		end if;
 	
 		select min(id)
@@ -223,7 +247,7 @@ begin
 		 where code = p_status_from;
 		 
 		if st1 is null then
-			return concat('Status ',  p_status_from,  ' does not exist: ',  p_code);		
+			return concat('Status ',  p_status_from,  ' doesn''t exist: ',  p_code);		
 		end if;
 		
 		select min(id)
@@ -232,7 +256,7 @@ begin
 		 where code = p_status_to;
 		 
 		if st2 is null then
-			return concat('Status ',  p_status_to,  ' does not exist: ',  p_code);		
+			return concat('Status ',  p_status_to,  ' doesn''t exist: ',  p_code);		
 		end if;
 	
 		insert into project_transition
@@ -291,7 +315,7 @@ begin
 	 where code = p_grant;
  
  	if gr is null then
-		return concat('Officer grant ',  p_grant,  ' does not exist');		
+		return 'Officer grant does not exist';	-- some kind of bug in connector does not allow concat here
 	end if;
 	
 	if p_project_transition is not null then
@@ -301,7 +325,7 @@ begin
 		 where code = p_project_transition;
 	 
 	 	if pr is null then
-			return concat('Project transition ',  p_project_transition,  ' does not exist');		
+			return concat('Project transition ',  p_project_transition,  ' doesn''t exist');		
 		end if;
 	end if;
 	
@@ -312,7 +336,7 @@ begin
 		 where code = p_status_transition;
 	 
 	 	if st is null then
-			return concat('Status transition ',  p_status_transition,  ' does not exist');		
+			return concat('Status transition ',  p_status_transition,  ' doesn''t exist');		
 		end if;
 	end if;
 	
