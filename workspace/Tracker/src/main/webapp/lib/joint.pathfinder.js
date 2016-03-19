@@ -195,7 +195,7 @@ joint.shapes.pathfinder.EditableStatusView = joint.dia.ElementView.extend({
 				newIdt = newText.toUpperCase().replace(/\ /g, "_");
 			} else {
 				newIdt = this.$box.find('.selectCaption').val();
-				if (newIdt == "") {
+				if (newIdt == null) {
 					alert("Please srecify status");
 					return;					
 				}
