@@ -567,8 +567,10 @@ function connectByDrop(cellView, evt, x, y) {
     if (elementBelow 
     		&& (elementBelow instanceof joint.shapes.pathfinder.EditableStatus
     				|| elementBelow instanceof joint.shapes.pathfinder.EditableOtherProject)
-    		&& ((cellView.model instanceof joint.shapes.pathfinder.EditableStatus)
-    				|| (cellView.model instanceof joint.shapes.pathfinder.StartObj))
+    		&& (cellView.model instanceof joint.shapes.pathfinder.EditableStatus
+    				|| cellView.model instanceof joint.shapes.pathfinder.StartObj)
+			&& !(cellView.model instanceof joint.shapes.pathfinder.StartObj
+					&& elementBelow instanceof joint.shapes.pathfinder.EditableOtherProject)
     		&& !graph.isNeighbor(elementBelow, cellView.model, opt)) {
     	var connName = null;
     	var connId = null;

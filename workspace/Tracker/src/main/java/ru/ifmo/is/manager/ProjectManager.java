@@ -243,12 +243,18 @@ public class ProjectManager {
 
 			LogManager.log(LogLevel.NONE, "Resetting project");
 			// reset project
-			db.call("? = call add_project(?, ?, ?, ?)",
+			Object[] prjRes = db.call("? = call add_project(?, ?, ?, ?)",
 					new Pair<SQLParmKind, Object>(SQLParmKind.OUT_STRING, Types.VARCHAR), 
 					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, code), 
 					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, name), 
 					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, startWith.getIdt()), 
 					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, owner));
+			
+			// there may be (theoretically) some issues
+			if (prjRes != null && prjRes.length > 0 && prjRes[0] instanceof String) {
+				db.rollbackTransaction();
+				return "E:" + prjRes[0];
+			}
 			
 			// add new transitions and set grants
 			for (Element t : links) {
