@@ -230,6 +230,7 @@ joint.shapes.pathfinder.EditableStatusView = joint.dia.ElementView.extend({
 			this.$box.find('.editCaption').hide();
 			this.$box.find('.selectCaption').hide();
 			this.$box.find('.editDone').hide();
+			this.model.set('edit', false);
 		}, this));
 		
 		this.$box.find('.editEnable').on('click', _.bind(function(evt) {
@@ -249,6 +250,7 @@ joint.shapes.pathfinder.EditableStatusView = joint.dia.ElementView.extend({
 			
 			this.$box.find('.editSwitch').show();
 			this.$box.find('.editDone').show();
+			this.model.set('edit', true);
 		}, this));
 		
 		this.$box.find('.editSwitchInput').on('change', _.bind(function(evt) {
@@ -374,6 +376,7 @@ joint.shapes.pathfinder.EditableOtherProjectView = joint.dia.ElementView.extend(
 			this.$box.find('.selectProject').hide();
 			this.$box.find('.selectStatus').hide();
 			this.$box.find('.editDone').hide();
+			this.model.set('edit', false);
 		}, this));
 		
 		this.$box.find('.editEnable').on('click', _.bind(function(evt) {
@@ -398,6 +401,7 @@ joint.shapes.pathfinder.EditableOtherProjectView = joint.dia.ElementView.extend(
 			this.$box.find('.selectProject').show();
 			this.$box.find('.selectStatus').show();
 			this.$box.find('.editDone').show();
+			this.model.set('edit', true);
 		}, this));
 			
 		this.$box.find('.delete').on('click', _.bind(this.model.remove, this.model));
@@ -764,4 +768,14 @@ function createGraph(json, projects, statuses, grantsFunc) {
 	}
 	
 	grantsFunc(null);
+}
+
+function checkEdit() {
+	var cells = graph.getElements();
+	for (var cell in cells) {
+		if (cells[cell].get('edit') == true) {
+			return true;
+		}
+	}
+	return false;
 }

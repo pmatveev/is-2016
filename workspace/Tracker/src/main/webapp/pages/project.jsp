@@ -309,6 +309,11 @@
 		}
 		
 		function submitChanges() {
+			if (checkEdit()) {
+				document.getElementById("createErr").innerHTML = "There are elements in editing status";
+				return false;							
+			}
+		
 			if (document.getElementById("<%=ProjectServlet.SET_PROJECT_NAME%>").value == "") {
 				document.getElementById("createErr").innerHTML = "Project name required";
 				return false;				
