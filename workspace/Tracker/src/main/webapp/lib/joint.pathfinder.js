@@ -340,14 +340,16 @@ joint.shapes.pathfinder.EditableOtherProjectView = joint.dia.ElementView.extend(
 		// store inputed value in model
 		this.$box.find('.editDone').on('click', _.bind(function(evt) {
 			var newPrjIdt = this.$box.find('.selectProject').val();
-			if (newPrjIdt == "") {
+			if (newPrjIdt == null) {
 				alert("Please specify project");
+				return;
 			}
 			var newPrjText = this.$box.find('.PRJ_' + newPrjIdt).text();
 
 			var newStIdt = this.$box.find('.selectStatus').val();
-			if (newStIdt == "") {
+			if (newStIdt == null) {
 				alert("Please specify status");
+				return;
 			}
 			var newStText = this.$box.find('.VAL_' + newStIdt).text();
 			
@@ -377,6 +379,22 @@ joint.shapes.pathfinder.EditableOtherProjectView = joint.dia.ElementView.extend(
 		this.$box.find('.editEnable').on('click', _.bind(function(evt) {
 			this.$box.find('.editEnable').hide();
 
+			var idt = this.model.get('idt');
+			
+			if (typeof idt !== 'undefined') {
+				var delimiter = idt.indexOf('.');
+				if (delimiter > 1) {
+					var prjIdt = idt.substring(0, delimiter);
+					var stIdt = idt.substring(delimiter + 1);
+
+					this.$box.find('.selectProject').val(prjIdt);
+					this.$box.find('.selectStatus').val(stIdt);
+				}
+			} else {
+				this.$box.find('.selectProject').val("");
+				this.$box.find('.selectStatus').val("");			
+			}
+			
 			this.$box.find('.selectProject').show();
 			this.$box.find('.selectStatus').show();
 			this.$box.find('.editDone').show();
