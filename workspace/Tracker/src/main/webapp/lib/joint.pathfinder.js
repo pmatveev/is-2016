@@ -580,7 +580,7 @@ function connectByDrop(cellView, evt, x, y) {
     		connName = "Move";
     	}
     	
-    	while (connName == null) {
+    	while (connName == null || connName === '') {
     		connName = window.prompt("Enter connection name", "");
     	}
     	
