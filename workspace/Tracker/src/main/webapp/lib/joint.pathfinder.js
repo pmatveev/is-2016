@@ -760,6 +760,13 @@ function createGraph(json, projects, statuses, grantsFunc) {
 		var cells = graph.getElements();
 		for (var cell in cells) {
 			callAdjust(cells[cell]);
+			
+			if (cells[cell] instanceof joint.shapes.pathfinder.EditableOtherProject) {
+				// retrieve actual project naming
+				var cellView = cells[cell].findView(paper);
+				cellView.$box.find('.editEnable').click();
+				cellView.$box.find('.editDone').click();
+			}
 		}
 		
 		graph.set('changed', false);
