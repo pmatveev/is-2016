@@ -201,6 +201,14 @@ joint.shapes.pathfinder.EditableStatusView = joint.dia.ElementView.extend({
 				}
 				newText = this.$box.find('.VAL_' + newIdt).text();
 			}
+			
+			var cells = graph.getElements();
+			for (var i in cells) {
+				if (cells[i].id != this.model.id && cells[i].get('idt') === newIdt) {
+					alert("This status is already used");
+					return;
+				}
+			}
 
 			this.model.graph.set('changed', true);
 			this.model.set('text', newText);
