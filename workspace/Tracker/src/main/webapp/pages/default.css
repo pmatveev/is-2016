@@ -205,7 +205,7 @@ a:active {
 	margin-left: 0px;
 }
 
-.editIssue,.editProject {
+.editIssue,.editProject,.editOfficer {
 	width: 100%;
 	margin-right: 4px;
 }
@@ -489,14 +489,14 @@ a:active {
 	overflow: hidden;
 }
 
-.divProjectModelLeft {
+.divProjectModelLeft,.divOfficersLeft {
 	float: left;
 	width: 60%;
 	margin-right: 2%;
 	min-width: 600px;
 }
 
-.divProjectModelRight {
+.divProjectModelRight,.divOfficersRight {
 	float: right;
 	width: 38%;
 	min-width: 300px;
@@ -508,4 +508,20 @@ a:active {
 
 .floatRight {
 	float: right;
+}
+
+.spanLink {
+	color: blue;
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+.link {
+	cursor: pointer;
+	margin-top: 5px;
+	margin-bottom: 0px;
+}
+
+.officersDiv {
+	margin-left: 10px;
 }

@@ -354,7 +354,7 @@
 		}
 	</script>
 	<div class="adminMainScreen">
-		<form name="projectFrom" action="<%=ProjectServlet.SERVLET_IDT%>"
+		<form name="projectForm" action="<%=ProjectServlet.SERVLET_IDT%>"
 			method="post" onsubmit="return submitChanges()">
 			<div class="divProjectModelLeft">
 				<div id="divProjectMain">

@@ -1,3 +1,4 @@
+<%@page import="ru.ifmo.is.servlet.OfficerServlet"%>
 <%@page import="ru.ifmo.is.servlet.LoginServlet"%>
 <%@page import="ru.ifmo.is.util.Util"%>
 <%@page import="ru.ifmo.is.servlet.ProjectServlet"%>
@@ -47,18 +48,19 @@
 	<%
 		String showProjects = request.getParameter("prjts");
 	%>
-	<a onclick="expandCollapse('editProjects')" href="#">Projects</a><br />
+	<a href="/Tracker<%=OfficerServlet.GRANT_EDIT%>&<%=LoginServlet.RETURN_URL%>=<%=returnUrlStr%>">Officer grants</a><br />
+	<span onclick="expandCollapse('editProjects')" class="spanLink">Projects</span><br />
 	<div id="editProjects" class="adminLeftSubMenu" 
 		style="display:<%="true".equals(showProjects) ? "block" : "none"%>;">
 		<% 
 			IssueProjectService projectService = ctx.getBean(IssueProjectService.class);
 			List<IssueProject> projects = projectService.selectAll();
 		%>
-		<a href="/Tracker/pages/project.jsp?prjts=true&<%=LoginServlet.RETURN_URL%>=<%=returnUrlStr%>">New project</a>
+		<a href="/Tracker<%=ProjectServlet.PROJECT_EDIT%>&<%=LoginServlet.RETURN_URL%>=<%=returnUrlStr%>">New project</a>
 		<%
 			for (int i = 0; i < projects.size(); i++) {
 		%>
-		<a href="/Tracker/pages/project.jsp?prjts=true&<%=LoginServlet.RETURN_URL%>=<%=returnUrlStr%>&<%=ProjectServlet.PROJECT_KEY%>=<%=Util.replaceStr(projects.get(i).getCode())%>">
+		<a href="/Tracker<%=ProjectServlet.PROJECT_EDIT%>&<%=LoginServlet.RETURN_URL%>=<%=returnUrlStr%>&<%=ProjectServlet.PROJECT_KEY%>=<%=Util.replaceStr(projects.get(i).getCode())%>">
 		<br />
 		<%=Util.replaceHTML(projects.get(i).getName())%>
 		</a>		
