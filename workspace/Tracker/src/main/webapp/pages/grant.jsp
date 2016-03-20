@@ -28,7 +28,32 @@
 	<script>
 		function init() {
 			document.getElementById("divGrantList").innerHTML = "Click on officer or its group to define grants";
-			
+			<%
+				if ("error".equals(request.getSession().getAttribute(OfficerServlet.GRANT_ADD_WEBSERVICE))) {
+					request.getSession().removeAttribute(OfficerServlet.GRANT_ADD_WEBSERVICE);
+
+					String error = (String) request.getSession().getAttribute(OfficerServlet.GRANT_ERROR);
+					if (error != null) {
+						request.getSession().removeAttribute(OfficerServlet.GRANT_ERROR);
+						out.println(
+								"document.getElementById(\"createErr\").innerHTML = \"" + Util.replaceStr(error) + "\";");
+					}
+
+					String admin = (String) request.getSession().getAttribute(OfficerServlet.SET_GRANT_ADMIN);
+					if (error != null) {
+						request.getSession().removeAttribute(OfficerServlet.SET_GRANT_ADMIN);
+						out.println(
+								"document.getElementById(\"" + OfficerServlet.SET_GRANT_ADMIN + "\").value = \"" + Util.replaceStr(admin) + "\";");
+					}
+
+					String name = (String) request.getSession().getAttribute(OfficerServlet.SET_GRANT_NAME);
+					if (error != null) {
+						request.getSession().removeAttribute(OfficerServlet.SET_GRANT_NAME);
+						out.println(
+								"document.getElementById(\"" + OfficerServlet.SET_GRANT_NAME + "\").value = \"" + Util.replaceStr(name) + "\";");
+					}
+				}
+			%>
 			<%
 				String forGroup = request.getParameter(OfficerServlet.FOR_OFFICER_GROUP);
 				if (forGroup != null) {

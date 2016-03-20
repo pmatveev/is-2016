@@ -48,7 +48,7 @@
 	<%
 		String showProjects = request.getParameter("prjts");
 	%>
-	<a href="/Tracker<%=OfficerServlet.GRANT_EDIT%>&<%=LoginServlet.RETURN_URL%>=<%=returnUrlStr%>">Officer grants</a><br />
+	<a href="/Tracker<%=OfficerServlet.GRANT_EDIT%>?<%=LoginServlet.RETURN_URL%>=<%=returnUrlStr%>">Officer grants</a><br />
 	<span onclick="expandCollapse('editProjects')" class="spanLink">Projects</span><br />
 	<div id="editProjects" class="adminLeftSubMenu" 
 		style="display:<%="true".equals(showProjects) ? "block" : "none"%>;">

@@ -97,6 +97,9 @@ public class StatementExecutor {
 				case IN_INT:
 					stmt.setLong(i + 1, (Long) a.second);
 					break;
+				case IN_BOOL:
+					stmt.setBoolean(i + 1, (Boolean) a.second);
+					break;
 				case OUT_STRING:
 				case OUT_BOOL:
 				case OUT_INT:
@@ -121,7 +124,8 @@ public class StatementExecutor {
 					res[i] = stmt.getInt(out.get(i));
 					break;
 				case IN_STRING:
-				case IN_INT: // should not be like this
+				case IN_INT:
+				case IN_BOOL: // should not be like this
 					break;
 				}
 			}
@@ -173,6 +177,9 @@ public class StatementExecutor {
 				break;
 			case IN_INT:
 				stmt.setLong(i + 1, (Long) a.second);
+				break;
+			case IN_BOOL:
+				stmt.setBoolean(i + 1, (Boolean) a.second);
 				break;
 			case OUT_STRING:
 			case OUT_BOOL:

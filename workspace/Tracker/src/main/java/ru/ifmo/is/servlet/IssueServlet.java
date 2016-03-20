@@ -99,12 +99,12 @@ public class IssueServlet extends HttpServlet {
 			return;
 		}
 		
-		if (res.length == 0 || res[0] == null || !(res[0] instanceof String)) {
+		if (res.length < 6 || res[5] == null || !(res[5] instanceof String)) {
 			createIssueReturn(request, response, "Service failed: no response from DB");
 			return;			
 		}
 		
-		String message = (String) res[0];
+		String message = (String) res[5];
 		if (message.startsWith("E:")) {
 			createIssueReturn(request, response, message.substring(2));
 			return;				
@@ -215,12 +215,12 @@ public class IssueServlet extends HttpServlet {
 			return;
 		}
 		
-		if (res.length == 0 || res[0] == null || !(res[0] instanceof String)) {
+		if (res.length < 10 || res[9] == null || !(res[9] instanceof String)) {
 			issueStatusTransitReturn(request, response, "Service failed: no response from DB");
 			return;			
 		}
 		
-		String message = (String) res[0];
+		String message = (String) res[9];
 		if (message.startsWith("E:")) {
 			issueStatusTransitReturn(request, response, message.substring(2));
 			return;				
@@ -265,12 +265,12 @@ public class IssueServlet extends HttpServlet {
 			return;
 		}
 		
-		if (res.length == 0 || res[0] == null || !(res[0] instanceof String)) {
+		if (res.length < 5 || res[4] == null || !(res[4] instanceof String)) {
 			issueProjectTransitReturn(request, response, "Service failed: no response from DB");
 			return;			
 		}
 		
-		String message = (String) res[0];
+		String message = (String) res[4];
 		if (message.startsWith("E:")) {
 			issueProjectTransitReturn(request, response, message.substring(2));
 			return;				
