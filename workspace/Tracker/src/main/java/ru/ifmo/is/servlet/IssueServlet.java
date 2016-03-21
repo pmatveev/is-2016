@@ -42,7 +42,6 @@ public class IssueServlet extends HttpServlet {
 	public static final String ISSUE_GET_BY_ASSIGNEE = "byAssignee";
 	public static final String ISSUE_GET_BY_CREATED = "byCreated";
 	public static final String ISSUE_GET_BY_UPDATED = "byUpdated";
-	public static final String RETURN_URL = "returnURL";
 
 	// in POST parameters
 	public static final String ISSUE_SET_PROJECT = "issueProjectSet";
@@ -59,14 +58,6 @@ public class IssueServlet extends HttpServlet {
 	// out parameters
 	public static final String ISSUE_ERROR = "issueError";
 
-	public static String getReturnAddress(HttpServletRequest request) {
-		String searchReturnURL = request.getParameter(IssueServlet.RETURN_URL);
-		if (searchReturnURL == null) {
-			searchReturnURL = "/Tracker" + LoginServlet.INDEX_PAGE;
-		}
-		return searchReturnURL;
-	}
-
 	private void createIssueReturn(HttpServletRequest request,
 			HttpServletResponse response, String errMsg) throws IOException {
 		request.getSession().setAttribute(ISSUE_CREATE_WEBSERVICE, "error");
@@ -80,7 +71,7 @@ public class IssueServlet extends HttpServlet {
 		request.getSession().setAttribute(ISSUE_SET_DESCRIPTION,
 				request.getParameter(ISSUE_SET_DESCRIPTION));
 		
-		response.sendRedirect(getReturnAddress(request));
+		response.sendRedirect(LoginServlet.getReturnAddress(request));
 	}
 	
 	private void createIssue(HttpServletRequest request,
@@ -108,7 +99,7 @@ public class IssueServlet extends HttpServlet {
 			return;
 		}
 		
-		if (res.length == 0 || res[0] == null || !(res[0] instanceof String)) {
+		if (res.length < 0 || res[0] == null || !(res[0] instanceof String)) {
 			createIssueReturn(request, response, "Service failed: no response from DB");
 			return;			
 		}
@@ -131,7 +122,7 @@ public class IssueServlet extends HttpServlet {
 				request.getParameter(ISSUE_ADD_COMMENT));
 		request.getSession().setAttribute(ISSUE_ERROR, errMsg);
 		
-		response.sendRedirect(getReturnAddress(request));
+		response.sendRedirect(LoginServlet.getReturnAddress(request));
 	}
 	
 	private void addComment(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -165,7 +156,7 @@ public class IssueServlet extends HttpServlet {
 			return;				
 		}
 		
-		response.sendRedirect(getReturnAddress(request));
+		response.sendRedirect(LoginServlet.getReturnAddress(request));
 	}
 	
 	private void issueStatusTransitReturn(HttpServletRequest request, 
@@ -188,7 +179,7 @@ public class IssueServlet extends HttpServlet {
 		request.getSession().setAttribute(ISSUE_ADD_COMMENT, 
 				request.getParameter(ISSUE_ADD_COMMENT));
 		
-		response.sendRedirect(getReturnAddress(request));
+		response.sendRedirect(LoginServlet.getReturnAddress(request));
 	}
 	
 	private void issueStatusTransit(HttpServletRequest request, HttpServletResponse response)
@@ -224,7 +215,7 @@ public class IssueServlet extends HttpServlet {
 			return;
 		}
 		
-		if (res.length == 0 || res[0] == null || !(res[0] instanceof String)) {
+		if (res.length < 0 || res[0] == null || !(res[0] instanceof String)) {
 			issueStatusTransitReturn(request, response, "Service failed: no response from DB");
 			return;			
 		}
@@ -235,7 +226,7 @@ public class IssueServlet extends HttpServlet {
 			return;				
 		}
 		
-		response.sendRedirect(getReturnAddress(request));
+		response.sendRedirect(LoginServlet.getReturnAddress(request));
 	}
 	
 	private void issueProjectTransitReturn(HttpServletRequest request, 
@@ -248,7 +239,7 @@ public class IssueServlet extends HttpServlet {
 		request.getSession().setAttribute(ISSUE_ADD_COMMENT, 
 				request.getParameter(ISSUE_ADD_COMMENT));
 		
-		response.sendRedirect(getReturnAddress(request));
+		response.sendRedirect(LoginServlet.getReturnAddress(request));
 	}
 	
 	private void issueProjectTransit(HttpServletRequest request, HttpServletResponse response)
@@ -274,7 +265,7 @@ public class IssueServlet extends HttpServlet {
 			return;
 		}
 		
-		if (res.length == 0 || res[0] == null || !(res[0] instanceof String)) {
+		if (res.length < 0 || res[0] == null || !(res[0] instanceof String)) {
 			issueProjectTransitReturn(request, response, "Service failed: no response from DB");
 			return;			
 		}
@@ -286,7 +277,7 @@ public class IssueServlet extends HttpServlet {
 		}
 
 		request.getSession().setAttribute(ISSUE_ERROR, "New identifier is " + ((String) res[0]).substring(2));
-		response.sendRedirect(getReturnAddress(request));
+		response.sendRedirect(LoginServlet.getReturnAddress(request));
 	}
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response)

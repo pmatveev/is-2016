@@ -10,6 +10,8 @@ import ru.ifmo.is.db.entity.IssueProject;
 
 public interface IssueProjectRepository extends
 		JpaRepository<IssueProject, Long> {
+	public IssueProject findByCode(String code);
+	
 	@Query(value = "select pa.* from projects_available pa " +
 			"where available_for_code = :username order by pa.name asc",
 			nativeQuery = true)

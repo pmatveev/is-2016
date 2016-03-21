@@ -18,8 +18,8 @@ select distinct
        pt.id project_transition_id
   from available_grants g
  inner join grant_transition_map gm on g.grant_id = gm.officer_grant__id
-  left join status_transition st on st.id = gm.status_transition__id
-  left join project_transition pt on pt.id = gm.project_transition__id; 
+  left join status_transition st on st.id = gm.status_transition__id and st.is_active = true
+  left join project_transition pt on pt.id = gm.project_transition__id and pt.is_active = true; 
 
 create view projects_available as
 select p.*,
@@ -76,3 +76,21 @@ select i.id issue_id,
    and ia.prev_issue = i.prev_issue
    and c.issue_before = ib.id 
    and c.issue_after = ia.id;
+
+create view project_statuses as   
+select s.*, p.code project_for 
+  from issue_status s, issue_project p 
+ where s.id = p.start_status 
+   and p.is_active = true
+ union 
+select distinct s.*, p.code project_for
+  from issue_status s, status_transition t, issue_project p
+ where s.id = t.status_from
+   and t.is_active = true
+   and p.id = t.issue_project__id
+ union 
+select distinct s.*, p.code project_for
+  from issue_status s, status_transition t, issue_project p
+ where s.id = t.status_to
+   and t.is_active = true
+   and p.id = t.issue_project__id;

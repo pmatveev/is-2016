@@ -17,7 +17,7 @@
 
     <script type="text/javascript">
 
-        /**
+       /**
          * Location of the icCube reporting files; not necessarily co-located
          * with this HTML page. For example, assuming this file is located within
          * the "Docs" repository of a local icCube install, this path would be :

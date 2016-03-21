@@ -28,8 +28,11 @@ public class IssueStatusTransition {
 	@Column(name = "name", length = 32, nullable = false)
 	private String name;
 	
-	@Column(name = "code", length = 32, nullable = false)
+	@Column(name = "code", length = 255, nullable = false)
 	private String code;
+
+	@Column(name = "is_active", columnDefinition = "BIT", length = 1, nullable = false)
+	private Boolean isActive;
 	
 	public IssueStatusTransition() {
 	}
@@ -39,12 +42,14 @@ public class IssueStatusTransition {
 			IssueStatus statusFrom,
 			IssueStatus statusTo, 
 			String name, 
-			String code) {
+			String code,
+			Boolean isActive) {
 		this.project = project;
 		this.statusFrom = statusFrom;
 		this.statusTo = statusTo;
 		this.name = name;
 		this.code = code;
+		this.isActive = isActive;
 	}
 
 	public long getId() {
@@ -70,6 +75,10 @@ public class IssueStatusTransition {
 	public String getCode() {
 		return code;
 	}
+	
+	public Boolean isActive() {
+		return isActive;
+	}
 
 	public void setId(long id) {
 		this.id = id;
@@ -93,5 +102,9 @@ public class IssueStatusTransition {
 
 	public void setCode(String code) {
 		this.code = code;
+	}
+	
+	public void setActive(Boolean isActive) {
+		this.isActive = isActive;
 	}
 }

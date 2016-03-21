@@ -8,6 +8,22 @@ h4 {
 	margin-bottom: 0.15em;
 }
 
+a {
+	color: blue;
+}
+
+a:visited {
+	color: blue;
+}
+
+a:hover {
+	color: blue;
+}
+
+a:active {
+	color: blue;
+}
+
 .table {
 	border-style: solid;
 	border-width: 1px;
@@ -42,14 +58,21 @@ h4 {
 
 .headerLeft {
 	text-align: left;
-	margin-left: 10px;
+	margin-top: 3px;
+	margin-left: 20px;
 	width: 45%;
 	float: left;
+}
+
+.headerLeftLink {
+	margin-right: 5px;
+	display: inline-block;
 }
 
 .headerRight {
 	text-align: right;
 	margin-right: 10px;
+	margin-top: 3px;
 	width: 45%;
 	float: right;
 }
@@ -182,8 +205,9 @@ h4 {
 	margin-left: 0px;
 }
 
-.editIssue {
+.editIssue,.editProject,.editOfficer {
 	width: 100%;
+	margin-right: 4px;
 }
 
 .descrEdit {
@@ -448,4 +472,56 @@ h4 {
 .bottom {
 	position: absolute;
 	bottom: 0;
+}
+
+.adminLeftMenu {
+	float: left;
+	display: inline-block;
+	margin-left: 20px;
+	margin-right: 20px;
+}
+
+.adminLeftSubMenu {
+	margin-left: 20px;
+}
+
+.adminMainScreen {
+	overflow: hidden;
+}
+
+.divProjectModelLeft,.divOfficersLeft {
+	float: left;
+	width: 60%;
+	margin-right: 2%;
+	min-width: 600px;
+}
+
+.divProjectModelRight,.divOfficersRight {
+	float: right;
+	width: 38%;
+	min-width: 300px;
+}
+
+.floatLeft {
+	float: left;
+}
+
+.floatRight {
+	float: right;
+}
+
+.spanLink {
+	color: blue;
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+.link {
+	cursor: pointer;
+	margin-top: 5px;
+	margin-bottom: 0px;
+}
+
+.officersDiv {
+	margin-left: 10px;
 }

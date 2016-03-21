@@ -2,11 +2,14 @@
 select add_officer_group('ADMIN', 'Administrators');
 select add_officer_group('DEV', 'Developers');
 select add_officer_group('TEST', 'Testers');
+select add_officer_group('REP', 'Reporters');
 
 select add_officer('admin', 'Test Administrator', '81dc9bdb52d04dc20036dbd8313ed055', 'ADMIN');
 select add_officer('pmatveev', 'Philipp Matveev', '81dc9bdb52d04dc20036dbd8313ed055', 'DEV');
 select add_officer('akuzmin', 'Alex Kuzmin', '81dc9bdb52d04dc20036dbd8313ed055', 'DEV');
-
+select add_officer('test', 'Tester', '81dc9bdb52d04dc20036dbd8313ed055', 'TEST');
+select add_officer('report', 'Reporter', '81dc9bdb52d04dc20036dbd8313ed055', 'REP');
+/*
 select add_status('OPEN', 'Open');
 select add_status('REOPEN', 'Reopened');
 select add_status('ANALYT', 'Analysis');
@@ -14,16 +17,17 @@ select add_status('WORK', 'In work');
 select add_status('TEST', 'Testing');
 select add_status('CLOSE', 'Closed');
 select add_status('REJECT', 'Rejected');
-
+*/
 select add_kind('BUG', 'Bug');
 select add_kind('NEW', 'New feature');
 select add_kind('RESEARCH', 'Research');
 select add_kind('INFO', 'Information request');
-
+/*
 select add_project('DEV', 'Development issues', 'OPEN', 'PMATVEEV');
 select add_project('OTHER', 'Other issues', 'OPEN', 'AKUZMIN');
-
+*/
 -- development strategy, analysis can be skipped
+/*
 select add_status_transition('DEV_CREATE', 'Create', 'DEV', null, null);
 select add_status_transition('DEV_EDIT_OPEN', 'Edit', 'DEV', 'OPEN', 'OPEN');
 select add_status_transition('DEV_EDIT_REOPEN', 'Edit', 'DEV', 'REOPEN', 'REOPEN');
@@ -59,10 +63,10 @@ select add_project_transition('OTH_DEV_REOPEN_REOPEN', 'OTHER', 'DEV', 'REOPEN',
 -- dev to simple
 select add_project_transition('DEV_OTH_OPEN_OPEN', 'DEV', 'OTHER', 'OPEN', 'OPEN');
 select add_project_transition('DEV_OTH_REOPEN_REOPEN', 'DEV', 'OTHER', 'REOPEN', 'REOPEN');
-
+*/
 -- no issue transition
 select add_officer_grant('ADMIN', 'Administrator', true);
-
+/*
 -- can create, edit and reopen all issues
 select add_officer_grant('REPORT', 'Reporter', false);
 select add_grant_mapping('REPORT', null, 'DEV_CREATE');
@@ -117,10 +121,12 @@ select add_grant_mapping('OTH_SOLVE', null, 'OTH_WORK_CLOSE');
 select add_grant_mapping('OTH_SOLVE', null, 'OTH_CLOSE_REOPEN');
 select add_grant_mapping('OTH_SOLVE', 'OTH_DEV_OPEN_OPEN', null);
 select add_grant_mapping('OTH_SOLVE', 'OTH_DEV_REOPEN_REOPEN', null);
-
+*/
 select grant_officer(null, 'ADMIN', 'ADMIN');
+/*
 select grant_officer(null, 'DEV', 'REPORT');
 select grant_officer('pmatveev', null, 'DEV_MAN');
 select grant_officer('pmatveev', null, 'DEV_TEST');
 select grant_officer('pmatveev', null, 'OTH_SOLVE');
 select grant_officer('akuzmin', null, 'DEV_DEV');
+*/

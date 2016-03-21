@@ -50,4 +50,18 @@ public class IssueStatus {
 		this.name = name;
 		this.code = code;
 	}
+	
+	@Override
+	public int hashCode() {
+		return getCode().hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof IssueStatus) {
+			IssueStatus s = (IssueStatus) o;
+			return getCode() == null ? s.getCode() == null : getCode().equals(s.getCode());
+		}
+		return false;
+	}
 }

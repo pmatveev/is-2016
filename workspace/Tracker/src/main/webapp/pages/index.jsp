@@ -1,3 +1,4 @@
+<%@page import="ru.ifmo.is.servlet.ProjectServlet"%>
 <%@page import="org.springframework.data.domain.Page"%>
 <%@page import="ru.ifmo.is.db.entity.Issue"%>
 <%@page import="ru.ifmo.is.db.service.IssueService"%>
@@ -19,17 +20,17 @@
 <%@page import="java.util.Date"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="java.util.Locale"%>
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-	pageEncoding="ISO-8859-1"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Tracker</title>
 <link rel='stylesheet' href='/Tracker/pages/default.css'></link>
 </head>
 <body>
-	<%@ include file="logout.jsp"%>
+	<%@ include file="include/logout.jsp"%>
 	<%
 		LogManager.log("GET index.jsp", request);
 
@@ -87,7 +88,6 @@
 		SimpleDateFormat dateFormat = new SimpleDateFormat(
 		"HH:mm:ss dd.MM.yyyy", Locale.ENGLISH);
 
-		String returnTo = request.getRequestURI() + "?" + Util.nvl(request.getQueryString());
 		StringBuilder returnToFrom0 = new StringBuilder(request.getRequestURI() + "?");
 		Enumeration<String> parms = request.getParameterNames();
 
@@ -101,7 +101,7 @@
 		}
 		p0++;
 		returnToFrom0.append(attr + "="
-		+ URLEncoder.encode(request.getParameter(attr), "ISO-8859-1"));
+		+ URLEncoder.encode(request.getParameter(attr), "UTF-8"));
 			}
 		}
 		
@@ -110,12 +110,11 @@
 		}
 		returnToFrom0.append(IssueServlet.ISSUE_GET_START_FROM).append("=");
 
-		String returnToStr = URLEncoder.encode(returnTo.toString(), "ISO-8859-1");
 	%>
 	<div class="indexHeader">
 		<div class="createIssueButtonDiv">
 			<button class="createIssueButton"
-				onclick="parent.location = '/Tracker<%=IssueServlet.ISSUE_CREATE%>?<%=IssueServlet.RETURN_URL%>=<%=returnToStr%>'">Create
+				onclick="parent.location = '/Tracker<%=IssueServlet.ISSUE_CREATE%>?<%=LoginServlet.RETURN_URL%>=<%=returnToStr%>'">Create
 				issue</button>
 		</div>
 		<div class="searchInfo">
@@ -274,15 +273,21 @@
 						for (int i = 0; i < issues.size(); i++) {
 					%>
 					<tr>
-						<td class="issuesTableProjectBody"><%=Util.replaceHTML(issues.get(i).getProject().getName())%></td>
-						<td class="issuesTableKeyBody"><a
-							href="/Tracker/pages/issue.jsp?<%=IssueServlet.ISSUE_GET_KEY_PARM%>=<%=Util.replaceStr(issues.get(i).getIdt())%>
-							&<%=IssueServlet.RETURN_URL%>=<%=returnToStr%>">
+						<td class="issuesTableProjectBody">
+							<a href="/Tracker/pages/viewproject.jsp?<%=ProjectServlet.PROJECT_KEY%>=<%=Util.replaceStr(issues.get(i).getProject().getCode())%>
+								&<%=LoginServlet.RETURN_URL%>=<%=returnToStr%>">
+								<%=Util.replaceHTML(issues.get(i).getProject().getName())%>
+							</a>
+						</td>
+						<td class="issuesTableKeyBody">
+							<a href="/Tracker/pages/issue.jsp?<%=IssueServlet.ISSUE_GET_KEY_PARM%>=<%=Util.replaceStr(issues.get(i).getIdt())%>
+								&<%=LoginServlet.RETURN_URL%>=<%=returnToStr%>">
 								<%=Util.replaceHTML(issues.get(i).getIdt())%>
-						</a></td>
+							</a>
+						</td>
 						<td class="issuesTableNameBody"><a
 							href="/Tracker/pages/issue.jsp?<%=IssueServlet.ISSUE_GET_KEY_PARM%>=<%=Util.replaceStr(issues.get(i).getIdt())%>
-							&<%=IssueServlet.RETURN_URL%>=<%=returnToStr%>">
+							&<%=LoginServlet.RETURN_URL%>=<%=returnToStr%>">
 								<%=Util.replaceHTML(issues.get(i).getSummary())%>
 						</a></td>
 						<td class="issuesTableTypeBody"><%=Util.replaceHTML(issues.get(i).getKind().getName())%></td>
@@ -305,7 +310,7 @@
 			Issue having key "<%=Util.replaceHTML(key)%>" not found. Check out
 			<a
 				href="/Tracker/pages/issue.jsp?<%=IssueServlet.ISSUE_GET_KEY_PARM%>=<%=Util.replaceStr(key)%>
-				&<%=IssueServlet.RETURN_URL%>=<%=returnToStr%>">this page</a>
+				&<%=LoginServlet.RETURN_URL%>=<%=returnToStr%>">this page</a>
 			to find out if it ever existed.
 			</div>
 			<%

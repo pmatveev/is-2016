@@ -7,8 +7,13 @@ if "%1" == "recreate" (
 	if %errorlevel% gtr 0 goto error
 )
 
-echo starting maven...
 cd workspace\Tracker
+
+echo backup projects
+rd /s /q src\main\webapp\projects
+xcopy %CATALINA_HOME%\webapps\Tracker\projects src\main\webapp\projects\
+
+echo starting maven...
 call mvn clean install
 if %errorlevel% gtr 0 goto error
 echo maven OK

@@ -8,17 +8,17 @@
 <%@page import="ru.ifmo.is.util.Util"%>
 <%@page import="ru.ifmo.is.servlet.IssueServlet"%>
 <%@page import="ru.ifmo.is.manager.LogManager"%>
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-	pageEncoding="ISO-8859-1"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<head> 
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Create new issue</title>
 <link rel='stylesheet' href='/Tracker/pages/default.css'></link>
 </head>
 <body onload="init()">
-	<%@ include file="logout.jsp"%>
+	<%@ include file="include/logout.jsp"%>
 	<%
 		LogManager.log("GET createIssue.jsp", request); 
 			
@@ -144,8 +144,8 @@
 			action="<%=IssueServlet.SERVLET_IDT%>" method="post"
 			onsubmit="return validate()"
 			autocomplete="off">
-			<input type="hidden" name="<%=IssueServlet.RETURN_URL%>"
-				value="<%=request.getRequestURI() + "?" + Util.nvl(request.getQueryString())%>"/>
+			<input type="hidden" name="<%=LoginServlet.RETURN_URL%>"
+				value="<%=returnTo%>"/>
 			<div class="issueBriefInfo">
 				<h1 class="briefInformation">Summary</h1>
 				<hr>

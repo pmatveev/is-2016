@@ -51,7 +51,7 @@ begin
 		 where code = p_group;
 		
 		if gr is null then
-			return concat('Officer group ',  p_group,  ' does not exist: ',  p_code);
+			return concat('Officer group ',  p_group,  ' doesn''t exist: ',  p_code);
 		end if;
 		
 		insert into officer
@@ -66,6 +66,52 @@ begin
 end 
 $$
 
+create function clear_grants(
+	p_officer varchar(32),
+	p_officer_group varchar(32)
+) returns varchar(255)
+begin
+	declare of int(32);
+	declare og int(32);
+	
+	if (p_officer is null and p_officer_group is null)
+		or (p_officer is not null and p_officer_group is not null)
+		then
+		return 'Exactly one of (officer, officer group) should be specified';
+	end if;
+	
+	if p_officer is not null then
+		select min(id)
+		  into of
+		  from officer
+		 where username = upper(p_officer);
+		
+		if of is null then
+			return concat('Officer ',  p_officer,  ' doesn''t exist.');
+		end if;
+		
+	end if;
+	
+	if p_officer_group is not null then
+		select min(id)
+		  into og
+		  from officer_group
+		 where code = p_officer_group;
+		
+		if og is null then
+			return concat('Officer group ',  p_officer_group,  ' doesn''t exist.');
+		end if;
+	end if;
+	
+	delete
+	  from officer_grant_map
+	 where coalesce(officer__id, -1) = coalesce(of, -1)
+	   and coalesce(officer_group__id, -1) = coalesce(og, -1);
+	
+	return null;
+end;
+$$
+
 create function grant_officer(
 	p_officer varchar(32),
 	p_officer_group varchar(32),
@@ -78,7 +124,7 @@ begin
 	declare mp int(32);
 	
 	if (p_officer is null and p_officer_group is null)
-		or (p_officer is null and p_officer_group is null)
+		or (p_officer is not null and p_officer_group is not null)
 		then
 		return 'Exactly one of (officer, officer group) should be specified';
 	end if;
@@ -90,7 +136,7 @@ begin
 		 where username = upper(p_officer);
 		
 		if of is null then
-			return concat('Officer ',  p_officer,  ' does not exist.');
+			return concat('Officer ',  p_officer,  ' doesn''t exist.');
 		end if;
 	end if;
 	
@@ -101,7 +147,7 @@ begin
 		 where code = p_officer_group;
 		
 		if og is null then
-			return concat('Officer group ',  p_officer_group,  ' does not exist.');
+			return concat('Officer group ',  p_officer_group,  ' doesn''t exist.');
 		end if;
 	end if;
 	
@@ -111,7 +157,7 @@ begin
 	 where code = p_grant;
 	 
 	if gr is null then
-		return concat('Officer grant ',  p_grant,  ' does not exist.');
+		return concat('Officer grant ',  p_grant,  ' doesn''t exist.');
 	end if;
 	
 	select min(id)

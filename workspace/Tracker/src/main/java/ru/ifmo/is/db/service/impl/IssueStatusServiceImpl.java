@@ -23,4 +23,19 @@ public class IssueStatusServiceImpl implements IssueStatusService {
 				"name")));
 	}
 
+	@Override
+	public List<IssueStatus> selectUsedByProject(String code) {
+		return issueStatusRepository.findUsedByProject(code);
+	}
+
+	@Override
+	public List<IssueStatus> selectIncByProject(String code) {
+		return issueStatusRepository.findIncByProject(code);
+	}
+
+	@Override
+	public List<IssueStatus> selectAvailableByProject(String code) {
+		return issueStatusRepository.findAvailableByProject(code);
+	}
+
 }
