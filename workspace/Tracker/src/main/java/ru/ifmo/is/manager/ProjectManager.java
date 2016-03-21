@@ -16,7 +16,7 @@ import ru.ifmo.is.db.StatementExecutor;
 import ru.ifmo.is.db.entity.IssueStatus;
 import ru.ifmo.is.db.service.IssueStatusService;
 import ru.ifmo.is.db.util.Context;
-import ru.ifmo.is.util.LogLevel;
+//import ru.ifmo.is.util.LogLevel;
 import ru.ifmo.is.util.Pair;
 import ru.ifmo.is.util.SQLParmKind;
 import ru.ifmo.is.util.json.Element;
@@ -228,7 +228,7 @@ public class ProjectManager {
 
 			// create new statuses
 			for (Element s : statuses) {
-				LogManager.log(LogLevel.NONE, "Creating " + s.getIdt());
+				//LogManager.log(LogLevel.NONE, "Creating " + s.getIdt());
 				if (!existingStatuses
 						.contains(new IssueStatus(null, s.getIdt()))) {
 					db.call("? = call add_status(?, ?)",
@@ -241,7 +241,7 @@ public class ProjectManager {
 				}
 			}
 
-			LogManager.log(LogLevel.NONE, "Resetting project");
+			//LogManager.log(LogLevel.NONE, "Resetting project");
 			// reset project
 			Object[] prjRes = db.call("? = call add_project(?, ?, ?, ?)",
 					new Pair<SQLParmKind, Object>(SQLParmKind.OUT_STRING, Types.VARCHAR), 
@@ -258,7 +258,7 @@ public class ProjectManager {
 			
 			// add new transitions and set grants
 			for (Element t : links) {
-				LogManager.log(LogLevel.NONE, "Adding " + t.getIdt());
+				//LogManager.log(LogLevel.NONE, "Adding " + t.getIdt());
 				boolean internal = !OTHER_PRJ_TYP.equals(t.getTargetElem().getType());
 				if (START_TYP.equals(t.getSourceElem().getType())) {
 					// "creation" transition
@@ -310,21 +310,21 @@ public class ProjectManager {
 				}
 			}
 
-			LogManager.log(LogLevel.NONE, "Done");
+			//LogManager.log(LogLevel.NONE, "Done");
 		} catch (Exception e) {
 			db.rollbackTransaction();
 			throw e;
 		}
-		LogManager.log(LogLevel.NONE, "Comitting");
+		//LogManager.log(LogLevel.NONE, "Comitting");
 		db.commitTransaction();
 
-		LogManager.log(LogLevel.NONE, "Saving to " + PROJ_LOCATION);
+		//LogManager.log(LogLevel.NONE, "Saving to " + PROJ_LOCATION);
 		new File(PROJ_LOCATION).mkdirs();
 		try (PrintWriter save = new PrintWriter(getProjectFile(code))) {
 			save.print(json);
 		}
 		
-		LogManager.log(LogLevel.NONE, "Done");
+		//LogManager.log(LogLevel.NONE, "Done");
 		
 		return null;
 	}

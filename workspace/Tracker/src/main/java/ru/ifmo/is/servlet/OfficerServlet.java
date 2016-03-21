@@ -81,6 +81,66 @@ public class OfficerServlet extends HttpServlet {
 		
 		response.sendRedirect(LoginServlet.getReturnAddress(request));
 	}
+	
+	private void setGrantsReturn(HttpServletRequest request,
+			HttpServletResponse response, String errMsg)
+			throws ServletException, IOException {
+		request.getSession().setAttribute(GRANT_SET_WEBSERVICE, "error");
+		request.getSession().setAttribute(FOR_OFFICER_GROUP, 
+				request.getParameter(FOR_OFFICER_GROUP));
+		String forOfficer = request.getParameter(FOR_OFFICER);
+		if (!"".equals(forOfficer)) {
+			request.getSession().setAttribute(FOR_OFFICER, 
+					forOfficer);
+		}
+		request.getSession().setAttribute(SET_GRANT_LIST, 
+				request.getParameter(SET_GRANT_LIST));
+		request.getSession().setAttribute(GRANT_ERROR, errMsg);
+		
+		response.sendRedirect(LoginServlet.getReturnAddress(request));
+	}
+
+	private void setGrants(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {	
+		String groupFor = request.getParameter(FOR_OFFICER_GROUP);
+		String officerFor = request.getParameter(FOR_OFFICER);
+		String grantList = request.getParameter(SET_GRANT_LIST);
+		
+		if (!"".equals(officerFor)) {
+			groupFor = null;
+		}
+
+		StatementExecutor db = new StatementExecutor();
+		try {
+			db.startTransaction();
+			
+			db.call("? = call clear_grants(?, ?)", 
+					new Pair<SQLParmKind, Object>(SQLParmKind.OUT_STRING, Types.VARCHAR),
+					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, officerFor),
+					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, groupFor));
+			
+			int delimiter = grantList.indexOf(',');
+			while (delimiter > -1) {
+				String grant = grantList.substring(0, delimiter);
+				
+				db.call("? = call grant_officer(?, ?, ?)", 
+						new Pair<SQLParmKind, Object>(SQLParmKind.OUT_STRING, Types.VARCHAR),
+						new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, officerFor),
+						new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, groupFor),
+						new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, grant));
+				
+				grantList = grantList.substring(delimiter + 1);
+				delimiter = grantList.indexOf(',');
+			}
+		} catch (Exception e) {
+			db.rollbackTransaction();
+			setGrantsReturn(request, response, "Service failed: " + e.getMessage());
+			return;
+		}
+		db.commitTransaction();
+		
+		response.sendRedirect(LoginServlet.getReturnAddress(request));
+	}
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -93,6 +153,11 @@ public class OfficerServlet extends HttpServlet {
 
 		if (request.getParameter(GRANT_ADD_WEBSERVICE) != null) {
 			addGrant(request, response);
+			return;
+		}
+		
+		if (request.getParameter(GRANT_SET_WEBSERVICE) != null) {
+			setGrants(request, response);
 			return;
 		}
 

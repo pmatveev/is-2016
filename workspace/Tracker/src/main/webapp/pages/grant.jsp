@@ -29,6 +29,7 @@
 		function init() {
 			document.getElementById("divGrantList").innerHTML = "Click on officer or its group to define grants";
 			<%
+				boolean officerSelected = false;
 				if ("error".equals(request.getSession().getAttribute(OfficerServlet.GRANT_ADD_WEBSERVICE))) {
 					request.getSession().removeAttribute(OfficerServlet.GRANT_ADD_WEBSERVICE);
 
@@ -53,19 +54,67 @@
 								"document.getElementById(\"" + OfficerServlet.SET_GRANT_NAME + "\").value = \"" + Util.replaceStr(name) + "\";");
 					}
 				}
+			
+				if ("error".equals(request.getSession().getAttribute(OfficerServlet.GRANT_SET_WEBSERVICE))) {
+					request.getSession().removeAttribute(OfficerServlet.GRANT_SET_WEBSERVICE);
+	
+					String error = (String) request.getSession().getAttribute(OfficerServlet.GRANT_ERROR);
+					if (error != null) {
+						request.getSession().removeAttribute(OfficerServlet.GRANT_ERROR);
+						out.println(
+								"document.getElementById(\"createErr\").innerHTML = \"" + Util.replaceStr(error) + "\";");
+					}
+
+					String group = (String) request.getSession().getAttribute(OfficerServlet.FOR_OFFICER_GROUP);
+					if (group != null) {
+						officerSelected = true;
+						request.getSession().removeAttribute(OfficerServlet.FOR_OFFICER_GROUP);
+						out.println("document.getElementById(\"GRP_" + Util.replaceStr(group) + "\").click();");
+					}
+
+					String officer = (String) request.getSession().getAttribute(OfficerServlet.FOR_OFFICER);
+					if (officer != null) {
+						officerSelected = true;
+						request.getSession().removeAttribute(OfficerServlet.FOR_OFFICER);
+						out.println("document.getElementById(\"OFF_" + Util.replaceStr(officer) + "\").click();");
+					}
+
+					String grantList = (String) request.getSession().getAttribute(OfficerServlet.SET_GRANT_LIST);
+					if (grantList != null) {
+						request.getSession().removeAttribute(OfficerServlet.SET_GRANT_LIST);
+			%>
+			var select = document.getElementById("SEL_<%=OfficerServlet.SET_GRANT_LIST%>");
+			for (var i in select.options) {
+				select.options[i].selected = "";
+			}
+			<%
+						int delimiter = grantList.indexOf(',');
+						while (delimiter > -1) {
+							String grant = Util.replaceStr(grantList.substring(0, delimiter));
+			%>
+			document.getElementById("GrOpt<%=grant%>").selected = "selected";
+			<%
+							grantList = grantList.substring(delimiter + 1);
+							delimiter = grantList.indexOf(',');
+						} 
+					}
+
+				}
 			%>
 			<%
-				String forGroup = request.getParameter(OfficerServlet.FOR_OFFICER_GROUP);
-				if (forGroup != null) {
+				if (!officerSelected) {
+					String forGroup = request.getParameter(OfficerServlet.FOR_OFFICER_GROUP);
+					if (forGroup != null) {
 			%>
 			document.getElementById("GRP_<%=forGroup%>").click();
 			<%
-				}
-				String forOff = request.getParameter(OfficerServlet.FOR_OFFICER);
-				if (forOff!= null) {
+					}
+					String forOff = request.getParameter(OfficerServlet.FOR_OFFICER);
+					if (forOff!= null) {
 			%>
 			document.getElementById("OFF_<%=forOff%>").click();
 			<%
+					}
 				}
 			%>
 		}
