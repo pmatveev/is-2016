@@ -274,10 +274,7 @@
 					%>
 					<tr>
 						<td class="issuesTableProjectBody">
-							<a href="/Tracker/pages/viewproject.jsp?<%=ProjectServlet.PROJECT_KEY%>=<%=Util.replaceStr(issues.get(i).getProject().getCode())%>
-								&<%=LoginServlet.RETURN_URL%>=<%=returnToStr%>">
-								<%=Util.replaceHTML(issues.get(i).getProject().getName())%>
-							</a>
+							<%=Util.replaceHTML(issues.get(i).getProject().getName())%>
 						</td>
 						<td class="issuesTableKeyBody">
 							<a href="/Tracker/pages/issue.jsp?<%=IssueServlet.ISSUE_GET_KEY_PARM%>=<%=Util.replaceStr(issues.get(i).getIdt())%>
