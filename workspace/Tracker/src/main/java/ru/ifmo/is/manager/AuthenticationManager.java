@@ -45,6 +45,25 @@ public class AuthenticationManager {
 		}
 		return ip;
 	}
+	
+	public String authenticate(String username, String password, String conn)
+			throws IOException, NoSuchAlgorithmException {
+		byte[] md5 = MessageDigest.getInstance("MD5").digest(
+				password.getBytes("UTF-8"));
+
+		String hash = "";
+		for (byte b : md5) {
+			hash += valueOf(b);
+		}
+
+		return (String) new StatementExecutor().call(
+				"? = call authenticate(?, ?, ?)",
+				new Pair<SQLParmKind, Object>(SQLParmKind.OUT_STRING, Types.VARCHAR), 
+				new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, username),
+				new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, hash),
+				new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, conn))[0];
+
+	}
 
 	public String authenticate(HttpServletRequest request,
 			HttpServletResponse response) {
@@ -61,20 +80,7 @@ public class AuthenticationManager {
 		String token = null;
 		String ip = getIP(request);
 		try {
-			byte[] md5 = MessageDigest.getInstance("MD5").digest(
-					password.getBytes("UTF-8"));
-
-			String hash = "";
-			for (byte b : md5) {
-				hash += valueOf(b);
-			}
-
-			token = (String) new StatementExecutor().call(
-					"? = call authenticate(?, ?, ?)",
-					new Pair<SQLParmKind, Object>(SQLParmKind.OUT_STRING, Types.VARCHAR), 
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, username),
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, hash),
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, ip))[0];
+			token = authenticate(username, password, ip);
 		} catch (NoSuchAlgorithmException | IOException e) {
 			LogManager.log(e);
 			return "Verification module failed: " + e.getMessage();
@@ -184,6 +190,12 @@ public class AuthenticationManager {
 		return auth;
 	}
 
+	public void close(String token, String conn) throws IOException {
+		new StatementExecutor().call("call close_auth(?, ?)",
+				new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, conn),
+				new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, token));
+	}
+	
 	public void close(HttpServletRequest request, HttpServletResponse response) {
 		String ip = getIP(request);
 		String token = getToken(request);
@@ -199,9 +211,7 @@ public class AuthenticationManager {
 		response.addCookie(c);
 		
 		try {
-			new StatementExecutor().call("call close_auth(?, ?)",
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, ip),
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, token));
+			close(token, ip);
 		} catch (IOException e) {
 			LogManager.log(e);
 		}

@@ -11,7 +11,7 @@ public class IssueKind {
 	@GeneratedValue(generator = "increment")
 	@GenericGenerator(name = "increment", strategy = "increment")
 	@Column(name = "id", columnDefinition = "int", length = 18, nullable = false)
-	private long id;
+	private Long id;
 
 	@Column(name = "name", length = 32, nullable = false)
 	private String name;
@@ -19,7 +19,7 @@ public class IssueKind {
 	@Column(name = "code", length = 32, nullable = false)
 	private String code;
 
-	public long getId() {
+	public Long getId() {
 		return id;
 	}
 
@@ -31,7 +31,7 @@ public class IssueKind {
 		return code;
 	}
 
-	public void setId(long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 

@@ -11,7 +11,7 @@ public class IssueProject {
 	@GeneratedValue(generator = "increment")
 	@GenericGenerator(name = "increment", strategy = "increment")
 	@Column(name = "id", columnDefinition = "int", length = 18, nullable = false)
-	private long id;
+	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.ALL)
 	@JoinColumn(name = "start_status", nullable = false)
@@ -31,7 +31,7 @@ public class IssueProject {
 	private boolean isActive;
 	
 	@Column(name = "counter", columnDefinition = "int", length = 18, nullable = false)
-	private long counter;
+	private Long counter;
 
 	public IssueProject() {
 	}
@@ -42,7 +42,7 @@ public class IssueProject {
 			String name,
 			String code, 
 			boolean isActive, 
-			long counter) {
+			Long counter) {
 		this.startStatus = startStatus;
 		this.owner = owner;
 		this.name = name;
@@ -51,7 +51,7 @@ public class IssueProject {
 		this.counter = counter;
 	}
 
-	public long getId() {
+	public Long getId() {
 		return id;
 	}
 
@@ -75,11 +75,11 @@ public class IssueProject {
 		return isActive;
 	}
 
-	public long getCounter() {
+	public Long getCounter() {
 		return counter;
 	}
 
-	public void setId(long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
@@ -103,7 +103,7 @@ public class IssueProject {
 		this.isActive = isActive;
 	}
 
-	public void setCounter(long counter) {
+	public void setCounter(Long counter) {
 		this.counter = counter;
 	}
 }

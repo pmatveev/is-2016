@@ -13,7 +13,7 @@ public class Officer {
 	@GeneratedValue(generator = "increment")
 	@GenericGenerator(name = "increment", strategy = "increment")
 	@Column(name = "id", columnDefinition = "int", length = 18, nullable = false)
-	private long id;
+	private Long id;
 
 	@Column(name = "username", length = 32, nullable = false)
 	private String username;
@@ -55,7 +55,7 @@ public class Officer {
 		this.grants = grants;
 	}
 
-	public long getId() {
+	public Long getId() {
 		return id;
 	}
 
@@ -83,7 +83,7 @@ public class Officer {
 		return grants;
 	}
 
-	public void setId(long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 

@@ -11,7 +11,7 @@ public class IssueStatusTransition {
 	@GeneratedValue(generator = "increment")
 	@GenericGenerator(name = "increment", strategy = "increment")
 	@Column(name = "id", columnDefinition = "int", length = 18, nullable = false)
-	private long id;
+	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.ALL)
 	@JoinColumn(name = "issue_project__id", nullable = false)
@@ -52,7 +52,7 @@ public class IssueStatusTransition {
 		this.isActive = isActive;
 	}
 
-	public long getId() {
+	public Long getId() {
 		return id;
 	}
 
@@ -80,7 +80,7 @@ public class IssueStatusTransition {
 		return isActive;
 	}
 
-	public void setId(long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 

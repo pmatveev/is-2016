@@ -13,7 +13,7 @@ public class Issue {
 	@GeneratedValue(generator = "increment")
 	@GenericGenerator(name = "increment", strategy = "increment")
 	@Column(name = "id", columnDefinition = "int", length = 18, nullable = false)
-	private long id;
+	private Long id;
 
 	@Column(name = "idt", length = 32, nullable = false)
 	private String idt;
@@ -91,7 +91,7 @@ public class Issue {
 		this.resolution = resolution;
 	}
 
-	public long getId() {
+	public Long getId() {
 		return id;
 	}
 
@@ -147,7 +147,7 @@ public class Issue {
 		return resolution;
 	}
 
-	public void setId(long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
