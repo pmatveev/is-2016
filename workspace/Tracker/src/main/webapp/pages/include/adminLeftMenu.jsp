@@ -1,3 +1,4 @@
+<%@page import="ru.ifmo.is.manager.ProjectManager"%>
 <%@page import="ru.ifmo.is.servlet.OfficerServlet"%>
 <%@page import="ru.ifmo.is.servlet.LoginServlet"%>
 <%@page import="ru.ifmo.is.util.Util"%>
@@ -41,7 +42,7 @@
 </script>
 <% 
 	{
-		ApplicationContext ctx = Context.getContext(); 
+		ProjectManager projectManager = new ProjectManager();
 %>
 <div id="leftMenuDiv" class="adminLeftMenu">
 	<a href="<%=returnURL%>">Back</a><br />
@@ -53,8 +54,7 @@
 	<div id="editProjects" class="adminLeftSubMenu" 
 		style="display:<%="true".equals(showProjects) ? "block" : "none"%>;">
 		<% 
-			IssueProjectService projectService = ctx.getBean(IssueProjectService.class);
-			List<IssueProject> projects = projectService.selectAll();
+			List<IssueProject> projects = projectManager.selectAllProjects();
 		%>
 		<a href="/Tracker<%=ProjectServlet.PROJECT_EDIT%>&<%=LoginServlet.RETURN_URL%>=<%=returnUrlStr%>">New project</a>
 		<%

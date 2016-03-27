@@ -1,3 +1,6 @@
+<%@page import="ru.ifmo.is.manager.OfficerManager"%>
+<%@page import="ru.ifmo.is.manager.ProjectManager"%>
+<%@page import="ru.ifmo.is.manager.IssueManager"%>
 <%@page import="ru.ifmo.is.db.entity.Comment"%>
 <%@page import="ru.ifmo.is.db.service.CommentService"%>
 <%@page import="ru.ifmo.is.db.entity.IssueProjectTransition"%>
@@ -39,38 +42,31 @@
 		
 		SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMMM d yyyy, HH:mm:ss", Locale.ENGLISH);
 		String issueKey = (String) request.getParameter(IssueServlet.ISSUE_GET_KEY_PARM);
-	
-		ApplicationContext ctx = Context.getContext();
+			
+		IssueManager issueManager = new IssueManager();
+		Issue issue = issueManager.selectIssueByIdt(issueKey);
 		
-		IssueService issueService = ctx.getBean(IssueService.class);
-		Issue issue = issueService.selectById(issueKey); 
+		List<Comment> comments = issueManager.selectCommentsByIssueId(
+			issue == null ? null : issue.getId());
 		
-		CommentService commentService = ctx.getBean(CommentService.class);
-		List<Comment> comments = commentService.selectByOpenedIssue(
-				issue == null ? null : issue.getId());
-		
-		IssueStatusTransitionService issueStatusTransitionService = 
-				ctx.getBean(IssueStatusTransitionService.class);
 		List<IssueStatusTransition> statusTransitions = 
-				issueStatusTransitionService.selectAvailable(
+				issueManager.selectStatusTransitionsAvailable(
 						issue == null ? null : issue.getId(), 
 						(String) request.getAttribute(
 								LoginServlet.LOGIN_AUTH_USERNAME));
 		
-		IssueProjectTransitionService issueProjectTransitionService =
-				ctx.getBean(IssueProjectTransitionService.class);
 		List<IssueProjectTransition> projectTransitions = 
-				issueProjectTransitionService.selectAvailable(
+				issueManager.selectProjectTransitionsAvailable(
 						issue == null ? null : issue.getId(), 
 						(String) request.getAttribute(
 								LoginServlet.LOGIN_AUTH_USERNAME));
 
-		IssueKindService kindService = ctx.getBean(IssueKindService.class);
-		List<IssueKind> kinds = kindService.selectAll();
+		ProjectManager projectManager = new ProjectManager();
+		List<IssueKind> kinds = projectManager.selectAllKinds();
 		
 		// TODO currently we can assign to everyone. See task #24
-		OfficerService officerService = ctx.getBean(OfficerService.class);
-		List<Officer> assignees = officerService.selectAll();
+		OfficerManager officerManager = new OfficerManager();
+		List<Officer> assignees = officerManager.selectAllOfficers();
 	%>
 	<%
 		if (issue == null) {

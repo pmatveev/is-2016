@@ -31,7 +31,7 @@ public class IssueServiceImpl implements IssueService {
 	@Autowired
 	private IssueRepository issueRepository;
 	
-	public Issue selectById(String idt) {
+	public Issue selectByIdt(String idt) {
 		return issueRepository.findActiveByIdt(idt);
 	}
 	

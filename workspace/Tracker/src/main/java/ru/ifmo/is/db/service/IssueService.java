@@ -5,7 +5,7 @@ import org.springframework.data.domain.Page;
 import ru.ifmo.is.db.entity.Issue;
 
 public interface IssueService {
-	public Issue selectById(String idt);
+	public Issue selectByIdt(String idt);
 	
 	public Page<Issue> selectLike(
 			int from,

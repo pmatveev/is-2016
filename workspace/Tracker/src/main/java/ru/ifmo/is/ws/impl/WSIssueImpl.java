@@ -37,7 +37,7 @@ public class WSIssueImpl implements WSIssue {
 			}
 
 			IssuePageWrapper wrapped = new IssuePageWrapper(
-					new IssueManager().selectLike(from, num, idt, summary,
+					new IssueManager().selectIssuesLike(from, num, idt, summary,
 							project, kind, status, creator, assignee,
 							createdOrder, updatedOrder));
 			

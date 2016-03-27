@@ -1,3 +1,4 @@
+<%@page import="ru.ifmo.is.manager.ProjectManager"%>
 <%@page import="ru.ifmo.is.manager.IssueManager"%>
 <%@page import="ru.ifmo.is.servlet.ProjectServlet"%>
 <%@page import="org.springframework.data.domain.Page"%>
@@ -35,81 +36,60 @@
 	<%
 		LogManager.log("GET index.jsp", request);
 
-		String from = request.getParameter(IssueServlet.ISSUE_GET_START_FROM);
-		int intFrom = 0;
-		if (from != null) {
-			try {
-		intFrom = Integer.parseInt(from);
-			} catch (NumberFormatException e) {
+			String from = request.getParameter(IssueServlet.ISSUE_GET_START_FROM);
+			int intFrom = 0;
+			if (from != null) {
+				try {
+					intFrom = Integer.parseInt(from);
+				} catch (NumberFormatException e) {
+				}
 			}
-		}
-		ApplicationContext ctx = Context.getContext(); // TODO remove
-		
-/*		Pair<IssueData[], Integer> issuesCnt = IssueData.selectLike(
-		intFrom, 
-		IssueServlet.ISSUE_GET_PAGE_NUMBER, 
-		request.getParameter(IssueServlet.ISSUE_GET_BY_KEY),
-		request.getParameter(IssueServlet.ISSUE_GET_BY_SUMM),
-		request.getParameter(IssueServlet.ISSUE_GET_BY_PROJECT),
-		request.getParameter(IssueServlet.ISSUE_GET_BY_KIND),
-		request.getParameter(IssueServlet.ISSUE_GET_BY_STATUS),
-		request.getParameter(IssueServlet.ISSUE_GET_BY_REPORTER),
-		request.getParameter(IssueServlet.ISSUE_GET_BY_ASSIGNEE),
-		request.getParameter(IssueServlet.ISSUE_GET_BY_CREATED),
-		request.getParameter(IssueServlet.ISSUE_GET_BY_UPDATED)); */
-		
-// 		int totalCount = issuesCnt.second;		
-		Page<Issue> issuePage = new IssueManager().selectLike(
-				intFrom, 
-				IssueServlet.ISSUE_GET_PAGE_NUMBER, 
-				request.getParameter(IssueServlet.ISSUE_GET_BY_KEY),
-				request.getParameter(IssueServlet.ISSUE_GET_BY_SUMM),
-				request.getParameter(IssueServlet.ISSUE_GET_BY_PROJECT),
-				request.getParameter(IssueServlet.ISSUE_GET_BY_KIND),
-				request.getParameter(IssueServlet.ISSUE_GET_BY_STATUS),
-				request.getParameter(IssueServlet.ISSUE_GET_BY_REPORTER),
-				request.getParameter(IssueServlet.ISSUE_GET_BY_ASSIGNEE),
-				request.getParameter(IssueServlet.ISSUE_GET_BY_CREATED),
-				request.getParameter(IssueServlet.ISSUE_GET_BY_UPDATED));
-		
-		List<Issue> issues = issuePage.getContent();
-		long totalCount = issuePage.getTotalElements();
-//		IssueKindData[] kinds = IssueKindData.select();
-		
-		IssueKindService kindService = ctx.getBean(IssueKindService.class);
-		List<IssueKind> kinds = kindService.selectAll();
-		
-		IssueStatusService statusService = ctx.getBean(IssueStatusService.class);
-		List<IssueStatus> statuses = statusService.selectAll();
-		
-		IssueProjectService projectService = ctx.getBean(IssueProjectService.class);
-		List<IssueProject> projects = projectService.selectAll();
-
-		SimpleDateFormat dateFormat = new SimpleDateFormat(
-		"HH:mm:ss dd.MM.yyyy", Locale.ENGLISH);
-
-		StringBuilder returnToFrom0 = new StringBuilder(request.getRequestURI() + "?");
-		Enumeration<String> parms = request.getParameterNames();
-
-		int p = 0, p0 = 0;
-		while (parms.hasMoreElements()) {
-			String attr = parms.nextElement();
 			
-			if (!IssueServlet.ISSUE_GET_START_FROM.equals(attr)) {
-		if (p0 > 0) {
-			returnToFrom0.append("&");
-		}
-		p0++;
-		returnToFrom0.append(attr + "="
-		+ URLEncoder.encode(request.getParameter(attr), "UTF-8"));
-			}
-		}
-		
-		if (p0 > 0) {
-			returnToFrom0.append("&");
-		}
-		returnToFrom0.append(IssueServlet.ISSUE_GET_START_FROM).append("=");
+			Page<Issue> issuePage = new IssueManager().selectIssuesLike(
+					intFrom, 
+					IssueServlet.ISSUE_GET_PAGE_NUMBER, 
+					request.getParameter(IssueServlet.ISSUE_GET_BY_KEY),
+					request.getParameter(IssueServlet.ISSUE_GET_BY_SUMM),
+					request.getParameter(IssueServlet.ISSUE_GET_BY_PROJECT),
+					request.getParameter(IssueServlet.ISSUE_GET_BY_KIND),
+					request.getParameter(IssueServlet.ISSUE_GET_BY_STATUS),
+					request.getParameter(IssueServlet.ISSUE_GET_BY_REPORTER),
+					request.getParameter(IssueServlet.ISSUE_GET_BY_ASSIGNEE),
+					request.getParameter(IssueServlet.ISSUE_GET_BY_CREATED),
+					request.getParameter(IssueServlet.ISSUE_GET_BY_UPDATED));
+			
+			List<Issue> issues = issuePage.getContent();
+			long totalCount = issuePage.getTotalElements();
 
+			ProjectManager projectManager = new ProjectManager();
+			List<IssueKind> kinds = projectManager.selectAllKinds();
+			List<IssueStatus> statuses = projectManager.selectAllStatuses();
+			List<IssueProject> projects = projectManager.selectAllProjects();
+
+			SimpleDateFormat dateFormat = new SimpleDateFormat(
+			"HH:mm:ss dd.MM.yyyy", Locale.ENGLISH);
+
+			StringBuilder returnToFrom0 = new StringBuilder(request.getRequestURI() + "?");
+			Enumeration<String> parms = request.getParameterNames();
+
+			int p = 0, p0 = 0;
+			while (parms.hasMoreElements()) {
+		String attr = parms.nextElement();
+		
+		if (!IssueServlet.ISSUE_GET_START_FROM.equals(attr)) {
+			if (p0 > 0) {
+		returnToFrom0.append("&");
+			}
+			p0++;
+			returnToFrom0.append(attr + "="
+			+ URLEncoder.encode(request.getParameter(attr), "UTF-8"));
+		}
+			}
+			
+			if (p0 > 0) {
+		returnToFrom0.append("&");
+			}
+			returnToFrom0.append(IssueServlet.ISSUE_GET_START_FROM).append("=");
 	%>
 	<div class="indexHeader">
 		<div class="createIssueButtonDiv">

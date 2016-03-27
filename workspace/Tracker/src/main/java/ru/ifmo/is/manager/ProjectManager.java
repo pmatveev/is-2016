@@ -13,7 +13,11 @@ import java.util.Properties;
 import org.springframework.context.ApplicationContext;
 
 import ru.ifmo.is.db.StatementExecutor;
+import ru.ifmo.is.db.entity.IssueKind;
+import ru.ifmo.is.db.entity.IssueProject;
 import ru.ifmo.is.db.entity.IssueStatus;
+import ru.ifmo.is.db.service.IssueKindService;
+import ru.ifmo.is.db.service.IssueProjectService;
 import ru.ifmo.is.db.service.IssueStatusService;
 import ru.ifmo.is.db.util.Context;
 //import ru.ifmo.is.util.LogLevel;
@@ -34,6 +38,8 @@ public class ProjectManager {
 	private static final char SEPARATOR = '.';
 	
 	private static final String PROJ_LOCATION;;
+
+	private ApplicationContext ctx;
 	
 	static {
 		Properties p = new Properties();
@@ -45,6 +51,30 @@ public class ProjectManager {
 			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
+	}
+	
+	public List<IssueProject> selectAllProjects() {
+		return ctx.getBean(IssueProjectService.class).selectAll();
+	}
+
+	public IssueProject selectProjectByCode(String code) {
+		return ctx.getBean(IssueProjectService.class).selectByCode(code);
+	}
+	
+	public List<IssueProject> selectAvailableProjects(String username) {
+		return ctx.getBean(IssueProjectService.class).selectAvailable(username);
+	}
+	
+	public List<IssueStatus> selectAllStatuses() {
+		return ctx.getBean(IssueStatusService.class).selectAll();
+	}
+	
+	public List<IssueKind> selectAllKinds() {
+		return ctx.getBean(IssueKindService.class).selectAll();
+	}
+	
+	public ProjectManager() {
+		ctx = Context.getContext();		
 	}
 	
 	public static String getProjectFile(String code) {

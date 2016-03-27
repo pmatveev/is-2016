@@ -1,3 +1,4 @@
+<%@page import="ru.ifmo.is.manager.OfficerManager"%>
 <%@page import="ru.ifmo.is.db.entity.OfficerGrant"%>
 <%@page import="ru.ifmo.is.db.service.OfficerGrantService"%>
 <%@page import="ru.ifmo.is.db.entity.Officer"%>
@@ -18,12 +19,10 @@
 	%>
 	<%@ include file="include/adminLeftMenu.jsp"%>
 	<%
-		ApplicationContext ctx = Context.getContext();
-		OfficerGroupService officerGroupService = ctx.getBean(OfficerGroupService.class);
-		List<OfficerGroup> groups = officerGroupService.selectAll();
-		
-		OfficerGrantService officerGrantService = ctx.getBean(OfficerGrantService.class);
-		List<OfficerGrant> grants = officerGrantService.selectAll();
+		OfficerManager officerManager = new OfficerManager();
+	
+		List<OfficerGroup> groups = officerManager.selectAllGroups();
+		List<OfficerGrant> grants = officerManager.selectAllGrants();
 	%>
 	<script>
 		function init() {

@@ -1,18 +1,15 @@
 package ru.ifmo.is.servlet;
 
 import java.io.IOException;
-import java.sql.Types;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import ru.ifmo.is.db.StatementExecutor;
 import ru.ifmo.is.manager.AuthenticationManager;
+import ru.ifmo.is.manager.IssueManager;
 import ru.ifmo.is.manager.LogManager;
-import ru.ifmo.is.util.Pair;
-import ru.ifmo.is.util.SQLParmKind;
 
 @SuppressWarnings("serial")
 public class IssueServlet extends HttpServlet {
@@ -82,29 +79,23 @@ public class IssueServlet extends HttpServlet {
 		String kind = request.getParameter(ISSUE_SET_KIND);
 		String summary = request.getParameter(ISSUE_SET_SUMMARY);
 		String description = request.getParameter(ISSUE_SET_DESCRIPTION);
-		Object[] res = null;
+		
+		String message = null;
 		
 		try {
-			res = new StatementExecutor().call(
-					"call new_issue(?, ?, ?, ?, ?, ?)",
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, creator),
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, project),
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, kind),
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, summary),
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, description), 
-					new Pair<SQLParmKind, Object>(SQLParmKind.OUT_STRING, Types.VARCHAR));
+			message = new IssueManager().createIssue(creator, project, kind,
+					summary, description);
 		} catch (IOException e) {
 			LogManager.log(e);
 			createIssueReturn(request, response, "Service failed: " + e.getMessage());
 			return;
 		}
 		
-		if (res.length < 0 || res[0] == null || !(res[0] instanceof String)) {
+		if (message == null) {
 			createIssueReturn(request, response, "Service failed: no response from DB");
 			return;			
 		}
 		
-		String message = (String) res[0];
 		if (message.startsWith("E:")) {
 			createIssueReturn(request, response, message.substring(2));
 			return;				
@@ -130,27 +121,22 @@ public class IssueServlet extends HttpServlet {
 				getAttribute(LoginServlet.LOGIN_AUTH_USERNAME);
 		String idt = request.getParameter(ISSUE_GET_KEY_PARM);
 		String comment = request.getParameter(ISSUE_ADD_COMMENT);
-		Object[] res = null;
+		
+		String message = null;
 		
 		try {
-			res = new StatementExecutor().call(
-					"? = call add_issue_comment(?, ?, ?)",  
-					new Pair<SQLParmKind, Object>(SQLParmKind.OUT_STRING, Types.VARCHAR),
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, creator),
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, idt),
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, comment));
+			message = new IssueManager().addIssueComment(creator, idt, comment);
 		} catch (IOException e) {
 			LogManager.log(e);
 			addCommentReturn(request, response, "Service failed: " + e.getMessage());
 			return;
 		}
 		
-		if (res.length == 0 || res[0] == null || !(res[0] instanceof String)) {
+		if (message == null) {
 			addCommentReturn(request, response, "Service failed: no response from DB");
 			return;			
 		}
 		
-		String message = (String) res[0];
 		if (message.startsWith("E:")) {
 			addCommentReturn(request, response, message.substring(2));
 			return;				
@@ -195,32 +181,30 @@ public class IssueServlet extends HttpServlet {
 		String resol = request.getParameter(ISSUE_SET_RESOLUTION);
 		String comment = request.getParameter(ISSUE_ADD_COMMENT);
 		
-		Object[] res = null;
+		String message = null;
+		
 		try {
-			res = new StatementExecutor().call(
-					"call transit_issue(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",  
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, user),
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, idt),
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, transition),
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, summary),
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, assignee),
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, kind),
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, descr),
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, resol),
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, comment),
-					new Pair<SQLParmKind, Object>(SQLParmKind.OUT_STRING, Types.VARCHAR));
+			message = new IssueManager().issueStatusTransit(
+					user, 
+					idt, 
+					transition, 
+					summary, 
+					assignee, 
+					kind, 
+					descr, 
+					resol, 
+					comment);
 		} catch (IOException e) {
 			LogManager.log(e);
 			issueStatusTransitReturn(request, response, "Service failed: " + e.getMessage());
 			return;
 		}
 		
-		if (res.length < 0 || res[0] == null || !(res[0] instanceof String)) {
+		if (message == null) {
 			issueStatusTransitReturn(request, response, "Service failed: no response from DB");
 			return;			
 		}
 		
-		String message = (String) res[0];
 		if (message.startsWith("E:")) {
 			issueStatusTransitReturn(request, response, message.substring(2));
 			return;				
@@ -250,33 +234,27 @@ public class IssueServlet extends HttpServlet {
 		String transition = request.getParameter(ISSUE_PROJECT_TRANSITION);
 		String comment = request.getParameter(ISSUE_ADD_COMMENT);
 		
-		Object[] res = null;
+		String message = null;
+		
 		try {
-			res = new StatementExecutor().call(
-					"call move_issue(?, ?, ?, ?, ?)",  
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, user),
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, idt),
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, transition),
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, comment),
-					new Pair<SQLParmKind, Object>(SQLParmKind.OUT_STRING, Types.VARCHAR));
+			message = new IssueManager().issueProjectTransit(user, idt, transition, comment);
 		} catch (IOException e) {
 			LogManager.log(e);
 			issueProjectTransitReturn(request, response, "Service failed: " + e.getMessage());
 			return;
 		}
 		
-		if (res.length < 0 || res[0] == null || !(res[0] instanceof String)) {
+		if (message == null) {
 			issueProjectTransitReturn(request, response, "Service failed: no response from DB");
 			return;			
 		}
 		
-		String message = (String) res[0];
 		if (message.startsWith("E:")) {
 			issueProjectTransitReturn(request, response, message.substring(2));
 			return;				
 		}
 
-		request.getSession().setAttribute(ISSUE_ERROR, "New identifier is " + ((String) res[0]).substring(2));
+		request.getSession().setAttribute(ISSUE_ERROR, "New identifier is " + (message).substring(2));
 		response.sendRedirect(LoginServlet.getReturnAddress(request));
 	}
 

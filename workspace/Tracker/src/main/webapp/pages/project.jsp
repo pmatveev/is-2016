@@ -1,3 +1,4 @@
+<%@page import="ru.ifmo.is.manager.OfficerManager"%>
 <%@page import="java.io.File"%>
 <%@page import="java.io.IOException"%>
 <%@page import="java.util.Scanner"%>
@@ -34,26 +35,19 @@
 	<%@ include file="include/adminLeftMenu.jsp"%>
 	<%
 		String currProjectKey = request.getParameter(ProjectServlet.PROJECT_KEY);
-	
-		ApplicationContext ctx = Context.getContext();
-		
-		IssueProjectService projectService = ctx.getBean(IssueProjectService.class);
+
+		ProjectManager projectManager = new ProjectManager();
 		IssueProject currProject = null;
 		if (currProjectKey != null) {
-			currProject = projectService.selectByCode(currProjectKey);
+			currProject = projectManager.selectProjectByCode(currProjectKey);
 		}
 		
-		OfficerService officerService = ctx.getBean(OfficerService.class);
-		List<Officer> officers = officerService.selectAll();
+		List<IssueProject> projects = projectManager.selectAllProjects();
+		List<IssueStatus> statuses = projectManager.selectAllStatuses();
 		
-		IssueProjectService issueProjectService = ctx.getBean(IssueProjectService.class);
-		List<IssueProject> projects = issueProjectService.selectAll();
-		
-		IssueStatusService issueStatusService = ctx.getBean(IssueStatusService.class);
-		List<IssueStatus> statuses = issueStatusService.selectAll();
-		
-		OfficerGrantService officerGrantService = ctx.getBean(OfficerGrantService.class);
-		List<OfficerGrant> grants = officerGrantService.selectAll();
+		OfficerManager officerManager = new OfficerManager();
+		List<Officer> officers = officerManager.selectAllOfficers();
+		List<OfficerGrant> grants = officerManager.selectAllGrants();
 	%>
 	<script>
 		var submit = false;

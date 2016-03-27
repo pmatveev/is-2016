@@ -1,18 +1,15 @@
 package ru.ifmo.is.servlet;
 
 import java.io.IOException;
-import java.sql.Types;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import ru.ifmo.is.db.StatementExecutor;
 import ru.ifmo.is.manager.AuthenticationManager;
 import ru.ifmo.is.manager.LogManager;
-import ru.ifmo.is.util.Pair;
-import ru.ifmo.is.util.SQLParmKind;
+import ru.ifmo.is.manager.OfficerManager;
 
 @SuppressWarnings("serial")
 public class OfficerServlet extends HttpServlet {
@@ -54,29 +51,18 @@ public class OfficerServlet extends HttpServlet {
 		Boolean admin = "on".equals(request.getParameter(SET_GRANT_ADMIN));
 		String name = request.getParameter(SET_GRANT_NAME);
 		
-		Object[] res = null;
+		String message = null;
 		try {
-			res = new StatementExecutor().call(
-					"? = call add_officer_grant(?, ?, ?)", 
-					new Pair<SQLParmKind, Object>(SQLParmKind.OUT_STRING, Types.VARCHAR),
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, name.toUpperCase().replace(" ", "_")),
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, name),
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_BOOL, admin));
+			message = new OfficerManager().addOfficerGrant(name, admin);
 		} catch (IOException e) {
 			LogManager.log(e);
 			addGrantReturn(request, response, "Service failed: " + e.getMessage());
 			return;
 		}		
 		
-		if (res.length == 0) {
-			addGrantReturn(request, response, "Service failed: no response from DB");
-			return;			
-		}
-		
-		String message = (String) res[0];
 		if (message != null) {
 			addGrantReturn(request, response, message);
-			return;				
+			return;			
 		}
 		
 		response.sendRedirect(LoginServlet.getReturnAddress(request));
@@ -106,38 +92,12 @@ public class OfficerServlet extends HttpServlet {
 		String officerFor = request.getParameter(FOR_OFFICER);
 		String grantList = request.getParameter(SET_GRANT_LIST);
 		
-		if (!"".equals(officerFor)) {
-			groupFor = null;
-		}
-
-		StatementExecutor db = new StatementExecutor();
 		try {
-			db.startTransaction();
-			
-			db.call("? = call clear_grants(?, ?)", 
-					new Pair<SQLParmKind, Object>(SQLParmKind.OUT_STRING, Types.VARCHAR),
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, officerFor),
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, groupFor));
-			
-			int delimiter = grantList.indexOf(',');
-			while (delimiter > -1) {
-				String grant = grantList.substring(0, delimiter);
-				
-				db.call("? = call grant_officer(?, ?, ?)", 
-						new Pair<SQLParmKind, Object>(SQLParmKind.OUT_STRING, Types.VARCHAR),
-						new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, officerFor),
-						new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, groupFor),
-						new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, grant));
-				
-				grantList = grantList.substring(delimiter + 1);
-				delimiter = grantList.indexOf(',');
-			}
+			new OfficerManager().setOfficerGrants(officerFor, groupFor, grantList);
 		} catch (Exception e) {
-			db.rollbackTransaction();
 			setGrantsReturn(request, response, "Service failed: " + e.getMessage());
 			return;
 		}
-		db.commitTransaction();
 		
 		response.sendRedirect(LoginServlet.getReturnAddress(request));
 	}

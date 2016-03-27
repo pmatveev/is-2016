@@ -1,3 +1,4 @@
+<%@page import="ru.ifmo.is.manager.ProjectManager"%>
 <%@page import="ru.ifmo.is.db.entity.IssueProject"%>
 <%@page import="ru.ifmo.is.db.service.IssueProjectService"%>
 <%@page import="java.util.List"%>
@@ -21,14 +22,10 @@
 	<%@ include file="include/logout.jsp"%>
 	<%
 		LogManager.log("GET createIssue.jsp", request); 
-			
-		ApplicationContext ctx = Context.getContext();
 		
-		IssueKindService kindService = ctx.getBean(IssueKindService.class);
-		List<IssueKind> kinds = kindService.selectAll();
-		
-		IssueProjectService projectService = ctx.getBean(IssueProjectService.class);
-		List<IssueProject> projects = projectService.selectAvailable(
+		ProjectManager projectManager = new ProjectManager();
+		List<IssueKind> kinds = projectManager.selectAllKinds();
+		List<IssueProject> projects = projectManager.selectAvailableProjects(
 				(String) request.getAttribute(LoginServlet.LOGIN_AUTH_USERNAME));
 	%>
 	<script>
