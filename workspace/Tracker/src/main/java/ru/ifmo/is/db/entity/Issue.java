@@ -19,7 +19,7 @@ public class Issue {
 	private String idt;
 	
 	@Column(name = "active", columnDefinition = "bit", length = 1, nullable = false)
-	private boolean active;
+	private Boolean active;
 
 	@ManyToOne(fetch = FetchType.EAGER, optional = false, cascade = CascadeType.ALL)
 	@JoinColumn(name = "creator", nullable = false)
@@ -64,7 +64,7 @@ public class Issue {
 
 	public Issue(
 			String idt, 
-			boolean active, 
+			Boolean active, 
 			Officer creator, 
 			Officer assignee,
 			IssueKind kind, 
@@ -99,7 +99,7 @@ public class Issue {
 		return idt;
 	}
 
-	public boolean isActive() {
+	public Boolean isActive() {
 		return active;
 	}
 
@@ -155,7 +155,7 @@ public class Issue {
 		this.idt = idt;
 	}
 
-	public void setActive(boolean active) {
+	public void setActive(Boolean active) {
 		this.active = active;
 	}
 

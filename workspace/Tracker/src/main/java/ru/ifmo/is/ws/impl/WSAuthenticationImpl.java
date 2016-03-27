@@ -5,11 +5,13 @@ import javax.jws.WebParam;
 import javax.jws.WebService;
 
 import ru.ifmo.is.manager.AuthenticationManager;
-import ru.ifmo.is.ws.Authentication;
+import ru.ifmo.is.manager.util.AuthenticationInfo;
+import ru.ifmo.is.ws.WSAuthentication;
+import ru.ifmo.is.ws.util.ConnectionInfo;
 import ru.ifmo.is.ws.util.WSResponse;
 
-@WebService(endpointInterface = "ru.ifmo.is.ws.Authentication")
-public class AuthenticationImpl implements Authentication {
+@WebService(endpointInterface = "ru.ifmo.is.ws.WSAuthentication")
+public class WSAuthenticationImpl implements WSAuthentication {
 	@Override
 	@WebMethod(operationName = "login")
 	public WSResponse<String> login(
@@ -31,13 +33,25 @@ public class AuthenticationImpl implements Authentication {
 	@Override
 	@WebMethod(operationName = "logout")
 	public WSResponse<Void> logout(
-			@WebParam(name = "token") String token,
-			@WebParam(name = "system") String systemName) {
+			@WebParam(name = "connection") ConnectionInfo connection) {
 		try {
-			new AuthenticationManager().close(token, systemName);
+			new AuthenticationManager().close(connection.getToken(), connection.getSystem());
 			return new WSResponse<Void>();
 		} catch (Throwable e) {
 			return new WSResponse<Void>(e.getMessage(), null);			
+		}
+	}
+
+	@Override
+	@WebMethod(operationName = "connectionDetails")
+	public WSResponse<AuthenticationInfo> verify(
+			@WebParam(name = "connection") ConnectionInfo connection) {
+		try {
+			return new WSResponse<AuthenticationInfo>(null,
+					new AuthenticationManager().verify(connection.getToken(),
+							connection.getSystem()));
+		} catch (Throwable e) {
+			return new WSResponse<AuthenticationInfo>(e.getMessage(), null);
 		}
 	}
 

@@ -19,7 +19,7 @@ public class Officer {
 	private String username;
 
 	@Column(name = "is_active", columnDefinition = "BIT", length = 1, nullable = false)
-	private boolean isActive;
+	private Boolean isActive;
 
 	@Column(name = "passhash", length = 32, nullable = false)
 	private String passHash;
@@ -42,7 +42,7 @@ public class Officer {
 
 	public Officer(
 			String username,
-			boolean isActive, 
+			Boolean isActive, 
 			String passHash, 
 			String credentials,
 			OfficerGroup group,
@@ -63,7 +63,7 @@ public class Officer {
 		return username;
 	}
 
-	public boolean isActive() {
+	public Boolean isActive() {
 		return isActive;
 	}
 
@@ -74,11 +74,11 @@ public class Officer {
 	public String getCredentials() {
 		return credentials;
 	}
-	
+
 	public OfficerGroup getGroup() {
 		return group;
 	}
-	
+
 	public List<OfficerGrant> getGrants() {
 		return grants;
 	}
@@ -91,7 +91,7 @@ public class Officer {
 		this.username = username;
 	}
 
-	public void setActive(boolean isActive) {
+	public void setActive(Boolean isActive) {
 		this.isActive = isActive;
 	}
 

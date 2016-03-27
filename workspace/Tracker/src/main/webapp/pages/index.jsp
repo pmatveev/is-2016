@@ -1,3 +1,4 @@
+<%@page import="ru.ifmo.is.manager.IssueManager"%>
 <%@page import="ru.ifmo.is.servlet.ProjectServlet"%>
 <%@page import="org.springframework.data.domain.Page"%>
 <%@page import="ru.ifmo.is.db.entity.Issue"%>
@@ -42,7 +43,7 @@
 			} catch (NumberFormatException e) {
 			}
 		}
-		ApplicationContext ctx = Context.getContext();
+		ApplicationContext ctx = Context.getContext(); // TODO remove
 		
 /*		Pair<IssueData[], Integer> issuesCnt = IssueData.selectLike(
 		intFrom, 
@@ -57,9 +58,8 @@
 		request.getParameter(IssueServlet.ISSUE_GET_BY_CREATED),
 		request.getParameter(IssueServlet.ISSUE_GET_BY_UPDATED)); */
 		
-// TODO		int totalCount = issuesCnt.second;		
-		IssueService issueService = ctx.getBean(IssueService.class);
-		Page<Issue> issuePage = issueService.selectLike(
+// 		int totalCount = issuesCnt.second;		
+		Page<Issue> issuePage = new IssueManager().selectLike(
 				intFrom, 
 				IssueServlet.ISSUE_GET_PAGE_NUMBER, 
 				request.getParameter(IssueServlet.ISSUE_GET_BY_KEY),

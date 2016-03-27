@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <endpoints xmlns="http://java.sun.com/xml/ns/jax-ws/ri/runtime"
 	version="2.0">
-	<endpoint name="Authentication" implementation="ru.ifmo.is.ws.impl.AuthenticationImpl"
+	<endpoint name="Authentication" implementation="ru.ifmo.is.ws.impl.WSAuthenticationImpl"
 		url-pattern="/ws/authentication" />
+	<endpoint name="Issue" implementation="ru.ifmo.is.ws.impl.WSIssueImpl"
+		url-pattern="/ws/issue" />
 </endpoints>

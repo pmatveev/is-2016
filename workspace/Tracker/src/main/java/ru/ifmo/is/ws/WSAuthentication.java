@@ -6,11 +6,13 @@ import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import javax.jws.soap.SOAPBinding.Style;
 
+import ru.ifmo.is.manager.util.AuthenticationInfo;
+import ru.ifmo.is.ws.util.ConnectionInfo;
 import ru.ifmo.is.ws.util.WSResponse;
 
 @WebService
 @SOAPBinding(style = Style.RPC)
-public interface Authentication {
+public interface WSAuthentication {
 	@WebMethod(operationName = "login")
 	public WSResponse<String> login(
 			@WebParam(name = "username") String username,
@@ -19,6 +21,9 @@ public interface Authentication {
 
 	@WebMethod(operationName = "logout")
 	public WSResponse<Void> logout(
-			@WebParam(name = "token") String token,
-			@WebParam(name = "system") String systemName);
+			@WebParam(name = "connection") ConnectionInfo connection);
+	
+	@WebMethod(operationName = "connectionDetails")
+	public WSResponse<AuthenticationInfo> verify(
+			@WebParam(name = "connection") ConnectionInfo connection);
 }

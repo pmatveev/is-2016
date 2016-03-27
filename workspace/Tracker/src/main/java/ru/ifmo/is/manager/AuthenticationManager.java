@@ -10,11 +10,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import ru.ifmo.is.db.StatementExecutor;
+import ru.ifmo.is.manager.util.AuthenticationInfo;
 import ru.ifmo.is.servlet.LoginServlet;
 import ru.ifmo.is.util.Pair;
 import ru.ifmo.is.util.SQLParmKind;
 
-public class AuthenticationManager {
+public class AuthenticationManager {	
 	private String valueOf(byte b) {
 		String res = Integer.toHexString(b & 0xFF);
 		while (res.length() < 2) {
@@ -126,6 +127,24 @@ public class AuthenticationManager {
 		}
 	}
 
+	public AuthenticationInfo verify(String token, String conn) throws IOException {
+		Object[] resTmp = new StatementExecutor().call(
+						"call verify_auth(?, ?, ?, ?, ?)", 
+						new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, conn),
+						new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, token),
+						new Pair<SQLParmKind, Object>(SQLParmKind.OUT_STRING, Types.VARCHAR), 
+						new Pair<SQLParmKind, Object>(SQLParmKind.OUT_STRING, Types.VARCHAR), 
+						new Pair<SQLParmKind, Object>(SQLParmKind.OUT_BOOL, Types.BOOLEAN));
+		
+		if (resTmp.length == 3 && resTmp[0] != null) {
+			return new AuthenticationInfo(
+					(String) resTmp[0], 
+					(String) resTmp[1], 
+					(Boolean) resTmp[2]);
+		}
+		
+		return null;
+	}
 
 	public boolean verify(HttpServletRequest request,
 			HttpServletResponse response) throws IOException {
@@ -142,15 +161,9 @@ public class AuthenticationManager {
 			return false;
 		}
 
-		Object[] resTmp = null;
+		AuthenticationInfo auth = null;
 		try {
-			resTmp = new StatementExecutor().call(
-					"call verify_auth(?, ?, ?, ?, ?)", 
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, ip),
-					new Pair<SQLParmKind, Object>(SQLParmKind.IN_STRING, token),
-					new Pair<SQLParmKind, Object>(SQLParmKind.OUT_STRING, Types.VARCHAR), 
-					new Pair<SQLParmKind, Object>(SQLParmKind.OUT_STRING, Types.VARCHAR), 
-					new Pair<SQLParmKind, Object>(SQLParmKind.OUT_BOOL, Types.BOOLEAN));
+			auth = verify(token, ip);
 		} catch (IOException e) {
 			LogManager.log(e);
 			Cookie c = new Cookie(LoginServlet.LOGIN_TOKEN_COOKIE, null);
@@ -160,34 +173,26 @@ public class AuthenticationManager {
 			return false;
 		}
 
-		boolean auth = false;
-		Object isAdmin = null;
-		if (resTmp.length == 3) {
-			auth = resTmp[0] != null;
-			request.setAttribute(LoginServlet.LOGIN_AUTH_USERNAME, resTmp[0]);
-			request.setAttribute(LoginServlet.LOGIN_AUTH_DISPLAYNAME, resTmp[1]);
-			isAdmin = resTmp[2];
-			request.setAttribute(LoginServlet.LOGIN_AUTH_USER_ADMIN, isAdmin);	
-		}
+		if (auth != null) {
+			request.setAttribute(LoginServlet.LOGIN_AUTH_USERNAME, auth.getUsername());
+			request.setAttribute(LoginServlet.LOGIN_AUTH_DISPLAYNAME, auth.getDisplayName());
+			request.setAttribute(LoginServlet.LOGIN_AUTH_USER_ADMIN, auth.isAdmin());	
 
-		if (auth) {
 			// bool assumed
 			Object adminRequired = request.getAttribute(LoginServlet.LOGIN_AUTH_ADMIN_REQUIRED);
-			if (Boolean.TRUE.equals(adminRequired) && Boolean.FALSE.equals(isAdmin)) {
+			if (Boolean.TRUE.equals(adminRequired) && Boolean.FALSE.equals(auth.isAdmin())) {
 				response.sendRedirect(LoginServlet.getReturnAddress(request));
-				return auth;
 			}
+			return true;
 		}
 		
-		if (!auth) {
-			// not authenticated
-			Cookie c = new Cookie(LoginServlet.LOGIN_TOKEN_COOKIE, null);
-			c.setMaxAge(0);
-			response.addCookie(c);
-			removeAuth(request, response, forceRedirect);
-		}
+		// not authenticated
+		Cookie c = new Cookie(LoginServlet.LOGIN_TOKEN_COOKIE, null);
+		c.setMaxAge(0);
+		response.addCookie(c);
+		removeAuth(request, response, forceRedirect);
 			
-		return auth;
+		return false;
 	}
 
 	public void close(String token, String conn) throws IOException {

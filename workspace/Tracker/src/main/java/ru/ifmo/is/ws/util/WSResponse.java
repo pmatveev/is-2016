@@ -1,7 +1,15 @@
 package ru.ifmo.is.ws.util;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
+
+import ru.ifmo.is.manager.util.AuthenticationInfo;
+
+@XmlRootElement
+@XmlSeeAlso({ AuthenticationInfo.class, IssuePageWrapper.class })
 public class WSResponse<T> {
 	private String errorMessage;
+
 	private T response;
 
 	public String getErrorMessage() {
