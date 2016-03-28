@@ -13,6 +13,10 @@ public class OfficerWrapper {
 	}
 	
 	public OfficerWrapper(Officer officer) {
+		if (officer == null) {
+			return;
+		}
+		
 		this.username = officer.getUsername();
 		this.isActive = officer.isActive();
 		this.credentials = officer.getCredentials();

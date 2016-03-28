@@ -12,6 +12,10 @@ public class IssueKindWrapper {
 	}
 	
 	public IssueKindWrapper(IssueKind issueKind) {
+		if (issueKind == null) {
+			return;
+		}
+		
 		this.name = issueKind.getName();
 		this.code = issueKind.getCode();
 	}

@@ -12,6 +12,10 @@ public class IssueProjectWrapper {
 	}
 	
 	public IssueProjectWrapper(IssueProject project) {
+		if (project == null) {
+			return;
+		}
+		
 		this.name = project.getName();
 		this.code = project.getCode();
 	}

@@ -12,6 +12,10 @@ public class IssueStatusWrapper {
 	}
 	
 	public IssueStatusWrapper(IssueStatus issueStatus) {
+		if (issueStatus == null) {
+			return;
+		}
+		
 		this.name = issueStatus.getName();
 		this.code = issueStatus.getCode();
 	}

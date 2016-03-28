@@ -6,7 +6,15 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import ru.ifmo.is.manager.util.AuthenticationInfo;
 
 @XmlRootElement
-@XmlSeeAlso({ AuthenticationInfo.class, IssuePageWrapper.class })
+@XmlSeeAlso({
+	AuthenticationInfo.class,
+	IssuePageWrapper.class,
+	IssueWrapper.class,
+	CommentListWrapper.class,
+	IssueStatusTransitionListWrapper.class,
+	IssueProjectTransitionListWrapper.class,
+	IssueProjectListWrapper.class
+})
 public class WSResponse<T> {
 	private String errorMessage;
 

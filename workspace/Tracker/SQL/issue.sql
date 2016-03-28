@@ -182,20 +182,10 @@ proc_label: begin
 	 where username = p_assignee
 	   and is_active = true;
 	
-	if v_assignee is null then
-		set p_res = concat('E:', p_transit, ' is not completed: assignee ', p_assignee, ' not found');
-		leave proc_label;
-	end if;	   
-	
 	select min(id)
 	  into v_kind
 	  from issue_kind
 	 where code = p_kind;
-	
-	if v_kind is null then
-		set p_res =  concat('E:', p_transit, ' is not completed: issue kind ', p_kind, ' not found');
-		leave proc_label;
-	end if;	  
 	
 	select min(available_for),
 	       min(id),
@@ -218,7 +208,7 @@ proc_label: begin
 	
 	insert into issue
 		(idt, active, creator, assignee, kind, status, project, prev_issue, date_created, date_updated, summary, description, resolution)
-		select idt, true, creator, v_assignee, v_kind, v_status_to, project, prev_issue, date_created, v_updated, p_summary, p_description, p_resolution
+		select idt, true, creator, coalesce(v_assignee, assignee), coalesce(v_kind), v_status_to, project, prev_issue, date_created, v_updated, coalesce(p_summary, summary), coalesce(p_description, description), coalesce(p_resolution, resolution)
 			from issue where id = v_issue;
 	select last_insert_id() into v_new_issue;			
 	

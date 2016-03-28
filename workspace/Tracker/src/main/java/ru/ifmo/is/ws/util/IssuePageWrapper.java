@@ -14,6 +14,10 @@ public class IssuePageWrapper {
 	}
 	
 	public IssuePageWrapper(Page<Issue> page) {
+		if (page == null) {
+			return;
+		}
+		
 		this.totalCount = page.getTotalElements();
 		
 		this.issues = new IssueWrapper[page.getContent().size()];

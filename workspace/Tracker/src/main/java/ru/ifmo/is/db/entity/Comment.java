@@ -31,7 +31,7 @@ public class Comment {
 	@JoinColumn(name = "status_transition", nullable = true)
 	private IssueStatusTransition statusTransition;
 
-	@ManyToOne(fetch = FetchType.LAZY, optional = true, cascade = CascadeType.ALL)
+	@ManyToOne(fetch = FetchType.EAGER, optional = true, cascade = CascadeType.ALL)
 	@JoinColumn(name = "project_transition", nullable = true)
 	private IssueProjectTransition projectTransition;
 	

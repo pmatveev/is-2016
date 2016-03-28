@@ -254,7 +254,7 @@ public class IssueServlet extends HttpServlet {
 			return;				
 		}
 
-		request.getSession().setAttribute(ISSUE_ERROR, "New identifier is " + (message).substring(2));
+		request.getSession().setAttribute(ISSUE_ERROR, "New identifier is " + message.substring(2));
 		response.sendRedirect(LoginServlet.getReturnAddress(request));
 	}
 

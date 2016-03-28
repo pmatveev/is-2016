@@ -7,13 +7,13 @@ import javax.xml.bind.annotation.XmlElement;
 import ru.ifmo.is.db.entity.Issue;
 
 public class IssueWrapper {
+	private Long id;
 	private String idt;
 	private OfficerWrapper creator;
 	private OfficerWrapper assignee;
 	private IssueKindWrapper kind;
 	private IssueStatusWrapper status;
 	private IssueProjectWrapper project;
-	private Long prevIssue;
 	private Date dateCreated;
 	private Date dateUpdated;
 	private String summary;
@@ -24,18 +24,27 @@ public class IssueWrapper {
 	}
 	
 	public IssueWrapper(Issue issue) {
+		if (issue == null) {
+			return;
+		}
+		
+		this.id = issue.getId();
 		this.idt = issue.getIdt();
 		this.creator = new OfficerWrapper(issue.getCreator());
 		this.assignee = new OfficerWrapper(issue.getAssignee());
 		this.kind = new IssueKindWrapper(issue.getKind());
 		this.status = new IssueStatusWrapper(issue.getStatus());
 		this.project = new IssueProjectWrapper(issue.getProject());
-		this.prevIssue = issue.getPrevIssue();
 		this.dateCreated = issue.getDateCreated();
 		this.dateUpdated = issue.getDateUpdated();
 		this.summary = issue.getSummary();
 		this.description = issue.getDescription();
 		this.resolution = issue.getResolution();
+	}
+
+	@XmlElement
+	public Long getId() {
+		return id;
 	}
 
 	@XmlElement
@@ -68,11 +77,6 @@ public class IssueWrapper {
 		return project;
 	}
 
-	@XmlElement(name = "prev-issue")
-	public Long getPrevIssue() {
-		return prevIssue;
-	}
-
 	@XmlElement(name = "date-created")
 	public Date getDateCreated() {
 		return dateCreated;
@@ -98,6 +102,10 @@ public class IssueWrapper {
 		return resolution;
 	}
 
+	public void setId(Long id) {
+		this.id = id;
+	}
+
 	public void setIdt(String idt) {
 		this.idt = idt;
 	}
@@ -120,10 +128,6 @@ public class IssueWrapper {
 
 	public void setProject(IssueProjectWrapper project) {
 		this.project = project;
-	}
-
-	public void setPrevIssue(Long prevIssue) {
-		this.prevIssue = prevIssue;
 	}
 
 	public void setDateCreated(Date dateCreated) {

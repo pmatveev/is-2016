@@ -1,18 +1,23 @@
 package ru.ifmo.is.manager.util;
 
+import javax.xml.bind.annotation.XmlElement;
+
 public class AuthenticationInfo {
 	private String username;
 	private String displayName;
 	private Boolean isAdmin;
 
+	@XmlElement
 	public String getUsername() {
 		return username;
 	}
 
+	@XmlElement(name = "display-name")
 	public String getDisplayName() {
 		return displayName;
 	}
 
+	@XmlElement(name = "admin")
 	public Boolean isAdmin() {
 		return isAdmin;
 	}
