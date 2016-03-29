@@ -39,8 +39,8 @@ public class WSIssueImpl implements WSIssue {
 			@WebParam(name = "status") String status,
 			@WebParam(name = "creator") String creator,
 			@WebParam(name = "assignee") String assignee,
-			@WebParam(name = "createdOrder") String createdOrder,
-			@WebParam(name = "updatedOrder") String updatedOrder) {
+			@WebParam(name = "created-order") String createdOrder,
+			@WebParam(name = "updated-order") String updatedOrder) {
 		try {
 			AuthenticationInfo auth = new AuthenticationManager().verify(
 					connection.getToken(), connection.getSystem());
@@ -188,7 +188,6 @@ public class WSIssueImpl implements WSIssue {
 	@WebMethod(operationName = "create")
 	public WSResponse<String> create(
 			@WebParam(name = "connection") ConnectionInfo connection,
-			@WebParam(name = "creator") String creator,
 			@WebParam(name = "project") String project,
 			@WebParam(name = "kind") String kind,
 			@WebParam(name = "summary") String summary,
@@ -201,8 +200,8 @@ public class WSIssueImpl implements WSIssue {
 				return new WSResponse<String>("Authentication failed", null);
 			}
 
-			String res = new IssueManager().createIssue(creator, project, kind,
-					summary, description);
+			String res = new IssueManager().createIssue(auth.getUsername(), project, 
+					kind, summary, description);
 
 			if (res == null) {
 				return new WSResponse<String>(

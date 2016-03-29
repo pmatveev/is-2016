@@ -208,7 +208,7 @@ proc_label: begin
 	
 	insert into issue
 		(idt, active, creator, assignee, kind, status, project, prev_issue, date_created, date_updated, summary, description, resolution)
-		select idt, true, creator, coalesce(v_assignee, assignee), coalesce(v_kind), v_status_to, project, prev_issue, date_created, v_updated, coalesce(p_summary, summary), coalesce(p_description, description), coalesce(p_resolution, resolution)
+		select idt, true, creator, coalesce(v_assignee, assignee), coalesce(v_kind, kind), v_status_to, project, prev_issue, date_created, v_updated, coalesce(p_summary, summary), coalesce(p_description, description), coalesce(p_resolution, resolution)
 			from issue where id = v_issue;
 	select last_insert_id() into v_new_issue;			
 	

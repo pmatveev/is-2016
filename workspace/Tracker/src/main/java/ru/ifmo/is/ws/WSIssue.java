@@ -60,7 +60,6 @@ public interface WSIssue {
 	@WebMethod(operationName = "create")
 	public WSResponse<String> create(
 			@WebParam(name = "connection") ConnectionInfo connection,
-			@WebParam(name = "creator") String creator, 
 			@WebParam(name = "project") String project, 
 			@WebParam(name = "kind") String kind,
 			@WebParam(name = "summary") String summary, 
